@@ -6,8 +6,8 @@
 #BSUB -o logs/timeseries_%J.out
 #BSUB -q s_long
 
-. load_cdo
-. load_nco
+. $PWD/mload_cdo
+. $PWD/mload_nco
 #ALBEDO=(FSUTOA)/SOLIN  [ con SOLIN=FSUTOA+FSNTOA]
 #https://atmos.uw.edu/~jtwedt/GeoEng/CAM_Diagnostics/rcp8_5GHGrem-b40.20th.track1.1deg.006/set5_6/set5_ANN_FLNT_c.png
 
@@ -47,6 +47,8 @@ do_compute=1
 export expname1=${expid1}_${cam_nlev1}
 export expname2=${expid2}_${cam_nlev2}
 dir_SE=$PWD/../SPS3.5
+dirdiag=/work/$DIVISION/$USER/diagnostics/
+mkdir -p $dirdiag
 if [[ $machine == "juno" ]]
 then
    export dir_lsm=/work/csp/as34319/CMCC-SPS3.5/regrid_files/
@@ -55,7 +57,7 @@ then
    dir_obs3=/work/csp/mb16318/obs/ERA5
    dir_obs4=/work/csp/as34319/obs/ERA5
 set +euvx  
-   . load_ncl
+   . $PWD/mload_ncl
 set -euvx  
 elif [[ $machine == "zeus" ]]
 then
@@ -106,7 +108,7 @@ if [[ $cmp2mod -eq 1 ]]
 then
    cmp2obs=0
    explist="$expid1 $expid2"
-   export tmpdir2=/work/$DIVISION/$USER/scratch/$utente2/$expid2/
+   export tmpdir2=$dirdiags/CMCC-CM3/$utente2/$expid2/
    mkdir -p $tmpdir2
 fi
 
@@ -124,9 +126,6 @@ allvars_atm="ALBEDO ALBEDOS AODVIS BURDENBC BURDENSOA BURDENPOM BURDENSO4 BURDEN
 allvars_lnd="FSH TLAI SNOWDP FAREA_BURNED";
 allvars_ice="aice snowfrac ext Tsfc fswup fswdn flwdn flwup congel fbot albsni hi";
     
-export tmpdir2=/work/$DIVISION/$USER/scratch/$utente2/$expid2/
-export tmpdir1=/work/$DIVISION/$USER/scratch/$utente1/$expid1/
-mkdir -p $tmpdir1 $tmpdir2
 for exp in $explist
 do
    case $exp in
@@ -136,9 +135,13 @@ do
    if [[ $machine == "zeus" ]]
    then
       model=CESM2
+      tmpdir1=$dirdiag/CMCC-CM3/$utente1/$expid1/
+      mkdir -p $tmpdir1
       if [[ $core == "SE" ]]
       then
          model=CESM
+         tmpdir1=$dirdiag/SPS3.5/$utente1/$expid1/
+         mkdir -p $tmpdir1
       fi
       rundir=/work/$DIVISION/$utente/$model/$exp/run
       export inpdirroot=/work/csp/$utente/$model/archive/$exp
@@ -146,6 +149,7 @@ do
       rundir=/work/$DIVISION/$utente/CMCC-CM/$exp/run
       export inpdirroot=/work/csp/$utente/CMCC-CM/archive/$exp
    fi
+   export tmpdir=/work/$DIVISION/$USER/scratch/$utente/$exp/
    export tmpdir=/work/$DIVISION/$USER/scratch/$utente/$exp/
    var2plot=" "
    export comp
@@ -216,8 +220,8 @@ do
                echo "-----going to postproc variable $var"
                for yyyy in `seq -f "%04g" $startyear $lasty`
                do
-                   echo "-----going to postproc var $var year $yyyy"
                    yfile=$tmpdir/${exp}.$realm.$ftype.$yyyy.nc
+                   echo "-----going to produce $yfile"
                    if [[ ! -f $yfile ]]
                    then
                       echo "yearly file $yfile not produced "
@@ -236,11 +240,13 @@ do
                       then
                          if [[ ! -f $tmpdir/${exp}.lsm.nc ]]
                          then
+                            echo "comp " $comp
+                            echo "realm " $realm
                             cdo selvar,LANDFRAC $yfile $tmpdir/${exp}.lsm.tmp.nc
                             cdo -expr,'LANDFRAC = ((LANDFRAC>=0.5)) ? 1.0 : LANDFRAC/0.0' $tmpdir/${exp}.lsm.tmp.nc $tmpdir/${exp}.lsm.nc
                          fi
                          cdo $opt -select,name=FSNS,FLNS,LHFLX,SHFLX $yfile $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc
-                         cdo expr,'EnBalSrf=FSNS-FNDS-SHFLX-LHFLX' $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc  $tmpdir/${exp}.$realm.$var.$yyyy.tmp1.nc 
+                         cdo expr,'EnBalSrf=FSNS-FLNS-SHFLX-LHFLX' $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc  $tmpdir/${exp}.$realm.$var.$yyyy.tmp1.nc 
                          cdo mul $tmpdir/${exp}.$realm.$var.$yyyy.tmp1.nc $tmpdir/${exp}.lsm.nc $ymfilevar
                       elif [[ $var == "ALBEDO" ]]
                       then
@@ -325,20 +331,23 @@ do
       esac
    for ftype in $typelist
    do
-      export outdia=/work/$DIVISION/$USER/CMCC-CM/diagnostics/$expid1'_diag_'$startyear-$lasty
-      mkdir -p $outdia
-      outnml=$outdia/nml
+#      export outdia=/work/$DIVISION/$USER/CMCC-CM/diagnostics/$expid1'_diag_'$startyear-$lasty
+#      mkdir -p $outdia
+      outnml=$tmpdir1/nml
    # copy locally the namelists
       mkdir -p $outnml
       rsync -auv $rundir/*_in $outnml
-      rsync -auv $rundir/namelist* $outnml
+      if [[  `ls $rundir/namelist* |wc -l` -gt 0 ]]
+      then
+         rsync -auv $rundir/namelist* $outnml
+      fi
       if [[  `ls $rundir/file_def*xml |wc -l` -gt 0 ]]
       then
          rsync -auv $rundir/file_def*xml  $outnml
       fi
    
-      export plotdir=$outdia/plots/
-      mkdir -p $plotdir
+#      export plotdir=$outdia/plots/
+#      mkdir -p $plotdir
       export varmod
    
       units=""
@@ -516,7 +525,7 @@ do
              done
       # do plot_timeseries
              ncl plot_timeseries_xy_panel.ncl
-            if [[ $comp == "atm" ]]
+            if [[ $realm == "cam" ]]
             then
               if [[ $core == "SE" ]]
                then
@@ -526,6 +535,8 @@ do
                   if [[ ! -f $lsmfile ]]
                   then
                      yfile=$tmpdir1/${expid1}.$realm.$ftype.$yyyy.nc
+                            echo "comp " $comp
+                            echo "realm " $realm
                      cdo selvar,LANDFRAC $yfile $tmpdir1/${expid1}.lsm.tmp.nc
                      cdo -expr,'LANDFRAC = ((LANDFRAC>=0.5)) ? 1.0 : LANDFRAC/0.0' $tmpdir1/${expid1}.lsm.tmp.nc $tmpdir1/${expid1}.lsm.nc
                   fi
@@ -533,12 +544,18 @@ do
                slmfile=$tmpdir1/$expid1.slm.nc
                if [[ ! -f $slmfile ]]
                then
-                 if [[ $core == "SE" ]]
+                  yfile=$tmpdir1/${expid1}.$realm.$ftype.$yyyy.nc
+                  if [[ $core == "SE" ]]
                   then
+                     echo "comp " $comp
+                     echo "realm " $realm
+                     echo "yfile " $yfile
                      cdo -expr,'LANDFRAC = (( LANDFRAC==0.0)) ? 2.0: 1.0' /work/csp/sp1/CESMDATAROOT/CMCC-SPS3.5/regrid_files/lsm_sps3.5_cam_h1_reg1x1_0.5_359.5.nc $tmpdir1/$expid1.tmpslm.nc
                      cdo -expr,'LANDFRAC = (( LANDFRAC==2.0)) ? 1.0: 0.0' $tmpdir1/$expid1.tmpslm.nc $slmfile
                      rm $tmpdir/$expid1.tmpslm.nc
                   else
+                     echo "comp " $comp
+                     echo "realm " $realm
                      cdo selvar,LANDFRAC $yfile $tmpdir1/${expid1}.lsm.tmp.nc
                      cdo -expr,'LANDFRAC = ((LANDFRAC<0.5)) ? 1.0 : LANDFRAC/0.0' $tmpdir1/${expid1}.lsm.tmp.nc $slmfile
                   fi #for core=FV
@@ -794,17 +811,17 @@ then
          done  #loop freq
       fi   #do_compute
    done   #loop type
-   export outdia=/work/$DIVISION/$USER/CMCC-CM/diagnostics/$expid1'_diag_'$startyear-$lasty
-   mkdir -p $outdia
-   outnml=$outdia/nml
+#   export outdia=/work/$DIVISION/$USER/CMCC-CM/diagnostics/$expid1'_diag_'$startyear-$lasty
+#   mkdir -p $outdia
+   outnml=$tmpdir1/nml
    # copy locally the namelists
    mkdir -p $outnml
    #   rsync -auv $rundir/*_in $outnml
    #   rsync -auv $rundir/namelist_* $outnml
    #   rsync -auv $rundir/file_def*xml  $outnml
    #
-   export plotdir=$outdia/plots/
-   mkdir -p $plotdir
+#   export plotdir=$outdia/plots/
+#   mkdir -p $plotdir
    export varmod
    
    units=""
@@ -913,8 +930,8 @@ then
    done
 fi
 
-export outdia=/work/$DIVISION/$USER/CMCC-CM/diagnostics/$expid1'_diag_'$startyear-$lasty
-mkdir -p $outdia
+#export outdia=/work/$DIVISION/$USER/CMCC-CM/diagnostics/$expid1'_diag_'$startyear-$lasty
+#mkdir -p $outdia
 
 
 if [[ -f $pltdir/index.html ]]
