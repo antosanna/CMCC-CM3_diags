@@ -1,0 +1,3 @@
+#!/bin/sh l
+
+module load intel-2021.6.0/ncl/6.6.2-p2sqo

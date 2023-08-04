@@ -6,14 +6,14 @@
 #BSUB -o logs/timeseries_%J.out
 #BSUB -q s_long
 
-. ~/utils/load_cdo
-. ~/utils/load_nco
+. load_cdo
+. load_nco
 #ALBEDO=(FSUTOA)/SOLIN  [ con SOLIN=FSUTOA+FSNTOA]
 #https://atmos.uw.edu/~jtwedt/GeoEng/CAM_Diagnostics/rcp8_5GHGrem-b40.20th.track1.1deg.006/set5_6/set5_ANN_FLNT_c.png
 
 set -eux  
 # SECTION TO BE MODIFIED BY USER
-machine="zeus"
+machine="juno"
 do_ocn=0
 do_atm=1
 do_ice=0
@@ -24,10 +24,10 @@ do_znl_atm=1
 do_2d_plt=1
 
 # model to diagnose
-export expid1=SPS3.5_2000_cont
-utente1=sps-dev
-cam_nlev1=46
-core1=SE
+export expid1=cam116d_cm3_1deg_amip1981-bgc_t1
+utente1=$USER
+cam_nlev1=32
+core1=FV
 #
 # second model to compare with
 expid2=cam109d_cm3_1deg_amip1981-bgc_t2
@@ -35,8 +35,8 @@ utente2=mb16318
 cam_nlev2=32
 core2=FV
 #
-export startyear="0001"
-export finalyear="0009"
+export startyear="1981"
+export finalyear="2010"
 # select if you compare to model or obs 
 export cmp2obs=1
 export cmp2mod=0
@@ -55,7 +55,7 @@ then
    dir_obs3=/work/csp/mb16318/obs/ERA5
    dir_obs4=/work/csp/as34319/obs/ERA5
 set +euvx  
-   . ~/utils/load_ncl
+   . load_ncl
 set -euvx  
 elif [[ $machine == "zeus" ]]
 then
@@ -184,8 +184,14 @@ do
                          ncrcat -O $inpdir/${exp}.$realm.$ftype.$yyyy-??.nc $tmpdir/${exp}.$realm.$ftype.$yyyy.tmp.nc
                          cdo settaxis,$yyyy-01-01,12:00:00,1mon $tmpdir/${exp}.$realm.$ftype.$yyyy.tmp.nc $tmpdir/${exp}.$realm.$ftype.$yyyy.tmp1.nc
                          cdo setreftime,$yyyy-01-01,12:00:00 $tmpdir/${exp}.$realm.$ftype.$yyyy.tmp1.nc $yfile
-                         rm -f $tmpdir/${exp}.$realm.$ftype.$yyyy.tmp.nc
-                         rm -f $tmpdir/${exp}.$realm.$ftype.$yyyy.tmp1.nc
+                         if [[ -f $tmpdir/${exp}.$realm.$ftype.$yyyy.tmp.nc ]]
+                         then
+                            rm -f $tmpdir/${exp}.$realm.$ftype.$yyyy.tmp.nc
+                         fi
+                         if [[ -f $tmpdir/${exp}.$realm.$ftype.$yyyy.tmp1.nc ]]
+                         then
+                            rm -f $tmpdir/${exp}.$realm.$ftype.$yyyy.tmp1.nc
+                         fi
                       fi
          #1 anno e 12 mesi e una var
                    fi
@@ -226,52 +232,52 @@ do
                       then
                          cdo $opt -select,name=FSUTOA,FSNTOA $yfile $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc
                          cdo expr,'SOLIN=FSUTOA+FSNTOA' $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc  $ymfilevar
-                         rm $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc
                       elif [[ $var == "EnBalSrf" ]]
                       then
                          if [[ ! -f $tmpdir/${exp}.lsm.nc ]]
                          then
                             cdo selvar,LANDFRAC $yfile $tmpdir/${exp}.lsm.tmp.nc
                             cdo -expr,'LANDFRAC = ((LANDFRAC>=0.5)) ? 1.0 : LANDFRAC/0.0' $tmpdir/${exp}.lsm.tmp.nc $tmpdir/${exp}.lsm.nc
-                            rm $tmpdir/${exp}.lsm.tmp.nc
                          fi
                          cdo $opt -select,name=FSNS,FLNS,LHFLX,SHFLX $yfile $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc
                          cdo expr,'EnBalSrf=FSNS-FNDS-SHFLX-LHFLX' $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc  $tmpdir/${exp}.$realm.$var.$yyyy.tmp1.nc 
                          cdo mul $tmpdir/${exp}.$realm.$var.$yyyy.tmp1.nc $tmpdir/${exp}.lsm.nc $ymfilevar
-                         rm $tmpdir/${exp}.$realm.$var.$yyyy.tmp1.nc $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc
                       elif [[ $var == "ALBEDO" ]]
                       then
                          cdo $opt -select,name=FSUTOA,FSNTOA $yfile $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc
                          cdo expr,'ALBEDO=FSUTOA/(FSNTOA+FSUTOA)' $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc  $ymfilevar
-                         rm $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc
                       elif [[ $var == "ALBEDOS" ]]
                       then
                          cdo $opt -select,name=FSDS,FSNS $yfile $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc
                          cdo expr,'ALBEDOS=(FSDS-FSNS)/FSDS' $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc  $ymfilevar
-                         rm $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc
                       elif [[ $var == "ALBEDOC" ]]
                       then
                          cdo $opt -select,name=FSNTOAC,FSUTOA,FSNTOA $yfile $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc
                          cdo expr,'ALBEDOC=(FSNTOA+FSUTOA-FSNTOAC)/(FSNTOA+FSUTOA)' $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc  $ymfilevar
-                         rm $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc
                       elif [[ $var == "RESTOM" ]]
                       then
    #RESTOM=FSNT-FLNT
                          cdo $opt -select,name=FSNT,FLNT $yfile $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc
                          cdo expr,'RESTOM=FSNT-FLNT' $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc  $ymfilevar
-                         rm $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc
                       elif [[ $var == "EmP" ]]
                       then
    #RESTOM=FSNT-FLNT
                          cdo $opt -select,name=QFLX,PRECT $yfile $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc
                          cdo expr,'EmP=QFLX/1000-PRECT' $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc  $ymfilevar
-                         rm $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc
                       else
                          ret1=`ncdump -v $var ${yfile}|head -1`
                          if [[ "$ret1" == "" ]]; then
                             continue
                          fi
                          cdo $opt -selvar,$var $yfile $ymfilevar
+                      fi
+                      if [[ -f $tmpdir/${exp}.$realm.$var.$yyyy.tmp1.nc ]]
+                      then
+                         rm -f $tmpdir/${exp}.$realm.$var.$yyyy.tmp1.nc 
+                      fi
+                      if [[ -f $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc ]]
+                      then
+                         rm -f $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc
                       fi
                    fi
            
