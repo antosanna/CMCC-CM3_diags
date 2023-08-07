@@ -6,14 +6,12 @@
 #BSUB -o logs/timeseries_%J.out
 #BSUB -q s_long
 
-. $PWD/mload_cdo
-. $PWD/mload_nco
 #ALBEDO=(FSUTOA)/SOLIN  [ con SOLIN=FSUTOA+FSNTOA]
 #https://atmos.uw.edu/~jtwedt/GeoEng/CAM_Diagnostics/rcp8_5GHGrem-b40.20th.track1.1deg.006/set5_6/set5_ANN_FLNT_c.png
 
 set -eux  
 # SECTION TO BE MODIFIED BY USER
-machine="juno"
+machine="zeus"
 do_ocn=0
 do_atm=1
 do_ice=0
@@ -24,10 +22,10 @@ do_znl_atm=1
 do_2d_plt=1
 
 # model to diagnose
-export expid1=cam109d_cm3_1deg_amip1981-bgc_t11
-utente1=as34319
-cam_nlev1=32
-core1=FV
+export expid1=SPS3.5_2000_cont
+utente1=sps-dev
+cam_nlev1=46
+core1=SE
 #
 # second model to compare with
 expid2=cam109d_cm3_1deg_amip1981-bgc_t2
@@ -35,8 +33,8 @@ utente2=mb16318
 cam_nlev2=32
 core2=FV
 #
-export startyear="1981"
-export finalyear="2010"
+export startyear="0001"
+export finalyear="0090"
 # select if you compare to model or obs 
 export cmp2obs=1
 export cmp2mod=0
@@ -46,7 +44,7 @@ i=1
 do_compute=1
 export expname1=${expid1}_${cam_nlev1}
 export expname2=${expid2}_${cam_nlev2}
-dir_SE=$PWD/../SPS3.5
+dir_SE=$PWD/SPS3.5
 dirdiag=/work/$DIVISION/$USER/diagnostics/
 mkdir -p $dirdiag
 if [[ $machine == "juno" ]]
@@ -57,10 +55,16 @@ then
    dir_obs3=/work/csp/mb16318/obs/ERA5
    dir_obs4=/work/csp/as34319/obs/ERA5
 set +euvx  
-   . $PWD/mload_ncl
+   . $PWD/mload_ncl_juno
+   . $PWD/mload_cdo_juno
+   . $PWD/mload_nco_juno
 set -euvx  
 elif [[ $machine == "zeus" ]]
 then
+set +euvx  
+   . $PWD/mload_cdo_zeus
+   . $PWD/mload_nco_zeus
+set -euvx  
    export dir_lsm=/work/csp/sps-dev/CESMDATAROOT/CMCC-SPS3.5/regrid_files/
    dir_obs1=/data/inputs/CESM/inputdata/cmip6/obs/
    dir_obs2=/data/delivery/csp/ecaccess/ERA5/monthly/025/
@@ -108,13 +112,13 @@ if [[ $cmp2mod -eq 1 ]]
 then
    cmp2obs=0
    explist="$expid1 $expid2"
-   export tmpdir2=$dirdiags/CMCC-CM3/$utente2/$expid2/
+   export tmpdir2=$dirdiags/$utente2/$expid2/
    mkdir -p $tmpdir2
 fi
-tmpdir1=$dirdiag/CMCC-CM3/$utente1/$expid1/
+tmpdir1=$dirdiag/$utente1/$expid1/
 if [[ $core1 == "SE" ]]
 then
-   tmpdir1=$dirdiag/SPS3.5/$utente1/$expid1/
+   tmpdir1=$dirdiag/$utente1/$expid1/
 fi
 mkdir -p $tmpdir1
 
@@ -142,13 +146,9 @@ do
    if [[ $machine == "zeus" ]]
    then
        model=CESM2
-#      tmpdir1=$dirdiag/CMCC-CM3/$utente1/$expid1/
-#      mkdir -p $tmpdir1
       if [[ $core == "SE" ]]
       then
          model=CESM
-#         tmpdir1=$dirdiag/SPS3.5/$utente1/$expid1/
-#         mkdir -p $tmpdir1
       fi
       rundir=/work/$DIVISION/$utente/$model/$exp/run
       export inpdirroot=/work/csp/$utente/$model/archive/$exp
@@ -156,7 +156,7 @@ do
       rundir=/work/$DIVISION/$utente/CMCC-CM/$exp/run
       export inpdirroot=/work/csp/$utente/CMCC-CM/archive/$exp
    fi
-   export tmpdir=$dirdiag/$model/$utente/$exp/
+   export tmpdir=$dirdiag/$utente/$exp/
    mkdir -p $tmpdir
    var2plot=" "
    export comp
