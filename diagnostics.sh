@@ -24,8 +24,8 @@ do_znl_atm=1
 do_2d_plt=1
 
 # model to diagnose
-export expid1=cam116d_cm3_1deg_amip1981-bgc_t1
-utente1=$USER
+export expid1=cam109d_cm3_1deg_amip1981-bgc_t11
+utente1=as34319
 cam_nlev1=32
 core1=FV
 #
@@ -111,13 +111,19 @@ then
    export tmpdir2=$dirdiags/CMCC-CM3/$utente2/$expid2/
    mkdir -p $tmpdir2
 fi
+tmpdir1=$dirdiag/CMCC-CM3/$utente1/$expid1/
+if [[ $core1 == "SE" ]]
+then
+   tmpdir1=$dirdiag/SPS3.5/$utente1/$expid1/
+fi
+mkdir -p $tmpdir1
 
     # time-series zonal plot (3+5)
  
     ## NAMELISTS
-pltdir=/work/$DIVISION/$USER/scratch/$utente1/$expid1/plots
+pltdir=$tmpdir1/plots
 mkdir -p $pltdir
-mkdir -p $pltdir/atm $pltdir/lnd $pltdir/ice $pltdir/ocn
+mkdir -p $pltdir/atm $pltdir/lnd $pltdir/ice $pltdir/ocn $pltdir/namelists
 
 export pltype="png"
 export units
@@ -132,16 +138,17 @@ do
       $expid1)utente=$utente1;core=$core1 ;;
       $expid2)utente=$utente2;core=$core2 ;;
    esac
+   model=CMCC-CM3
    if [[ $machine == "zeus" ]]
    then
-      model=CESM2
-      tmpdir1=$dirdiag/CMCC-CM3/$utente1/$expid1/
-      mkdir -p $tmpdir1
+       model=CESM2
+#      tmpdir1=$dirdiag/CMCC-CM3/$utente1/$expid1/
+#      mkdir -p $tmpdir1
       if [[ $core == "SE" ]]
       then
          model=CESM
-         tmpdir1=$dirdiag/SPS3.5/$utente1/$expid1/
-         mkdir -p $tmpdir1
+#         tmpdir1=$dirdiag/SPS3.5/$utente1/$expid1/
+#         mkdir -p $tmpdir1
       fi
       rundir=/work/$DIVISION/$utente/$model/$exp/run
       export inpdirroot=/work/csp/$utente/$model/archive/$exp
@@ -149,8 +156,8 @@ do
       rundir=/work/$DIVISION/$utente/CMCC-CM/$exp/run
       export inpdirroot=/work/csp/$utente/CMCC-CM/archive/$exp
    fi
-   export tmpdir=/work/$DIVISION/$USER/scratch/$utente/$exp/
-   export tmpdir=/work/$DIVISION/$USER/scratch/$utente/$exp/
+   export tmpdir=$dirdiag/$model/$utente/$exp/
+   mkdir -p $tmpdir
    var2plot=" "
    export comp
    for comp in $comps
@@ -494,6 +501,10 @@ do
             done
       # do plot_timeseries
             ncl plot_timeseries_xy_panel.ncl
+                 if [[ $pltype == "x11" ]]
+                 then
+                    exit
+                 fi  
             export pltname=$comppltdir/${expid1}.$comp.$varmod.$startyear-${lasty}.TS_5
             export b7090=0;export b3070=0;export b3030=0;export b3070S=0;export b7090S=0;export bglo=0;export bNH=0;export bSH=0;export bland=0;export boce=0
             export hplot="0.15"

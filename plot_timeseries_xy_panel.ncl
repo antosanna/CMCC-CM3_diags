@@ -374,6 +374,8 @@ end if
  res@gsnFrame          = False                      ; don't advance frame yet
  res@gsnDraw   = False
  tmp=(uplot+cf)*mf
+ printVarSummary(uplot)
+ printVarSummary(tmp)
  uplot=tmp
  copy_VarMeta(tmp,uplot)
  delete(tmp)
