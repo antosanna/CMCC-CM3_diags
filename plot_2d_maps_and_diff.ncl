@@ -333,7 +333,8 @@ begin
      res@cnFillPalette     = cmap1
      if(varmod.eq."TREFHT".or.varmod.eq."TS")then
         res@cnLevelSelectionMode="ExplicitLevels"
-        res@cnLevels     = (/-5.,-3.,-2.,-1.,-.25,.25,1.,2,3,5/)
+;        res@cnLevels     = (/-5.,-3.,-2.,-1.,-.25,.25,1.,2,3,5/)
+        res@cnLevels     = (/-4.,-2.,-1.5,-1.,-.5,.5,1.,1.5,2,4/)
      else
         res@cnLevelSelectionMode = "ManualLevels"; manual set levels so lb consistent
         res@cnMinLevelValF       = tofloat(getenv("minplotdiff"))             ; min level
