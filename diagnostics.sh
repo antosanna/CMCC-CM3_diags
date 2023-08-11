@@ -22,10 +22,11 @@ do_znl_atm=1
 do_2d_plt=1
 
 # model to diagnose
-export expid1=SPS3.5_2000_cont
-utente1=sps-dev
-cam_nlev1=46
-core1=SE
+#export expid1=SPS3.5_2000_cont
+export expid1=cm3v7z_cpl2000-bgc_t10
+utente1=dp16116
+cam_nlev1=83
+core1=FV
 #
 # second model to compare with
 expid2=cam109d_cm3_1deg_amip1981-bgc_t2
@@ -34,7 +35,7 @@ cam_nlev2=32
 core2=FV
 #
 export startyear="0001"
-export finalyear="0090"
+export finalyear="0004"
 # select if you compare to model or obs 
 export cmp2obs=1
 export cmp2mod=0
@@ -146,12 +147,20 @@ do
    if [[ $machine == "zeus" ]]
    then
        model=CESM2
+      if [[ $utente == "dp16116" ]]
+      then
+         model=CMCC-CM
+      fi
       if [[ $core == "SE" ]]
       then
          model=CESM
       fi
       rundir=/work/$DIVISION/$utente/$model/$exp/run
       export inpdirroot=/work/csp/$utente/$model/archive/$exp
+      if [[ $utente == "dp16116" ]]
+      then
+         export inpdirroot=/work/csp/$utente/CESM2/archive/$exp
+      fi
    else
       rundir=/work/$DIVISION/$utente/CMCC-CM/$exp/run
       export inpdirroot=/work/csp/$utente/CMCC-CM/archive/$exp
@@ -241,6 +250,14 @@ do
    # SECTION VARIABLES TO BE  COMPUTED
                       if [[ $var == "SOLIN" ]]
                       then
+                         ret1=`ncdump -v FSUTOA ${yfile}|head -1`
+                         if [[ "$ret1" == "" ]]; then
+                            continue
+                         fi
+                         ret1=`ncdump -v FSNTOA ${yfile}|head -1`
+                         if [[ "$ret1" == "" ]]; then
+                            continue
+                         fi
                          cdo $opt -select,name=FSUTOA,FSNTOA $yfile $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc
                          cdo expr,'SOLIN=FSUTOA+FSNTOA' $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc  $ymfilevar
                       elif [[ $var == "EnBalSrf" ]]
@@ -252,29 +269,85 @@ do
                             cdo selvar,LANDFRAC $yfile $tmpdir/${exp}.lsm.tmp.nc
                             cdo -expr,'LANDFRAC = ((LANDFRAC>=0.5)) ? 1.0 : LANDFRAC/0.0' $tmpdir/${exp}.lsm.tmp.nc $tmpdir/${exp}.lsm.nc
                          fi
+                         ret1=`ncdump -v FSNS ${yfile}|head -1`
+                         if [[ "$ret1" == "" ]]; then
+                            continue
+                         fi
+                         ret1=`ncdump -v FLNS ${yfile}|head -1`
+                         if [[ "$ret1" == "" ]]; then
+                            continue
+                         fi
+                         ret1=`ncdump -v SHFLX ${yfile}|head -1`
+                         if [[ "$ret1" == "" ]]; then
+                            continue
+                         fi
+                         ret1=`ncdump -v LHFLX ${yfile}|head -1`
+                         if [[ "$ret1" == "" ]]; then
+                            continue
+                         fi
                          cdo $opt -select,name=FSNS,FLNS,LHFLX,SHFLX $yfile $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc
                          cdo expr,'EnBalSrf=FSNS-FLNS-SHFLX-LHFLX' $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc  $tmpdir/${exp}.$realm.$var.$yyyy.tmp1.nc 
                          cdo mul $tmpdir/${exp}.$realm.$var.$yyyy.tmp1.nc $tmpdir/${exp}.lsm.nc $ymfilevar
                       elif [[ $var == "ALBEDO" ]]
                       then
+                         ret1=`ncdump -v FSUTOA ${yfile}|head -1`
+                         if [[ "$ret1" == "" ]]; then
+                            continue
+                         fi
+                         ret1=`ncdump -v FSNTOA ${yfile}|head -1`
+                         if [[ "$ret1" == "" ]]; then
+                            continue
+                         fi
                          cdo $opt -select,name=FSUTOA,FSNTOA $yfile $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc
                          cdo expr,'ALBEDO=FSUTOA/(FSNTOA+FSUTOA)' $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc  $ymfilevar
                       elif [[ $var == "ALBEDOS" ]]
                       then
+                         ret1=`ncdump -v FSDS ${yfile}|head -1`
+                         if [[ "$ret1" == "" ]]; then
+                            continue
+                         fi
+                         ret1=`ncdump -v FSNS ${yfile}|head -1`
+                         if [[ "$ret1" == "" ]]; then
+                            continue
+                         fi
                          cdo $opt -select,name=FSDS,FSNS $yfile $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc
                          cdo expr,'ALBEDOS=(FSDS-FSNS)/FSDS' $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc  $ymfilevar
                       elif [[ $var == "ALBEDOC" ]]
                       then
+                         ret1=`ncdump -v FSUTOA ${yfile}|head -1`
+                         if [[ "$ret1" == "" ]]; then
+                            continue
+                         fi
+                         ret1=`ncdump -v FSNTOA ${yfile}|head -1`
+                         if [[ "$ret1" == "" ]]; then
+                            continue
+                         fi
+                         ret1=`ncdump -v FSNTOAC ${yfile}|head -1`
+                         if [[ "$ret1" == "" ]]; then
+                            continue
+                         fi
                          cdo $opt -select,name=FSNTOAC,FSUTOA,FSNTOA $yfile $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc
                          cdo expr,'ALBEDOC=(FSNTOA+FSUTOA-FSNTOAC)/(FSNTOA+FSUTOA)' $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc  $ymfilevar
                       elif [[ $var == "RESTOM" ]]
                       then
    #RESTOM=FSNT-FLNT
+                         ret1=`ncdump -v FSNT ${yfile}|head -1`
+                         if [[ "$ret1" == "" ]]; then
+                            continue
+                         fi
+                         ret1=`ncdump -v FLNT ${yfile}|head -1`
+                         if [[ "$ret1" == "" ]]; then
+                            continue
+                         fi
                          cdo $opt -select,name=FSNT,FLNT $yfile $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc
                          cdo expr,'RESTOM=FSNT-FLNT' $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc  $ymfilevar
                       elif [[ $var == "EmP" ]]
                       then
    #RESTOM=FSNT-FLNT
+                         ret1=`ncdump -v QFLX ${yfile}|head -1`
+                         if [[ "$ret1" == "" ]]; then
+                            continue
+                         fi
                          cdo $opt -select,name=QFLX,PRECT $yfile $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc
                          cdo expr,'EmP=QFLX/1000-PRECT' $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc  $ymfilevar
                       else
@@ -343,7 +416,6 @@ do
       outnml=$tmpdir1/nml
    # copy locally the namelists
       mkdir -p $outnml
-      rsync -auv $rundir/*_in $outnml
       if [[  `ls $rundir/namelist* |wc -l` -gt 0 ]]
       then
          rsync -auv $rundir/namelist* $outnml
@@ -822,17 +894,9 @@ then
          done  #loop freq
       fi   #do_compute
    done   #loop type
-#   export outdia=/work/$DIVISION/$USER/CMCC-CM/diagnostics/$expid1'_diag_'$startyear-$lasty
-#   mkdir -p $outdia
    outnml=$tmpdir1/nml
    # copy locally the namelists
    mkdir -p $outnml
-   #   rsync -auv $rundir/*_in $outnml
-   #   rsync -auv $rundir/namelist_* $outnml
-   #   rsync -auv $rundir/file_def*xml  $outnml
-   #
-#   export plotdir=$outdia/plots/
-#   mkdir -p $plotdir
    export varmod
    
    units=""
