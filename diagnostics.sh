@@ -11,21 +11,21 @@
 
 set -eux  
 # SECTION TO BE MODIFIED BY USER
-machine="juno"
+machine="zeus"
 do_ocn=0
 do_atm=1
 do_ice=0
-do_lnd=0
-do_timeseries=0
+do_lnd=1
+do_timeseries=1
 do_znl_lnd=0
-do_znl_atm=0
-do_znl_atm2d=1
-do_2d_plt=0
+do_znl_atm=1
+do_znl_atm2d=0
+do_2d_plt=1
 
 # model to diagnose
-export expid1=cam109d_cm3_1deg_amip1981-bgc_t12
+export expid1=cm3_cam109d_2000_t1
 utente1=$USER
-cam_nlev1=32
+cam_nlev1=83
 core1=FV
 #
 # second model to compare with
@@ -34,8 +34,8 @@ utente2=mb16318
 cam_nlev2=32
 core2=FV
 #
-export startyear="0001"
-export finalyear="0090"
+export startyear="2000"
+export finalyear="2090"
 # select if you compare to model or obs 
 export cmp2obs=1
 export cmp2mod=0
@@ -290,7 +290,6 @@ do
                          cdo mul $tmpdir/${exp}.$realm.$var.$yyyy.tmp1.nc $tmpdir/${exp}.lsm.nc $ymfilevar
                       elif [[ $var == "ALBEDO" ]]
                       then
-                      then
                          ret1=`ncdump -v FSUTOA ${yfile}|head -1`
                          if [[ "$ret1" == "" ]]; then
                             continue
@@ -302,7 +301,6 @@ do
                          cdo $opt -select,name=FSUTOA,FSNTOA $yfile $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc
                          cdo expr,'ALBEDO=FSUTOA/(FSNTOA+FSUTOA)' $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc  $ymfilevar
                       elif [[ $var == "ALBEDOS" ]]
-                      then
                       then
                          ret1=`ncdump -v FSDS ${yfile}|head -1`
                          if [[ "$ret1" == "" ]]; then
