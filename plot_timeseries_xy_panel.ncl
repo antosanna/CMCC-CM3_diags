@@ -139,7 +139,7 @@ end if
     printVarSummary(u)
     printVarSummary(uplot)
     uplot(i,0,:)=u(0:ndims(2)-1)
-    utitle(i)="Global"
+    utitle(i)="Global "+sprintf("%5.2f",dim_avg(u))
     taxis=varmod+" ["+utmp@units+"]"
     name=utmp@long_name
     delete(utmp)
@@ -154,7 +154,7 @@ end if
     end if
     u= rm_single_dims(utmp)
     uplot(i,0,:)=u(0:ndims(2)-1)
-    utitle(i)="NH"
+    utitle(i)="NH"+sprintf("%5.2f",dim_avg(u))
     taxis=varmod+" ["+utmp@units+"]"
     name=utmp@long_name
     delete(utmp)
@@ -176,7 +176,7 @@ end if
     end if
     u= rm_single_dims(utmp)
     uplot(i,0,:)=u(0:ndims(2)-1)
-    utitle(i)="SH"
+    utitle(i)="SH"+sprintf("%5.2f",dim_avg(u))
     taxis=varmod+" ["+utmp@units+"]"
     name=utmp@long_name
     delete(utmp)
@@ -198,7 +198,7 @@ end if
     end if
     u= rm_single_dims(utmp)
     uplot(i,0,:)=u(0:ndims(2)-1)
-    utitle(i)="70N-90N"
+    utitle(i)="70N-90N"+sprintf("%5.2f",dim_avg(u))
     delete(u)
     taxis=varmod+" ["+utmp@units+"]"
     name=utmp@long_name
@@ -213,7 +213,7 @@ end if
     end if
     u= rm_single_dims(utmp)
     uplot(i,0,:)=u(0:ndims(2)-1)
-    utitle(i)="30N-70N"
+    utitle(i)="30N-70N"+sprintf("%5.2f",dim_avg(u))
     taxis=varmod+" ["+utmp@units+"]"
     name=utmp@long_name
     delete(utmp)
@@ -228,7 +228,7 @@ end if
     end if
     u= rm_single_dims(utmp)
     uplot(i,0,:)=u(0:ndims(2)-1)
-    utitle(i)="30S-30N"
+    utitle(i)="30S-30N"+sprintf("%5.2f",dim_avg(u))
     taxis=varmod+" ["+utmp@units+"]"
     name=utmp@long_name
     delete(utmp)
@@ -243,7 +243,7 @@ end if
     end if
     u= rm_single_dims(utmp)
     uplot(i,0,:)=u(0:ndims(2)-1)
-    utitle(i)="30S-70S"
+    utitle(i)="30S-70S"+sprintf("%5.2f",dim_avg(u))
     taxis=varmod+" ["+utmp@units+"]"
     name=utmp@long_name
     delete(utmp)
@@ -258,7 +258,7 @@ end if
     end if
     u= rm_single_dims(utmp)
     uplot(i,0,:)=u(0:ndims(2)-1)
-    utitle(i)="70S-90S"
+    utitle(i)="70S-90S"+sprintf("%5.2f",dim_avg(u))
     taxis=varmod+" ["+utmp@units+"]"
     name=utmp@long_name
     delete(utmp)
@@ -273,7 +273,7 @@ end if
     end if
     u= rm_single_dims(utmp)
     uplot(i,0,:)=u(0:ndims(2)-1)
-    utitle(i)="land"
+    utitle(i)="land"+sprintf("%5.2f",dim_avg(u))
     taxis=varmod+" ["+utmp@units+"]"
     name=utmp@long_name
     delete(utmp)
@@ -288,7 +288,7 @@ end if
     end if
     u= rm_single_dims(utmp)
     uplot(i,0,:)=u(0:ndims(2)-1)
-    utitle(i)="oce"
+    utitle(i)="oce"+sprintf("%5.2f",dim_avg(u))
     taxis=varmod+" ["+utmp@units+"]"
     name=utmp@long_name
     delete(utmp)
