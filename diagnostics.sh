@@ -15,17 +15,17 @@ machine="juno"
 do_ocn=0
 do_atm=1
 do_ice=0
-do_lnd=1
-do_timeseries=1
+do_lnd=0
+do_timeseries=0
 do_znl_lnd=0
-do_znl_atm=1
-do_2d_plt=1
+do_znl_atm=0
+do_znl_atm2d=1
+do_2d_plt=0
 
 # model to diagnose
-#export expid1=SPS3.5_2000_cont
-export expid1=cm3v7z_cpl2000-bgc_t10
-utente1=dp16116
-cam_nlev1=83
+export expid1=cam109d_cm3_1deg_amip1981-bgc_t12
+utente1=$USER
+cam_nlev1=32
 core1=FV
 #
 # second model to compare with
@@ -35,7 +35,7 @@ cam_nlev2=32
 core2=FV
 #
 export startyear="0001"
-export finalyear="0020"
+export finalyear="0090"
 # select if you compare to model or obs 
 export cmp2obs=1
 export cmp2mod=0
@@ -133,7 +133,7 @@ mkdir -p $pltdir/atm $pltdir/lnd $pltdir/ice $pltdir/ocn $pltdir/namelists
 export pltype="png"
 export units
 export title
-allvars_atm="ALBEDO ALBEDOS AODVIS BURDENBC BURDENSOA BURDENPOM BURDENSO4 BURDENDUST BURDEN1 BURDENdn1  BURDEN2 BURDENdn2 BURDEN3 BURDENdn3 BURDEN4 BURDENdn4 BURDENB  BURDENDUST BURDENPOM BURDENSEASALT BURDENSOA  BURDENSO4 CLDLOW CLDMED CLDHGH  CLDTOT EnBalSrf FLUT FLUTC FLDS FSDSC FLNS FLNSC FSNSC FSNTOA FSNS FSDS FSNT FLNT ICEFRAC  LHFLX SHFLX LWCF SWCF  SOLIN RESTOM EmP PRECT PRECC PS QFLX TREFHT TS Z500 Z850 U200"
+allvars_atm="ALBEDO ALBEDOS AODVIS BURDENBC BURDENSOA BURDENPOM BURDENSO4 BURDENDUST BURDEN1 BURDENdn1  BURDEN2 BURDENdn2 BURDEN3 BURDENdn3 BURDEN4 BURDENdn4 BURDENB  BURDENDUST BURDENPOM BURDENSEASALT BURDENSOA  BURDENSO4 CLDLOW CLDMED CLDHGH  CLDTOT EnBalSrf FLUT FLUTC FLDS FSDSC FLNS FLNSC FSNSC FSNTOA FSNS FSDS FSNT FLNT ICEFRAC  LHFLX SHFLX LWCF SWCF SOLIN RESTOM EmP PRECT PRECC PS QFLX TREFHT TS Z500 Z850 U200"
 allvars_lnd="FSH TLAI SNOWDP FAREA_BURNED";
 allvars_ice="aice snowfrac ext Tsfc fswup fswdn flwdn flwup congel fbot albsni hi";
     
@@ -148,9 +148,9 @@ do
    then
        model=CESM2
       if [[ $utente == "dp16116" ]]
-      then
+      then 
          model=CMCC-CM
-      fi
+      fi   
       if [[ $core == "SE" ]]
       then
          model=CESM
@@ -251,13 +251,13 @@ do
                       if [[ $var == "SOLIN" ]]
                       then
                          ret1=`ncdump -v FSUTOA ${yfile}|head -1`
-                         if [[ "$ret1" == "" ]]; then
+                         if [[ "$ret1" == "" ]]; then 
                             continue
-                         fi
+                         fi   
                          ret1=`ncdump -v FSNTOA ${yfile}|head -1`
-                         if [[ "$ret1" == "" ]]; then
+                         if [[ "$ret1" == "" ]]; then 
                             continue
-                         fi
+                         fi   
                          cdo $opt -select,name=FSUTOA,FSNTOA $yfile $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc
                          cdo expr,'SOLIN=FSUTOA+FSNTOA' $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc  $ymfilevar
                       elif [[ $var == "EnBalSrf" ]]
@@ -290,6 +290,7 @@ do
                          cdo mul $tmpdir/${exp}.$realm.$var.$yyyy.tmp1.nc $tmpdir/${exp}.lsm.nc $ymfilevar
                       elif [[ $var == "ALBEDO" ]]
                       then
+                      then
                          ret1=`ncdump -v FSUTOA ${yfile}|head -1`
                          if [[ "$ret1" == "" ]]; then
                             continue
@@ -301,6 +302,7 @@ do
                          cdo $opt -select,name=FSUTOA,FSNTOA $yfile $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc
                          cdo expr,'ALBEDO=FSUTOA/(FSNTOA+FSUTOA)' $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc  $ymfilevar
                       elif [[ $var == "ALBEDOS" ]]
+                      then
                       then
                          ret1=`ncdump -v FSDS ${yfile}|head -1`
                          if [[ "$ret1" == "" ]]; then
@@ -343,7 +345,6 @@ do
                          cdo expr,'RESTOM=FSNT-FLNT' $tmpdir/${exp}.$realm.$var.$yyyy.tmp.nc  $ymfilevar
                       elif [[ $var == "EmP" ]]
                       then
-   #RESTOM=FSNT-FLNT
                          ret1=`ncdump -v QFLX ${yfile}|head -1`
                          if [[ "$ret1" == "" ]]; then
                             continue
@@ -411,8 +412,6 @@ do
       esac
    for ftype in $typelist
    do
-#      export outdia=/work/$DIVISION/$USER/CMCC-CM/diagnostics/$expid1'_diag_'$startyear-$lasty
-#      mkdir -p $outdia
       outnml=$tmpdir1/nml
    # copy locally the namelists
       mkdir -p $outnml
@@ -425,8 +424,6 @@ do
          rsync -auv $rundir/file_def*xml  $outnml
       fi
    
-#      export plotdir=$outdia/plots/
-#      mkdir -p $plotdir
       export varmod
    
       units=""
@@ -705,34 +702,78 @@ do
                     exit
                  fi  
             done
-            if [[ $do_znl_lnd -eq 1 ]]
+         fi
+         if [[ $do_znl_atm2d -eq 1 ]]
+         then
+            if [[ $comp == "atm" ]]
             then
-               if [[ $comp == "lnd" ]]
-               then
-                  varmod=H2OSNO
       # snow over Syberia
-                  for sea in JJA DJF ANN
-                  do
-                     export inpfileznl=$tmpdir1/${expid1}.$comp.$varmod.$startyear-${lasty}.znl.$sea.nc
+               for sea in JJA DJF ANN
+               do
+                  export inpfileznl=$tmpdir1/${expid1}.$comp.$varmod.$startyear-${lasty}.znl.$sea.nc
+                  if [[ ! -f $inpfileznl ]]
+                  then
+                     inpfileznl=$tmpdir1/${expid1}.$comp.$varmod.$startyear-${lasty}.znlmean.$sea.nc
                      if [[ ! -f $inpfileznl ]]
                      then
-                        listafznl=""
-                        for yyyy in `seq -f "%04g" $startyear $finalyear`
-                        do
-                           inpfileznlyyyy=$tmpdir1/${expid1}.$comp.$varmod.$startyear-${lasty}.znl.$sea.nc
-                           if [[ ! -f $inpfileznlyyyy ]]
-                           then
-                              cdo selseason,$sea -zonmean -sellonlatbox,90,140,0,90 $tmpdir1/${expid1}.$realm.$varmod.$yyyy.nc $inpfileznlyyyy
-                           fi
-                           listafznl+=" $inpfileznlyyyy"
-                        done
-                        cdo -mergetime $listafznl $inpfileznl
+                        if [[ $core == "FV" ]]
+                        then
+                           anncycfile=$tmpdir1/${expid1}.$realm.$varmod.$startyear-$lasy.anncyc.nc 
+                        else
+                           anncycfile=$tmpdir1/${expid1}.$realm.$varmod.$startyear-$lasy.anncyc.reg1x1.nc 
+                        fi
+                        if [[ $sea != "ANN" ]]
+                        then
+                           cdo timmean -selseason,$sea -zonmean $anncycfile $inpfileznl
+                        else
+                           cdo timmean -zonmean $anncycfile $inpfileznl
+                        fi
                      fi
+                  fi
+                  if [[ $cmp2obs -eq 1 ]]
+                  then
+                     obsfileznl=$scratchdir/$varmod.obs.$sea.znlmean.nc1
+                     if [[ ! -f $obsfileznl  ]]
+                     then
+                        if [[ $sea != "ANN" ]]
+                        then
+                           cdo timmean -selseason,$sea -zonmean $obsfile $obsfileznl
+                        else
+                           cdo timmean -zonmean $obsfile $obsfileznl
+                        fi
+                     fi
+                  fi
+                  ncl plot_znlmean_2dfields.ncl
+               done
+            fi
+         fi
+         if [[ $do_znl_lnd -eq 1 ]]
+         then
+            if [[ $comp == "lnd" ]]
+            then
+               varmod=H2OSNO
+      # snow over Syberia
+               for sea in JJA DJF ANN
+               do
+                  export inpfileznl=$tmpdir1/${expid1}.$comp.$varmod.$startyear-${lasty}.znl.$sea.nc
+                  if [[ ! -f $inpfileznl ]]
+                  then
+                     listafznl=""
+                     for yyyy in `seq -f "%04g" $startyear $finalyear`
+                     do
+                        inpfileznlyyyy=$tmpdir1/${expid1}.$comp.$varmod.$startyear-${lasty}.znl.$sea.nc
+                        if [[ ! -f $inpfileznlyyyy ]]
+                        then
+                           cdo selseason,$sea -zonmean -sellonlatbox,90,140,0,90 $tmpdir1/${expid1}.$realm.$varmod.$yyyy.nc $inpfileznlyyyy
+                        fi
+                        listafznl+=" $inpfileznlyyyy"
+                     done
+                     cdo -mergetime $listafznl $inpfileznl
+                  fi
 # qui dovrebbe essere lanciato 
-#                     ncl plot_hov_lnd.ncl
+#                  ncl plot_hov_lnd.ncl
 # testato solo su Zeus VA MOLTO ADATTATO!!
-                  done
-               fi
+               done
             fi
          fi
       done  #loop on varmod
@@ -894,6 +935,8 @@ then
          done  #loop freq
       fi   #do_compute
    done   #loop type
+#   export outdia=/work/$DIVISION/$USER/CMCC-CM/diagnostics/$expid1'_diag_'$startyear-$lasty
+#   mkdir -p $outdia
    outnml=$tmpdir1/nml
    # copy locally the namelists
    mkdir -p $outnml
