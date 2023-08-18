@@ -11,7 +11,7 @@
 
 set -eux  
 # SECTION TO BE MODIFIED BY USER
-machine="zeus"
+machine="juno"
 do_ocn=0
 do_atm=1
 do_ice=0
@@ -19,12 +19,12 @@ do_lnd=1
 do_timeseries=1
 do_znl_lnd=0
 do_znl_atm=1
-do_znl_atm2d=1
+do_znl_atm2d=0
 do_2d_plt=1
 
 # model to diagnose
 export expid1=SPS3.5_2000_cont
-export expid1=cm3_cam109d_2000_t1
+export expid1=cm3_cam116d_2000_t1
 utente1=$USER
 cam_nlev1=83
 core1=FV
@@ -35,8 +35,8 @@ utente2=mb16318
 cam_nlev2=32
 core2=FV
 #
-export startyear="2000"
-export finalyear="2090"
+export startyear="0001"
+export finalyear="0090"
 # select if you compare to model or obs 
 export cmp2obs=1
 export cmp2mod=0
@@ -134,7 +134,7 @@ mkdir -p $pltdir/atm $pltdir/lnd $pltdir/ice $pltdir/ocn $pltdir/namelists
 export pltype="png"
 export units
 export title
-allvars_atm="PRECT ALBEDO ALBEDOS AODVIS BURDENBC BURDENSOA BURDENPOM BURDENSO4 BURDENDUST BURDEN1 BURDENdn1  BURDEN2 BURDENdn2 BURDEN3 BURDENdn3 BURDEN4 BURDENdn4 BURDENB  BURDENDUST BURDENPOM BURDENSEASALT BURDENSOA  BURDENSO4 CLDLOW CLDMED CLDHGH  CLDTOT EnBalSrf FLUT FLUTC FLDS FSDSC FLNS FLNSC FSNSC FSNTOA FSNS FSDS FSNT FLNT ICEFRAC  LHFLX SHFLX LWCF SWCF SOLIN RESTOM EmP PRECT PRECC PS QFLX TREFHT TS Z500 Z850 U200"
+allvars_atm="ALBEDO ALBEDOS AODVIS BURDENBC BURDENSOA BURDENPOM BURDENSO4 BURDENDUST BURDEN1 BURDENdn1  BURDEN2 BURDENdn2 BURDEN3 BURDENdn3 BURDEN4 BURDENdn4 BURDENB  BURDENDUST BURDENPOM BURDENSEASALT BURDENSOA  BURDENSO4 CLDLOW CLDMED CLDHGH  CLDTOT EnBalSrf FLUT FLUTC FLDS FSDSC FLNS FLNSC FSNSC FSNTOA FSNS FSDS FSNT FLNT ICEFRAC  LHFLX SHFLX LWCF SWCF SOLIN RESTOM EmP PRECT PRECC PS QFLX TREFHT TS Z500 Z850 U200"
 allvars_lnd="FSH TLAI SNOWDP FAREA_BURNED";
 allvars_ice="aice snowfrac ext Tsfc fswup fswdn flwdn flwup congel fbot albsni hi";
     
@@ -488,11 +488,11 @@ do
                 EnBalSrf)varobs=ftot;units="W/m2";export maxplot=20.;export minplot=-20.;export delta=2.;title="Surface Radiative Balance";name_from_here=1;units_from_here=1;export maxplotdiff=10.;export minplotdiff=-10.;export deltadiff=1.;cmp2obs=1;obsfile="$dir_obs3/ftot_era5_1980-2019_mm_ann_cyc.nc";export title2="ERA5 $climobscld";;
                 AODVIS)cmp2mod=0;cmp2obs=0;;
                 ICEFRAC)varobs=T2M;cf=0;units="frac";export inpfileobs=t2m_era5_1979-2021.yy.fldmean.;obsfile="";export cmp2obs=0;title2="ERA5 $climobs";export maxplot=0.95;export minplot=0.15;export delta=.05;units_from_here=0; title="Sea-Ice Fraction";name_from_here=1;;
-                TREFHT)varobs=T2M;cf=-273.15;units="Celsius deg";export inpfileobs=t2m_era5_1979-2021.yy.fldmean.;obsfile="$dir_obs1/ERA5_1m_clim_1deg_1979-2018_surface.nc";title2="ERA5 $climobs";export maxplot=36;export minplot=-20;export delta=2;units_from_here=1;;
+                TREFHT)varobs=T2M;cf=-273.15;units="Celsius deg";export inpfileobs=t2m_era5_1979-2021.yy.fldmean.;obsfile="$dir_obs1/ERA5_1m_clim_1deg_1979-2018_surface.nc";title2="ERA5 $climobs";export maxplot=36;export minplot=-20;export delta=4;units_from_here=1;;
                 U200)varobs=U;units="m/s";export inpfileobs=t2m_era5_1979-2021.yy.fldmean.;obsfile="$dir_obs1/ERA5_1m_clim_1deg_1979-2018_prlev.nc";ncl_lev=1;title2="ERA5 $climobs";export maxplot=30.;export minplot=-30.;export delta=10.;units_from_here=1;export maxplotdiff=10;export minplotdiff=-10;export deltadiff=2.;;
                 Z500)varobs=Z;cf=0;units="m";export inpfileobs=t2m_era5_1979-2021.yy.fldmean.;obsfile="$dir_obs1/ERA5_1m_clim_1deg_1979-2018_prlev.nc";ncl_lev=3;title2="ERA5 $climobs";mf=0.102;export maxplot=600.;export minplot=300;export delta=20;units_from_here=1;export maxplotdiff=8;export minplotdiff=-8;export deltadiff=2.;;
                 Z850)varobs=Z;cf=0;units="m";export inpfileobs=t2m_era5_1979-2021.yy.fldmean.;obsfile="$dir_obs1/ERA5_1m_clim_1deg_1979-2018_prlev.nc";ncl_lev=5;title2="ERA5 $climobs";mf=0.102;export maxplot=150.;export minplot=100.;export delta=5;units_from_here=1;export maxplotdiff=8.;export minplotdiff=-8;export deltadiff=2.;;
-                TS)varobs=var235;cf=-273.15;units="Celsius deg";export inpfileobs=t2m_era5_1979-2021.yy.fldmean.;obsfile="$dir_obs4/ts_era5_1990-2009.anncyc.nc";export title2="ERA5 $climobs";export maxplot=36;export minplot=-20;export delta=2;units_from_here=1;;
+                TS)varobs=var235;cf=-273.15;units="Celsius deg";export inpfileobs=t2m_era5_1979-2021.yy.fldmean.;obsfile="$dir_obs4/ts_era5_1990-2009.anncyc.nc";export title2="ERA5 $climobs";export maxplot=36;export minplot=-20;export delta=4;units_from_here=1;;
 #                TS)varobs=SST;cf=-273.15;units="Celsius deg";export maxplot=36;export minplot=-20;export delta=2.;units_from_here=1;obsfile=$dir_obs1/ERA5_1m_clim_1deg_1979-2018_surface.nc;export cmp2obs=1;export title2="ERA5 $climobs";;
                 PRECT)varobs=precip;mf=86400000;units="mm/d";export maxplot=18;export minplot=2;export delta=2.;export maxplotdiff=5.;export minplotdiff=-5.;export deltadiff=1.;obsfile="$dir_obs1/gpcp_cdr_v23rB1_1979-2015_1deg.nc";export title2="GPCP 1979-2015";title="Total precipitation";units_from_here=1;name_from_here=1;;
                 EmP)varobs=var167;mf=86400000;units="mm/d";export maxplot=10.;export minplot=-10.;export delta=2.;title="Evaporation - Precipitation";units_from_here=1;name_from_here=1;cmp2obs=0;export maxplotdiff=3.;export minplotdiff=-3.;export deltadiff=.5;;
@@ -708,6 +708,7 @@ do
          then
             if [[ $comp == "atm" ]]
             then
+      # snow over Syberia
                for sea in JJA DJF ANN
                do
                   export inpfileznl=$tmpdir1/${expid1}.$comp.$varmod.$startyear-${lasty}.znl.$sea.nc
