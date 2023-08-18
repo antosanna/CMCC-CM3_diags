@@ -343,9 +343,11 @@ begin
      end if
      if(varmod.eq."PRECT".or.varmod.eq."PRECC")then
         delete(res@cnLevels)
-        res@cnMinLevelValF=-5.
-        res@cnMaxLevelValF=5.
-        res@cnLevelSpacingF      = 1.
+        res@cnLevelSelectionMode="ExplicitLevels"
+        res@cnLevels     = (/-8,-6,-4,-2,-1,-0.5,0.5,1,2,3,4,6,8/)
+;        res@cnMinLevelValF=-5.
+;        res@cnMaxLevelValF=5.
+;        res@cnLevelSpacingF      = 1.
      end if
 ;     print(lonmod)
 ;     print(latmod)
