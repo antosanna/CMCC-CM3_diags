@@ -155,7 +155,6 @@ begin
 ; Define input var list and output var and realm list 
 ; =====================================================================
 
-;  varin=(/"T","Z3","Q","U","V","OMEGA","PSL","CLDTOT","TS","TREFHT","FSNS","PRECC","PRECL"/)
   varin=getenv("varmod") ;"TREFHT"
   if ( varin.eq."T".or.varin.eq."Z3".or.varin.eq."Q".or.varin.eq."U".or.varin.eq."V".or.varin.eq."OMEGA") then
      var3d=1
@@ -187,7 +186,7 @@ begin
     
 
   if (var3d.eq.1)then
-     plev       = toint(getenv("plev"))
+     plev       = toint(getenv("ncl_plev"))
   else
      plev=0     
   end if
