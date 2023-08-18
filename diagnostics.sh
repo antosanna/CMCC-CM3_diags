@@ -15,14 +15,15 @@ machine="zeus"
 do_ocn=0
 do_atm=1
 do_ice=0
-do_lnd=1
-do_timeseries=1
+do_lnd=0
+do_timeseries=0
 do_znl_lnd=0
-do_znl_atm=1
+do_znl_atm=0
 do_znl_atm2d=0
 do_2d_plt=1
 
 # model to diagnose
+export expid1=SPS3.5_2000_cont
 export expid1=cm3_cam109d_2000_t1
 utente1=$USER
 cam_nlev1=83
@@ -130,10 +131,10 @@ pltdir=$tmpdir1/plots
 mkdir -p $pltdir
 mkdir -p $pltdir/atm $pltdir/lnd $pltdir/ice $pltdir/ocn $pltdir/namelists
 
-export pltype="png"
+export pltype="x11"
 export units
 export title
-allvars_atm="ALBEDO ALBEDOS AODVIS BURDENBC BURDENSOA BURDENPOM BURDENSO4 BURDENDUST BURDEN1 BURDENdn1  BURDEN2 BURDENdn2 BURDEN3 BURDENdn3 BURDEN4 BURDENdn4 BURDENB  BURDENDUST BURDENPOM BURDENSEASALT BURDENSOA  BURDENSO4 CLDLOW CLDMED CLDHGH  CLDTOT EnBalSrf FLUT FLUTC FLDS FSDSC FLNS FLNSC FSNSC FSNTOA FSNS FSDS FSNT FLNT ICEFRAC  LHFLX SHFLX LWCF SWCF SOLIN RESTOM EmP PRECT PRECC PS QFLX TREFHT TS Z500 Z850 U200"
+allvars_atm="LWCF ALBEDO ALBEDOS AODVIS BURDENBC BURDENSOA BURDENPOM BURDENSO4 BURDENDUST BURDEN1 BURDENdn1  BURDEN2 BURDENdn2 BURDEN3 BURDENdn3 BURDEN4 BURDENdn4 BURDENB  BURDENDUST BURDENPOM BURDENSEASALT BURDENSOA  BURDENSO4 CLDLOW CLDMED CLDHGH  CLDTOT EnBalSrf FLUT FLUTC FLDS FSDSC FLNS FLNSC FSNSC FSNTOA FSNS FSDS FSNT FLNT ICEFRAC  LHFLX SHFLX LWCF SWCF SOLIN RESTOM EmP PRECT PRECC PS QFLX TREFHT TS Z500 Z850 U200"
 allvars_lnd="FSH TLAI SNOWDP FAREA_BURNED";
 allvars_ice="aice snowfrac ext Tsfc fswup fswdn flwdn flwup congel fbot albsni hi";
     
@@ -519,6 +520,8 @@ do
              SHFLX)varobs=var146;export maxplot=300;export minplot=-20;export delta=20.;name_from_here=1;title="Sensible Heat Flux";export maxplotdiff=20;export minplotdiff=-20;export deltadiff=5.;obsfile="$dir_obs3/sshf_era5_1980-2019_mm_ann_cyc.nc";export title2="ERA5 $climobscld";;
 
              LHFLX)varobs=var147;export maxplot=300;export minplot=-20;export delta=20.;name_from_here=1;title="Latent Heat Flux";export maxplotdiff=20;export minplotdiff=-20;export deltadiff=5.;obsfile="$dir_obs3/slhf_era5_1980-2019_mm_ann_cyc.nc";export title2="ERA5 $climobscld";;
+             SWCF)varobs=SWCF;export maxplot=40;export minplot=-100;export delta=20.;name_from_here=1;title="Short Wave Cloud Forcing";export maxplotdiff=20;export minplotdiff=-20;export deltadiff=5.;obsfile="$dir_obs1/CERES-EBAF_1m_1deg_2000-2009.nc";export title2="CERES 2000-2009";;
+             LWCF)varobs=LWCF;export maxplot=80;export minplot=0;export delta=10.;name_from_here=1;title="Long Wave Cloud Forcing";export maxplotdiff=20;export minplotdiff=-20;export deltadiff=5.;obsfile="$dir_obs1/CERES-EBAF_1m_1deg_2000-2009.nc";export title2="CERES 2000-2009";;
 
 #   "lnd"
 # title still there but defined in ncl through long_name
