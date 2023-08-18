@@ -708,7 +708,6 @@ do
          then
             if [[ $comp == "atm" ]]
             then
-      # snow over Syberia
                for sea in JJA DJF ANN
                do
                   export inpfileznl=$tmpdir1/${expid1}.$comp.$varmod.$startyear-${lasty}.znl.$sea.nc

@@ -7,9 +7,11 @@ load "$NCARG_ROOT/lib/ncarg/nclscripts/esmf/ESMF_regridding.ncl"
 
 begin
 
+  phisFileName   = getenv("phisFileName") 
   srcFileName   = getenv("srcFileName") 
+  tFileName   = getenv("tFileName") 
+  psFileName   = getenv("psFileName") 
 ;"/work/csp/ar26521/CESM/archive/SPS3.5_2000_continuous/atm/hist/SPS3.5_2000_continuous.cam.h0.2045-02.nc"
-  auxFileName   = srcFileName
   repogrid="/work/csp/as34319/regridSE_SPS3.5"
   srcGridName="/work/csp/sp1/CESMDATAROOT/CMCC-SPS3.5/regrid_files/srcGrd_ne60.nc"
 ; --- Define grid
@@ -35,8 +37,14 @@ begin
   print(" ")
   print("Regridding: ")
   print("SRC:"+srcFileName)
+  print("PHIS:"+phisFileName)
+  print("PS:"+psFileName)
+  print("TBOT:"+tFileName)
+  phis_file=addfile(phisFileName,"r")
+  t_file=addfile(tFileName,"r")
+  ps_file=addfile(psFileName,"r")
   src_file=addfile(srcFileName,"r")
-  aux_file=addfile(auxFileName,"r")
+  aux_file=phis_file
 
 ;
 ; 1. Generate a description file for the source grid (SE).
@@ -160,14 +168,14 @@ begin
      var3d=1
      ia       = ind(dNames.eq."lev" )   ; # of levels
      klev     = dSizes(ia)
-     PHIS= ESMF_regrid_with_weights(src_file->PHIS,wgtFileName,Opt_RGRD)
-     PSFC= ESMF_regrid_with_weights(src_file->PS,wgtFileName,Opt_RGRD)
+     PHIS= ESMF_regrid_with_weights(phis_file->PHIS,wgtFileName,Opt_RGRD)
+     PSFC= ESMF_regrid_with_weights(ps_file->PS,wgtFileName,Opt_RGRD)
      hyam= aux_file->hyam
      hybm= aux_file->hybm
      P0mb=1000.
      intyp=2   ;log interp
      kxtrp = True                          ; True=extrapolate
-     tbot=ESMF_regrid_with_weights(src_file->T(:,klev-1,:),wgtFileName,Opt_RGRD)
+     tbot=ESMF_regrid_with_weights(t_file->T(:,klev-1,:),wgtFileName,Opt_RGRD)
      nt     = dSizes(it)
      time=src_file->time
      time@long_name = "Verification time of the forecast" ;
@@ -195,7 +203,10 @@ begin
 
   if (var3d.eq.1)then
         var1x1= ESMF_regrid_with_weights(src_file->$varin$,wgtFileName,Opt_RGRD)
-        var = (/ vinth2p_ecmwf(var1x1, hyam,hybm,plev,PSFC, intyp, P0mb,1,kxtrp,varflg,tbot,PHIS) /)
+        printVarSummary(PSFC)
+        printVarSummary(var1x1)
+        printVarSummary(PHIS)
+        var = (/ vinth2p_ecmwf(var1x1, hyam,hybm,plev,PSFC, intyp, P0mb,1,kxtrp,varflg,tbot,PHIS(0,:,:)) /)
   else
         var = ESMF_regrid_with_weights(src_file->$varin$,wgtFileName,Opt_RGRD)
   end if
