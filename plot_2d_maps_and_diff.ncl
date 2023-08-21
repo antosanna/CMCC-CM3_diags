@@ -267,7 +267,7 @@ begin
      res@cnMinLevelValF       = tofloat(getenv("minplot"))             ; min level
      res@cnMaxLevelValF       = tofloat(getenv("maxplot"))            ; max level
      res@cnLevelSpacingF      = tofloat(getenv("delta"))             ; contour interval
-     res@mpLandFillColor      = "white"       ; make land white
+;     res@mpLandFillColor      = "white"       ; make land white
      if(varmod.eq."PRECC".or.varmod.eq."PRECT".or.varmod.eq."PRECL")then
         delete(res@cnLevelSelectionMode)
         res@cnLevelSelectionMode="ExplicitLevels"
@@ -341,10 +341,14 @@ begin
         res@cnMaxLevelValF       = tofloat(getenv("maxplotdiff"))            ; max level
         res@cnLevelSpacingF      = tofloat(getenv("deltadiff"))             ; contour interval
      end if
-     if(varmod.eq."PRECT".or.varmod.eq."PRECC")then
+     if(varmod.eq."PRECT")then
+        delete(res@cnFillPalette)
+        cmap2 = read_colormap_file("hotcold_18lev")
+;        cmap2 = read_colormap_file("nrl_sirkes")
+        res@cnFillPalette     = cmap2(::-1,:)
         delete(res@cnLevels)
         res@cnLevelSelectionMode="ExplicitLevels"
-        res@cnLevels     = (/-8,-6,-4,-2,-1,-0.5,0.5,1,2,3,4,6,8/)
+        res@cnLevels     = (/-8,-6,-4,-3,-2,-1,-0.5,0.5,1,2,3,4,6,8/)
 ;        res@cnMinLevelValF=-5.
 ;        res@cnMaxLevelValF=5.
 ;        res@cnLevelSpacingF      = 1.
@@ -356,15 +360,6 @@ begin
       if (varmod.eq."FSNT") then
           res@gsnLeftString   = LeftString
      end if
-     ;if(varmod.eq."ALBEDOS" .or. varmod.eq."ALBEDO")then
-     ;  guess     = 1                ; use zonal means
-     ;  is_cyclic = True             ; cyclic [global]
-     ;  nscan     = 1500             ; usually much less than this
-     ;  eps       = 1.e-2            ; variable dependent
-     ;  relc      = 0.6              ; relaxation coefficient
-     ;  opt       = 0                ; not used
-     ;  poisson_grid_fill( tclim, is_cyclic, guess, nscan, eps, relc, opt)
-     ;end if
      if(cmp2mod.eq.1)then
         lon=fspan(0.5,359.5,360)
         lat=fspan(-89.5,89.5,180)
@@ -391,15 +386,11 @@ begin
          diff=where(diff.lt.-2.,diff@_FillValue,diff)
          diff=where(diff.gt.2.,diff@_FillValue,diff)
      end if
-     if(varmod.eq."PRECT")then
-         delete(res@cnFillPalette)
-         delete(FillPalette)
-         cmap2 = read_colormap_file("hotcold_18lev")
-         FillPalette     = cmap2(::-1,:)
-         res@cnFillPalette=FillPalette
-     end if
      res@gsnLeftString   = ""
      res@gsnRightString   = ""
+;     delete(res@cnFillPalette)
+;     cmap2 = read_colormap_file("hotcold_18lev")
+;     res@cnFillPalette     = cmap2(::-1,:)
      plot(2) = gsn_csm_contour_map(wks,diff, res)
      
     ;********************************
@@ -462,7 +453,7 @@ begin
      res@cnMinLevelValF       = tofloat(getenv("minplot"))             ; min level
      res@cnMaxLevelValF       = tofloat(getenv("maxplot"))            ; max level
      res@cnLevelSpacingF      = tofloat(getenv("delta"))             ; contour interval
-     res@mpLandFillColor      = "white"       ; make land white
+;     res@mpLandFillColor      = "white"       ; make land white
      if(varmod.eq."CLDTOT".or.varmod.eq."CLDLOW".or.varmod.eq."CLDMED".or.varmod.eq."CLDHGH")then
         delete(res@cnLevelSelectionMode)
         res@cnLevelSelectionMode="ExplicitLevels"
