@@ -12,25 +12,25 @@
 set -eux  
 # SECTION TO BE MODIFIED BY USER
 machine="juno"
-do_ocn=0
-do_atm=1
+do_ocn=1
+do_atm=0
 do_ice=0
-do_lnd=1
+do_lnd=0
 do_timeseries=1
 export nyrsmean=10   #nyear-period for mean in timeseries
 do_znl_lnd=0
-do_znl_atm=1
+do_znl_atm=0
 do_znl_atm2d=0
 do_2d_plt=1
 
 # model to diagnose
 #export expid1=cm3_cam116d_2000_t1
 export expid1=cm3_cam116d_2000_1d32l_t8
-export expid1=cm3_cam122_cpl2000-bgc_t01
-utente1=$USER
-utente1=dp16116
+#export expid1=cm3_cam122_cpl2000-bgc_t01
+utente1=cp1
+#utente1=dp16116
 cam_nlev1=32
-cam_nlev1=83
+#cam_nlev1=83
 core1=FV
 #
 # second model to compare with
@@ -42,7 +42,7 @@ cam_nlev2=32
 core2=FV
 #
 export startyear="0001"
-export finalyear="0090"
+export finalyear="0014"
 # select if you compare to model or obs 
 export cmp2obs=1
 export cmp2mod=0
@@ -137,7 +137,7 @@ pltdir=$tmpdir1/plots
 mkdir -p $pltdir
 mkdir -p $pltdir/atm $pltdir/lnd $pltdir/ice $pltdir/ocn $pltdir/namelists
 
-export pltype="png"
+export pltype="x11"
 export units
 export title
 allvars_atm="ALBEDO ALBEDOS AODVIS BURDENBC BURDENSOA BURDENPOM BURDENSO4 BURDENDUST BURDEN1 BURDENdn1  BURDEN2 BURDENdn2 BURDEN3 BURDENdn3 BURDEN4 BURDENdn4 BURDENB  BURDENDUST BURDENPOM BURDENSEASALT BURDENSOA  BURDENSO4 CLDLOW CLDMED CLDHGH  CLDTOT EnBalSrf FLUT FLUTC FLDS FSDSC FLNS FLNSC FSNSC FSNTOA FSNS FSDS FSNT FLNT ICEFRAC  LHFLX SHFLX LWCF SWCF SOLIN RESTOM EmP PRECT PRECC PS QFLX TREFHT TS Z500 Z850 U200"
@@ -850,7 +850,7 @@ then
          do
             case $freq in
 #                1m)allvars="tos sos zos thetao so";;
-                1m)allvars="tos sos zos heatc saltc";;
+                1m)allvars="heatc tos sos zos heatc saltc";;
             esac
             echo $allvars
             for var in $allvars
@@ -951,18 +951,24 @@ then
    mkdir -p $outnml
    export varmod
    
-   units=""
    for varmod in $allvars
    do
+      export cf=0
+      export mf=1
+      export mftom1=1
+      export cmp2obs_ncl
+      export units_from_here=0
+      export units
+      export name_from_here=0
       case $varmod in 
-         heatc)units="J/m2*e-10";mf=1/10000000000;export maxplot=25;export minplot=-5;export delta=2.5;units_from_here=1;;
-         saltc)units="PSU*kg/m2*e-7";mf=1/10000000;export maxplot=25;export minplot=0;export delta=2.5;units_from_here=1;;
-         tos)varobs=var235;cf=-273.15;units="Celsius deg";export inpfileobs=t2m_era5_1979-2021.yy.fldmean.;export obsfile="$dir_obs4/ts_era5_1990-2009.anncyc.nc";export title2="ERA5 $climobs";export maxplot=36;export minplot=-20;export delta=2;units_from_here=1;;
+         heatc)cmp2obs_ncl=0;units="J/m2*e-10";mftom1=10000000000.;export maxplot=25;export minplot=-5;export delta=2.5;units_from_here=1;;
+         saltc)units="PSU*kg/m2*e-7";mftom1=10000000;export maxplot=25;export minplot=0;export delta=2.5;units_from_here=1;;
+#         tos)varobs=var235;cf=-273.15;units="Celsius deg";export inpfileobs=t2m_era5_1979-2021.yy.fldmean.;export obsfile="$dir_obs4/ts_era5_1990-2009.anncyc.nc";export title2="ERA5 $climobs";export maxplot=36;export minplot=-20;export delta=2;units_from_here=1;;
          sos)varobs=var235;cf=0;units="PSU";export inpfileobs=t2m_era5_1979-2021.yy.fldmean.;export obsfile="$dir_obs4/ts_era5_1990-2009.anncyc.nc";export cmp2obs=0;export title2="ERA5 $climobs";export maxplot=36.;export minplot=26.;export delta=2.;units_from_here=1;;
          zos)varobs=var235;cf=0;units="m";export inpfileobs=t2m_era5_1979-2021.yy.fldmean.;export obsfile="$dir_obs4/ts_era5_1990-2009.anncyc.nc";export cmp2obs=0;export title2="ERA5 $climobs";export maxplot=3.;export minplot=-3.;export delta=0.5;units_from_here=1;;
+         tos)varobs=SST;units="Celsius deg";export inpfileobs=t2m_era5_1979-2021.yy.fldmean.;export obsfile="$dir_obs1/ERA5_1m_clim_1deg_1979-2018_surface.nc";export cmp2obs=1;export title2="ERA5 $climobs";export maxplot=36;export minplot=-20;export delta=2;units_from_here=1;;
       esac
-      export units_from_here=0
-      export name_from_here=0
+      echo $units
       if [[ ! -f $tmpdir/${expid1}.$realm.$varmod.$startyear-${lasty}.ymean.nc ]]
       then
          continue
@@ -971,20 +977,14 @@ then
       then
           ocnlist+=" \"$varmod\","
       fi
-      export cf=0
-#      export mf=1
       export yaxis
-      export title=""
-      export units=""
-      export varmod2=""
+      export title
+      export varmod2
       export obsfile
       export computedvar=""
       export compute=0
       export cmp2obs
 # units only for vars that need conversion
-      case $varmod in
-           tos)varobs=SST;units="Celsius deg";export inpfileobs=t2m_era5_1979-2021.yy.fldmean.;export obsfile="$dir_obs1/ERA5_1m_clim_1deg_1979-2018_surface.nc";export cmp2obs=1;export title2="ERA5 $climobs";export maxplot=36;export minplot=-20;export delta=2;units_from_here=1;;
-      esac
       export inpfile=$tmpdir/${expid1}.$comp.$varmod.$startyear-${lasty}.ymean.fldmean
       comppltdir=$pltdir/${comp}
       mkdir -p $comppltdir

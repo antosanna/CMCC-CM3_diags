@@ -35,7 +35,7 @@ begin
   units_from_ext=getenv("units_from_here")
   modfile=getenv("inpfile")
   comp=getenv("comp")
-  cmp2obs=toint(getenv("cmp2obs"))
+  cmp2obs=toint(getenv("cmp2obs_ncl"))
   if(cmp2obs.eq.1)then
      obsfile=getenv("obsfile")
      print("----observations file "+obsfile)
@@ -47,6 +47,7 @@ begin
   varobs=getenv("varobs")
   cf=tofloat(getenv("cf"))
   mf=tofloat(getenv("mf"))
+  mftom1=getenv("mftom1")
   in = addfile(modfile,"r")
   print("----model file "+modfile)
   t=in->$varmod$
@@ -64,7 +65,7 @@ begin
   if (sea.eq."DJF") then
      tclim=(t(0,:,:)+t(1,:,:)+t(11,:,:))/3.
   end if
-  tclim=(tclim+cf)*mf
+  tclim=(tclim+cf)*mf*1./tofloat(mftom1)
   printMinMax(tclim,0)
   copy_VarMeta(t(0,:,:),tclim)
   printVarSummary(tclim)
@@ -188,7 +189,8 @@ begin
  if(units_from_ext.eq.1)then
     units=getenv("units")
     delete(RightString)
-    RightString=units
+    RightString=getenv("right")
+    print(RightString)
  end if
 
   wks = gsn_open_wks(pltype,pltname)

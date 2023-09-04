@@ -16,6 +16,7 @@ print("--- going to read "+inpfile)
 inpfileobs=getenv("inpfileobs")
 cf=tofloat(getenv("cf"))
 mf=tofloat(getenv("mf"))
+mftom1=getenv("mftom1")
 bglo=getenv("bglo")
 print(bglo)
 bNH=getenv("bNH")
@@ -116,7 +117,6 @@ end if
     varmod2=getenv("varmod2")
  end if
  print("---going to plot "+varmod)
- ;taxis=getenv("taxis") now disabled from reading
  autoprec=getenv("autoprec")
  inpdir=getenv("inpdir")
  plotdir=getenv("plotdir")
@@ -141,10 +141,7 @@ end if
     printVarSummary(uplot)
     uplot(i,0,:)=u(0:ndims(2)-1)
     utitle(i)="Global " 
-    taxis=varmod+" ["+utmp@units+"]"
     name=utmp@long_name
-    delete(utmp)
-    delete(u)
     i=i+1
  end if
  if(bNH.eq.1)then
@@ -156,10 +153,7 @@ end if
     u= rm_single_dims(utmp)
     uplot(i,0,:)=u(0:ndims(2)-1)
     utitle(i)="NH" 
-    taxis=varmod+" ["+utmp@units+"]"
     name=utmp@long_name
-    delete(utmp)
-    delete(u)
     if(cmp2obs.eq.1)then
        fobs     = addfile (inpfileobsNH,"r")
        uNobs     = (fobs->$varobs$(:,0,0))*1000
@@ -178,10 +172,7 @@ end if
     u= rm_single_dims(utmp)
     uplot(i,0,:)=u(0:ndims(2)-1)
     utitle(i)="SH" 
-    taxis=varmod+" ["+utmp@units+"]"
     name=utmp@long_name
-    delete(utmp)
-    delete(u)
     if(cmp2obs.eq.1)then
        fobs     = addfile (inpfileobsSH,"r")
        uNobs     = (fobs->$varobs$(:,0,0))*1000
@@ -201,10 +192,7 @@ end if
     uplot(i,0,:)=u(0:ndims(2)-1)
     utitle(i)="70N-90N" 
     delete(u)
-    taxis=varmod+" ["+utmp@units+"]"
     name=utmp@long_name
-    delete(utmp)
-    i=i+1
  end if
  if(b3070.eq.1)then
     f     = addfile (inpfile3070,"r")
@@ -215,10 +203,7 @@ end if
     u= rm_single_dims(utmp)
     uplot(i,0,:)=u(0:ndims(2)-1)
     utitle(i)="30N-70N" 
-    taxis=varmod+" ["+utmp@units+"]"
     name=utmp@long_name
-    delete(utmp)
-    delete(u)
     i=i+1
  end if
  if(b3030.eq.1)then
@@ -230,10 +215,7 @@ end if
     u= rm_single_dims(utmp)
     uplot(i,0,:)=u(0:ndims(2)-1)
     utitle(i)="30S-30N" 
-    taxis=varmod+" ["+utmp@units+"]"
     name=utmp@long_name
-    delete(utmp)
-    delete(u)
     i=i+1
  end if
  if(b3070S.eq.1)then
@@ -245,10 +227,7 @@ end if
     u= rm_single_dims(utmp)
     uplot(i,0,:)=u(0:ndims(2)-1)
     utitle(i)="30S-70S" 
-    taxis=varmod+" ["+utmp@units+"]"
     name=utmp@long_name
-    delete(utmp)
-    delete(u)
     i=i+1
  end if
  if(b7090S.eq.1)then
@@ -260,10 +239,7 @@ end if
     u= rm_single_dims(utmp)
     uplot(i,0,:)=u(0:ndims(2)-1)
     utitle(i)="70S-90S" 
-    taxis=varmod+" ["+utmp@units+"]"
     name=utmp@long_name
-    delete(utmp)
-    delete(u)
     i=i+1
  end if
  if(bland.eq.1)then
@@ -275,10 +251,7 @@ end if
     u= rm_single_dims(utmp)
     uplot(i,0,:)=u(0:ndims(2)-1)
     utitle(i)="land" 
-    taxis=varmod+" ["+utmp@units+"]"
     name=utmp@long_name
-    delete(utmp)
-    delete(u)
     i=i+1
  end if
  if(boce.eq.1)then
@@ -290,10 +263,7 @@ end if
     u= rm_single_dims(utmp)
     uplot(i,0,:)=u(0:ndims(2)-1)
     utitle(i)="oce" 
-    taxis=varmod+" ["+utmp@units+"]"
     name=utmp@long_name
-    delete(utmp)
-    delete(u)
     i=i+1
  end if
  if(cmp2obs.eq.1)then
@@ -303,12 +273,16 @@ end if
     uSplot(i,1,1950-toint(yini):)=uSobs(0:toint(yend)-1950)
  end if
  end if
+ taxis=varmod+" ["+utmp@units+"]"
+ delete(utmp)
+ delete(u)
  if(name_from_ext.eq.1)then
     delete(name)
     name=getenv("title")
  end if
  if(units_from_ext.eq.1) then
     units=getenv("units")
+;    taxis=varmod+" "+getenv("right")
     taxis=varmod+" ["+units+"]"
     print("----for variable "+varmod+" got units from script: "+units)
  end if
@@ -374,7 +348,7 @@ end if
   plots = new(npl,graphic)
  res@gsnFrame          = False                      ; don't advance frame yet
  res@gsnDraw   = False
- tmp=(uplot+cf)*mf
+ tmp=(uplot+cf)*mf*1./tofloat(mftom1)
  printVarSummary(uplot)
  printVarSummary(tmp)
  uplot=tmp
