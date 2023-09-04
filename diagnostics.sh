@@ -1,4 +1,4 @@
-#!/bin/sh -l
+!/bin/sh -l
 #BSUB -M 85000   #if you get BUS error increase this number
 #BSUB -P 0566
 #BSUB -J timeseries
@@ -17,19 +17,20 @@ do_atm=1
 do_ice=0
 do_lnd=1
 do_timeseries=1
+export nyrsmean=10   #nyear-period for mean in timeseries
 do_znl_lnd=0
 do_znl_atm=1
 do_znl_atm2d=0
 do_2d_plt=1
 
 # model to diagnose
-#export expid1=cm3_cam122_cpl2000-bgc_t01
 #export expid1=cm3_cam116d_2000_t1
 export expid1=cm3_cam116d_2000_1d32l_t8
-#utente1=dp16116
+export expid1=cm3_cam122_cpl2000-bgc_t01
 utente1=$USER
-cam_nlev1=83
+utente1=dp16116
 cam_nlev1=32
+cam_nlev1=83
 core1=FV
 #
 # second model to compare with
@@ -492,7 +493,7 @@ do
                 BURDENdn2)cmp2mod_ncl=0;cmp2obs_ncl=0;mf=100000;units="kg/m2*e5";units_from_here=1;export maxplot=0.1;export minplot=0.;export delta=0.01;;
                 BURDEN1)cmp2mod_ncl=0;cmp2obs_ncl=0;mf=100000;units="kg/m2*e5";units_from_here=1;export maxplot=5;export minplot=0.;export delta=0.5;;
                 BURDENdn1)cmp2mod_ncl=0;cmp2obs_ncl=0;mf=100000;units="kg/m2*e5";units_from_here=1;export maxplot=5;export minplot=0.;export delta=0.5;;
-                EnBalSrf)varobs=ftot;units="W/m2";export maxplot=20.;export minplot=-20.;export delta=2.;title="Surface Radiative Balance";name_from_here=1;units_from_here=1;export maxplotdiff=10.;export minplotdiff=-10.;export deltadiff=1.;cmp2obs=1;obsfile="$dir_obs3/ftot_era5_1980-2019_mm_ann_cyc.nc";export title2="ERA5 $climobscld";;
+                EnBalSrf)varobs=ftot;units="W/m2";export maxplot=20.;export minplot=-20.;export delta=2.;title="Surface Radiative Balance";name_from_here=1;units_from_here=1;export maxplotdiff=10.;export minplotdiff=-10.;export deltadiff=1.;export cmp2obs_ncl=$cmp2obs;obsfile="$dir_obs3/ftot_era5_1980-2019_mm_ann_cyc.nc";export title2="ERA5 $climobscld";;
                 AODVIS)cmp2mod_ncl=0;cmp2obs_ncl=0;;
                 ICEFRAC)varobs=T2M;cf=0;units="frac";export inpfileobs=t2m_era5_1979-2021.yy.fldmean.;obsfile="";cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=0;title2="ERA5 $climobs";export maxplot=0.95;export minplot=0.15;export delta=.05;units_from_here=0; title="Sea-Ice Fraction";name_from_here=1;;
                 TREFHT)varobs=T2M;cf=-273.15;units="Celsius deg";export inpfileobs=t2m_era5_1979-2021.yy.fldmean.;obsfile="$dir_obs1/ERA5_1m_clim_1deg_1979-2018_surface.nc";title2="ERA5 $climobs";export maxplot=36;export minplot=-20;export delta=4;units_from_here=1;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
@@ -849,7 +850,7 @@ then
          do
             case $freq in
 #                1m)allvars="tos sos zos thetao so";;
-                1m)allvars="tos sos zos";;
+                1m)allvars="tos sos zos heatc saltc";;
             esac
             echo $allvars
             for var in $allvars
@@ -868,7 +869,7 @@ then
                          then
          #1 anno e 12 mesi
                             ncrcat -O $inpdir/${expid1}_${freq}_${yyyy}????_${yyyy}????_${ftype}.nc $tmpdir/${expid1}_${freq}_${yyyy}.tmp.nc
-                            ncrename -O -d time_counter,time $tmpdir/${expid1}_${freq}_${yyyy}.tmp.n1c
+                            ncrename -O -d time_counter,time $tmpdir/${expid1}_${freq}_${yyyy}.tmp.nc
                             ncrename -O -v time_counter,time $tmpdir/${expid1}_${freq}_${yyyy}.tmp.nc
                             ncks -C -O -x -v time_centered $tmpdir/${expid1}_${freq}_${yyyy}.tmp.nc $tmpdir/${expid1}_${freq}_${yyyy}.tmp1.nc
                             ncks -C -O -x -v time_instant $tmpdir/${expid1}_${freq}_${yyyy}.tmp1.nc $tmpdir/${expid1}_${freq}_${yyyy}.tmp.nc
@@ -954,6 +955,8 @@ then
    for varmod in $allvars
    do
       case $varmod in 
+         heatc)units="J/m2*e-10";mf=1/10000000000;export maxplot=25;export minplot=-5;export delta=2.5;units_from_here=1;;
+         saltc)units="PSU*kg/m2*e-7";mf=1/10000000;export maxplot=25;export minplot=0;export delta=2.5;units_from_here=1;;
          tos)varobs=var235;cf=-273.15;units="Celsius deg";export inpfileobs=t2m_era5_1979-2021.yy.fldmean.;export obsfile="$dir_obs4/ts_era5_1990-2009.anncyc.nc";export title2="ERA5 $climobs";export maxplot=36;export minplot=-20;export delta=2;units_from_here=1;;
          sos)varobs=var235;cf=0;units="PSU";export inpfileobs=t2m_era5_1979-2021.yy.fldmean.;export obsfile="$dir_obs4/ts_era5_1990-2009.anncyc.nc";export cmp2obs=0;export title2="ERA5 $climobs";export maxplot=36.;export minplot=26.;export delta=2.;units_from_here=1;;
          zos)varobs=var235;cf=0;units="m";export inpfileobs=t2m_era5_1979-2021.yy.fldmean.;export obsfile="$dir_obs4/ts_era5_1990-2009.anncyc.nc";export cmp2obs=0;export title2="ERA5 $climobs";export maxplot=3.;export minplot=-3.;export delta=0.5;units_from_here=1;;

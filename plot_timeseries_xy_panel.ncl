@@ -6,6 +6,7 @@ begin
 ;************************************************
 cmp2obs=0
  npl=0
+nyrsmean=getenv("nyrsmean")
 name_from_ext=getenv("name_from_here")
 units_from_ext=getenv("units_from_here")
 compute=getenv("compute")
@@ -139,7 +140,7 @@ end if
     printVarSummary(u)
     printVarSummary(uplot)
     uplot(i,0,:)=u(0:ndims(2)-1)
-    utitle(i)="Global " ;+sprintf("%5.2f",dim_avg(u))
+    utitle(i)="Global " 
     taxis=varmod+" ["+utmp@units+"]"
     name=utmp@long_name
     delete(utmp)
@@ -154,7 +155,7 @@ end if
     end if
     u= rm_single_dims(utmp)
     uplot(i,0,:)=u(0:ndims(2)-1)
-    utitle(i)="NH" ;+sprintf("%5.2f",dim_avg(u))
+    utitle(i)="NH" 
     taxis=varmod+" ["+utmp@units+"]"
     name=utmp@long_name
     delete(utmp)
@@ -176,7 +177,7 @@ end if
     end if
     u= rm_single_dims(utmp)
     uplot(i,0,:)=u(0:ndims(2)-1)
-    utitle(i)="SH" ;+sprintf("%5.2f",dim_avg(u))
+    utitle(i)="SH" 
     taxis=varmod+" ["+utmp@units+"]"
     name=utmp@long_name
     delete(utmp)
@@ -198,7 +199,7 @@ end if
     end if
     u= rm_single_dims(utmp)
     uplot(i,0,:)=u(0:ndims(2)-1)
-    utitle(i)="70N-90N" ;+sprintf("%5.2f",dim_avg(u))
+    utitle(i)="70N-90N" 
     delete(u)
     taxis=varmod+" ["+utmp@units+"]"
     name=utmp@long_name
@@ -213,7 +214,7 @@ end if
     end if
     u= rm_single_dims(utmp)
     uplot(i,0,:)=u(0:ndims(2)-1)
-    utitle(i)="30N-70N" ;+sprintf("%5.2f",dim_avg(u))
+    utitle(i)="30N-70N" 
     taxis=varmod+" ["+utmp@units+"]"
     name=utmp@long_name
     delete(utmp)
@@ -228,7 +229,7 @@ end if
     end if
     u= rm_single_dims(utmp)
     uplot(i,0,:)=u(0:ndims(2)-1)
-    utitle(i)="30S-30N" ;+sprintf("%5.2f",dim_avg(u))
+    utitle(i)="30S-30N" 
     taxis=varmod+" ["+utmp@units+"]"
     name=utmp@long_name
     delete(utmp)
@@ -243,7 +244,7 @@ end if
     end if
     u= rm_single_dims(utmp)
     uplot(i,0,:)=u(0:ndims(2)-1)
-    utitle(i)="30S-70S" ;+sprintf("%5.2f",dim_avg(u))
+    utitle(i)="30S-70S" 
     taxis=varmod+" ["+utmp@units+"]"
     name=utmp@long_name
     delete(utmp)
@@ -258,7 +259,7 @@ end if
     end if
     u= rm_single_dims(utmp)
     uplot(i,0,:)=u(0:ndims(2)-1)
-    utitle(i)="70S-90S" ;+sprintf("%5.2f",dim_avg(u))
+    utitle(i)="70S-90S" 
     taxis=varmod+" ["+utmp@units+"]"
     name=utmp@long_name
     delete(utmp)
@@ -273,7 +274,7 @@ end if
     end if
     u= rm_single_dims(utmp)
     uplot(i,0,:)=u(0:ndims(2)-1)
-    utitle(i)="land" ;+sprintf("%5.2f",dim_avg(u))
+    utitle(i)="land" 
     taxis=varmod+" ["+utmp@units+"]"
     name=utmp@long_name
     delete(utmp)
@@ -288,7 +289,7 @@ end if
     end if
     u= rm_single_dims(utmp)
     uplot(i,0,:)=u(0:ndims(2)-1)
-    utitle(i)="oce" ;+sprintf("%5.2f",dim_avg(u))
+    utitle(i)="oce" 
     taxis=varmod+" ["+utmp@units+"]"
     name=utmp@long_name
     delete(utmp)
@@ -382,8 +383,10 @@ end if
  res@vpWidthF         = 0.8                      ; set width and height
  res@tiMainFontHeightF  = 0.015
  res@vpHeightF        = tofloat(getenv("hplot"))
-  do i=0,npl-1
-     res@gsnLeftString      = utitle(i)+sprintf("%5.2f",dim_avg(uplot(i,0,:)))
+ nn=dimsizes(uplot)
+ nt=nn(2)-1
+ do i=0,npl-1
+     res@gsnLeftString      = utitle(i)+" last "+nyrsmean+" yy="+sprintf("%5.2f",dim_avg(uplot(i,0,nt-toint(nyrsmean):nt)))
      res@gsnRightString=name
      plots(i)  = gsn_csm_xy (wks,dateF,uplot(i,:,:),res)            ; create plot
  end do

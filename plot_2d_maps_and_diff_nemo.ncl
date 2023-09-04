@@ -30,7 +30,7 @@ begin
 end
 
 begin
-  expid=getenv("expname")
+  expid=getenv("expid1")
   name_from_ext=getenv("name_from_here")
   units_from_ext=getenv("units_from_here")
   modfile=getenv("inpfile")
@@ -415,7 +415,7 @@ begin
      res@lbTitleFontHeightF         = .015
      res@lbTitlePosition            = "Bottom"            ; title position
      res@lbTitleDirection           = "Across"            ; title direction
-     res@tiMainString  = expid
+     res@tiMainString  = expid+" "+sea
      plot = gsn_csm_contour_map(wks,tclim,res)
   end if 
 end
