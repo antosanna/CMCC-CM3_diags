@@ -1,4 +1,4 @@
-!/bin/sh -l
+#!/bin/sh -l
 #BSUB -M 85000   #if you get BUS error increase this number
 #BSUB -P 0566
 #BSUB -J timeseries
@@ -13,12 +13,12 @@ set -eux
 # SECTION TO BE MODIFIED BY USER
 machine="juno"
 do_ocn=1
-do_atm=0
+do_atm=1
 do_ice=0
-do_lnd=0
+do_lnd=1
 do_timeseries=1
 do_znl_lnd=0
-do_znl_atm=0
+do_znl_atm=1
 do_znl_atm2d=0
 do_2d_plt=1
 
@@ -41,7 +41,7 @@ cam_nlev2=32
 core2=FV
 #
 export startyear="0001"
-export finalyear="0090"
+export finalyear="0013"
 export startyear_anncyc="0001" #starting year to compute 2d map climatology
 export nyrsmean=10   #nyear-period for mean in timeseries
 # select if you compare to model or obs 
@@ -49,6 +49,9 @@ export cmp2obs=1
 export cmp2mod=0
 # END SECTION TO BE MODIFIED BY USER
 
+export mftom1=1
+export varobs
+export cmp2obstimeseries=0
 i=1
 do_compute=1
 export expname1=${expid1}_${cam_nlev1}
@@ -85,6 +88,7 @@ export climobs=1979-2018
 export iniclim=$startyear
 
 #
+export rootinpfileobs
 icelist=""
 atmlist=""
 lndlist=""
@@ -138,10 +142,10 @@ pltdir=$tmpdir1/plots
 mkdir -p $pltdir
 mkdir -p $pltdir/atm $pltdir/lnd $pltdir/ice $pltdir/ocn $pltdir/namelists
 
-export pltype="png"
+export pltype="x11"
 export units
 export title
-allvars_atm="ALBEDO ALBEDOS AODVIS BURDENBC BURDENSOA BURDENPOM BURDENSO4 BURDENDUST BURDEN1 BURDENdn1  BURDEN2 BURDENdn2 BURDEN3 BURDENdn3 BURDEN4 BURDENdn4 BURDENB  BURDENDUST BURDENPOM BURDENSEASALT BURDENSOA  BURDENSO4 CLDLOW CLDMED CLDHGH  CLDTOT EnBalSrf FLUT FLUTC FLDS FSDSC FLNS FLNSC FSNSC FSNTOA FSNS FSDS FSNT FLNT ICEFRAC  LHFLX SHFLX LWCF SWCF SOLIN RESTOM EmP PRECT PRECC PS QFLX TREFHT TS Z500 Z850 U200"
+allvars_atm="TREFHT " #ALBEDO ALBEDOS AODVIS BURDENBC BURDENSOA BURDENPOM BURDENSO4 BURDENDUST BURDEN1 BURDENdn1  BURDEN2 BURDENdn2 BURDEN3 BURDENdn3 BURDEN4 BURDENdn4 BURDENB  BURDENDUST BURDENPOM BURDENSEASALT BURDENSOA  BURDENSO4 CLDLOW CLDMED CLDHGH  CLDTOT EnBalSrf FLUT FLUTC FLDS FSDSC FLNS FLNSC FSNSC FSNTOA FSNS FSDS FSNT FLNT ICEFRAC  LHFLX SHFLX LWCF SWCF SOLIN RESTOM EmP PRECT PRECC PS QFLX TREFHT TS Z500 Z850 U200"
 allvars_lnd="SNOWDP FSH TLAI SNOWDP FAREA_BURNED";
 allvars_ice="aice snowfrac ext Tsfc fswup fswdn flwdn flwup congel fbot albsni hi";
     
@@ -394,7 +398,7 @@ do
                 anncycfilevar=$tmpdir/${exp}.$realm.$var.$startyear_anncyc-$lasty.anncyc.nc
                 if [[ ! -f $anncycfilevar ]]
                 then
-                   for yy in `seq $startyear_anncyc $lasty`
+                   for yy in `seq -w $startyear_anncyc $lasty`
                    do
                       ff=$tmpdir/${exp}.$realm.$var.$yy.nc
                       listaf_anncyc+=" $ff"
@@ -485,7 +489,6 @@ do
          export cmp2mod_ncl
          export cmp2obs_ncl
          case $varmod in
-#                TREFHT)varobs=var167;cf=-273.15;units="Celsius deg";export inpfileobs=t2m_era5_1979-2021.yy.fldmean.;export obsfile="/work/csp/as34319/obs/ERA5/t2m/t2m_era5_${climobs}_clim_anncyc.nc";export cmp2obs=1;export title2="ERA5 $climobs";export maxplot=36;export minplot=-20;export delta=2;units_from_here=1;;
                 BURDENSEASALT)cmp2mod_ncl=0;cmp2obs_ncl=0;mf=100000;units="kg/m2*e5";units_from_here=1;export maxplot=5;export minplot=0.;export delta=0.5;;
                 BURDENBC)cmp2mod_ncl=0;cmp2obs_ncl=0;mf=100000;units="kg/m2*e5";units_from_here=1;export maxplot=1;export minplot=0.;export delta=0.1;;
                 BURDENSOA)cmp2mod_ncl=0;cmp2obs_ncl=0;mf=100000;units="kg/m2*e5";units_from_here=1;export maxplot=1;export minplot=0.;export delta=0.1;;
@@ -502,12 +505,12 @@ do
                 BURDENdn1)cmp2mod_ncl=0;cmp2obs_ncl=0;mf=100000;units="kg/m2*e5";units_from_here=1;export maxplot=5;export minplot=0.;export delta=0.5;;
                 EnBalSrf)varobs=ftot;units="W/m2";export maxplot=20.;export minplot=-20.;export delta=2.;title="Surface Radiative Balance";name_from_here=1;units_from_here=1;export maxplotdiff=10.;export minplotdiff=-10.;export deltadiff=1.;export cmp2obs_ncl=$cmp2obs;obsfile="$dir_obs3/ftot_era5_1980-2019_mm_ann_cyc.nc";export title2="ERA5 $climobscld";;
                 AODVIS)cmp2mod_ncl=0;cmp2obs_ncl=0;;
-                ICEFRAC)varobs=T2M;cf=0;units="frac";export inpfileobs=t2m_era5_1979-2021.yy.fldmean.;obsfile="";cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=0;title2="ERA5 $climobs";export maxplot=0.95;export minplot=0.15;export delta=.05;units_from_here=0; title="Sea-Ice Fraction";name_from_here=1;;
-                TREFHT)varobs=T2M;cf=-273.15;units="Celsius deg";export inpfileobs=t2m_era5_1979-2021.yy.fldmean.;obsfile="$dir_obs1/ERA5_1m_clim_1deg_1979-2018_surface.nc";title2="ERA5 $climobs";export maxplot=36;export minplot=-20;export delta=4;units_from_here=1;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
-                U200)varobs=U;units="m/s";export inpfileobs=t2m_era5_1979-2021.yy.fldmean.;obsfile="$dir_obs1/ERA5_1m_clim_1deg_1979-2018_prlev.nc";ncl_lev=1;title2="ERA5 $climobs";export maxplot=30.;export minplot=-30.;export delta=10.;units_from_here=1;export maxplotdiff=10;export minplotdiff=-10;export deltadiff=2.;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
-                Z500)varobs=Z;cf=0;units="m";export inpfileobs=t2m_era5_1979-2021.yy.fldmean.;obsfile="$dir_obs1/ERA5_1m_clim_1deg_1979-2018_prlev.nc";ncl_lev=3;title2="ERA5 $climobs";mf=0.102;export maxplot=600.;export minplot=300;export delta=20;units_from_here=1;export maxplotdiff=8;export minplotdiff=-8;export deltadiff=2.;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
-                Z850)varobs=Z;cf=0;units="m";export inpfileobs=t2m_era5_1979-2021.yy.fldmean.;obsfile="$dir_obs1/ERA5_1m_clim_1deg_1979-2018_prlev.nc";ncl_lev=5;title2="ERA5 $climobs";mf=0.102;export maxplot=150.;export minplot=100.;export delta=5;units_from_here=1;export maxplotdiff=8.;export minplotdiff=-8;export deltadiff=2.;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
-                TS)varobs=var235;cf=-273.15;units="Celsius deg";export inpfileobs=t2m_era5_1979-2021.yy.fldmean.;obsfile="$dir_obs4/ts_era5_1990-2009.anncyc.nc";export title2="ERA5 $climobs";export maxplot=36;export minplot=-20;export delta=4;units_from_here=1;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
+                ICEFRAC)cf=0;units="frac";obsfile="";cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=0;title2="ERA5 $climobs";export maxplot=0.95;export minplot=0.15;export delta=.05;units_from_here=0; title="Sea-Ice Fraction";name_from_here=1;;
+                TREFHT)varobs=TREFHT;cf=-273.15;units="Celsius deg";obsfile="$dir_obs1/ERA5_1m_clim_1deg_1979-2018_surface.nc";title2="ERA5 $climobs";export maxplot=36;export minplot=-20;export delta=4;units_from_here=1;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
+                U200)varobs=U;units="m/s";obsfile="$dir_obs1/ERA5_1m_clim_1deg_1979-2018_prlev.nc";ncl_lev=1;title2="ERA5 $climobs";export maxplot=30.;export minplot=-30.;export delta=10.;units_from_here=1;export maxplotdiff=10;export minplotdiff=-10;export deltadiff=2.;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
+                Z500)varobs=Z;cf=0;units="m";obsfile="$dir_obs1/ERA5_1m_clim_1deg_1979-2018_prlev.nc";ncl_lev=3;title2="ERA5 $climobs";mf=0.102;export maxplot=600.;export minplot=300;export delta=20;units_from_here=1;export maxplotdiff=8;export minplotdiff=-8;export deltadiff=2.;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
+                Z850)varobs=Z;cf=0;units="m";obsfile="$dir_obs1/ERA5_1m_clim_1deg_1979-2018_prlev.nc";ncl_lev=5;title2="ERA5 $climobs";mf=0.102;export maxplot=150.;export minplot=100.;export delta=5;units_from_here=1;export maxplotdiff=8.;export minplotdiff=-8;export deltadiff=2.;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
+                TS)varobs=var235;cf=-273.15;units="Celsius deg";obsfile="$dir_obs4/ts_era5_1990-2009.anncyc.nc";export title2="ERA5 $climobs";export maxplot=36;export minplot=-20;export delta=4;units_from_here=1;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
 #                TS)varobs=SST;cf=-273.15;units="Celsius deg";export maxplot=36;export minplot=-20;export delta=2.;units_from_here=1;obsfile=$dir_obs1/ERA5_1m_clim_1deg_1979-2018_surface.nc;export cmp2obs=1;export title2="ERA5 $climobs";;
                 PRECT)varobs=precip;mf=86400000;units="mm/d";export maxplot=18;export minplot=2;export delta=2.;export maxplotdiff=5.;export minplotdiff=-5.;export deltadiff=1.;obsfile="$dir_obs1/gpcp_cdr_v23rB1_1979-2015_1deg.nc";export title2="GPCP 1979-2015";title="Total precipitation";units_from_here=1;name_from_here=1;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
                 EmP)varobs=var167;mf=86400000;units="mm/d";export maxplot=10.;export minplot=-10.;export delta=2.;title="Evaporation - Precipitation";units_from_here=1;name_from_here=1;cmp2obs_ncl=0;cmp2mod_ncl=$cmp2mod;export maxplotdiff=3.;export minplotdiff=-3.;export deltadiff=.5;;
@@ -565,15 +568,18 @@ do
          then
             for ts_gzm_boxes in Global NH SH 
             do
+               inpfileobs=$tmpdir1/`basename $obsfile|rev|cut -d '.' -f2-|rev`.$ts_gzm_boxes.nc
+               echo "obs to compare timeseries " $inpfileobs
+               rootinpfileobs=$tmpdir1/`basename $obsfile|rev|cut -d '.' -f2-|rev`
                case $ts_gzm_boxes in
                   Global)export lat0=-90;export lat1=90;export bglo=1;;
                   NH)export lat0=0;export lat1=90;export bNH=1;;
                   SH)export lat0=-90;export lat1=0;export bSH=1;;
                esac
-               if [[ -f ${inpfile}.$ts_gzm_boxes.nc ]] || [[ ! -f $tmpdir1/${expid1}.$realm.$varmod.$startyear-${lasty}.ymean.nc ]]
-               then  
-                  continue
-               fi
+#               if [[ -f ${inpfile}.$ts_gzm_boxes.nc ]] || [[ ! -f $tmpdir1/${expid1}.$realm.$varmod.$startyear-${lasty}.ymean.nc ]]
+#               then  
+#                  continue
+#               fi
                if [[ $core == "SE" ]]
                then
                   export srcFileName=$tmpdir1/${expid1}.$realm.$varmod.$startyear-${lasty}.ymean.nc 
@@ -583,13 +589,17 @@ do
                else
                   cdo fldmean -sellonlatbox,0,360,$lat0,$lat1 $tmpdir1/${expid1}.$realm.$varmod.$startyear-${lasty}.ymean.nc $inpfile.$ts_gzm_boxes.nc
                fi
+#               if [[ ! -f $inpfileobs ]]
+#               then
+#                  cdo fldmean -sellonlatbox,0,360,$lat0,$lat1 $obsfile $inpfileobs
+#               fi
             done
       # do plot_timeseries
-            ncl plot_timeseries_xy_panel.ncl
-                 if [[ $pltype == "x11" ]]
-                 then
-                    exit
-                 fi  
+            ncl plot_timeseries_xy_panel_new.ncl
+            if [[ $pltype == "x11" ]]
+            then
+               exit
+            fi  
             export pltname=$comppltdir/${expid1}.$comp.$varmod.$startyear-${lasty}.TS_5
             export b7090=0;export b3070=0;export b3030=0;export b3070S=0;export b7090S=0;export bglo=0;export bNH=0;export bSH=0;export bland=0;export boce=0
             export hplot="0.15"

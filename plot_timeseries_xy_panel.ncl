@@ -4,7 +4,7 @@ begin
 ;************************************************
 ; read in data
 ;************************************************
-cmp2obs=0
+cmp2obs=getenv("cmp2obstimeseries")
  npl=0
 nyrsmean=getenv("nyrsmean")
 name_from_ext=getenv("name_from_here")
@@ -13,7 +13,7 @@ compute=getenv("compute")
 expid=getenv("expname1")
 inpfile=getenv("inpfile")
 print("--- going to read "+inpfile)
-inpfileobs=getenv("inpfileobs")
+rootinpfileobs=getenv("rootinpfileobs")
 cf=tofloat(getenv("cf"))
 mf=tofloat(getenv("mf"))
 mftom1=getenv("mftom1")
@@ -32,8 +32,8 @@ ncurves=1
 if(bglo.eq.1)then
    inpfile1=inpfile+".Global.nc"
    if (cmp2obs.eq.1) then
-      inpfileobs1=inpfileobs+".Global.nc"
-      cmp2obs=0
+      inpfileobs1=rootinpfileobs+".Global.nc"
+      varobs=getenv("varobs")
       ncurves=ncurves+1
    end if
    npl=npl+1
@@ -42,7 +42,7 @@ if(bNH.eq.1)then
    inpfileNH=inpfile+".NH.nc"
    npl=npl+1
    if (cmp2obs.eq.1) then
-      inpfileobsNH=inpfileobs+".NH.nc"
+      inpfileobsNH=rootinpfileobs+".NH.nc"
       ncurves=ncurves+1
    end if
 end if
@@ -50,14 +50,14 @@ if(bSH.eq.1)then
    inpfileSH=inpfile+".SH.nc"
    npl=npl+1
    if (cmp2obs.eq.1) then
-      inpfileobsSH=inpfileobs+".SH.nc"
+      inpfileobsSH=rootinpfileobs+".SH.nc"
       ncurves=ncurves+1
    end if
 end if
 if(b7090.eq.1)then
    inpfile7090=inpfile+".70N-90N.nc"
    if (cmp2obs.eq.1) then
-      inpfileobs7090=inpfileobs+".70N-90N.nc"
+      inpfileobs7090=rootinpfileobs+".70N-90N.nc"
       ncurves=ncurves+1
    end if
    npl=npl+1
@@ -65,7 +65,7 @@ end if
 if(b3070.eq.1)then
    inpfile3070=inpfile+".30N-70N.nc"
    if (cmp2obs.eq.1) then
-      inpfileobs3070=inpfileobs+".30N-70N.nc"
+      inpfileobs3070=rootinpfileobs+".30N-70N.nc"
       ncurves=ncurves+1
    end if
    npl=npl+1
@@ -73,7 +73,7 @@ end if
 if(b3030.eq.1)then
    inpfile3030=inpfile+".30S-30N.nc"
    if (cmp2obs.eq.1) then
-      inpfileobs3030=inpfileobs+".30S-30N.nc"
+      inpfileobs3030=rootinpfileobs+".30S-30N.nc"
       ncurves=ncurves+1
    end if
    npl=npl+1
@@ -81,7 +81,7 @@ end if
 if(b3070S.eq.1)then
    inpfile3070S=inpfile+".30S-70S.nc"
    if (cmp2obs.eq.1) then
-      inpfileobs3070S=inpfileobs+".30S-70S.nc"
+      inpfileobs3070S=rootinpfileobs+".30S-70S.nc"
       ncurves=ncurves+1
    end if
    npl=npl+1
@@ -89,7 +89,7 @@ end if
 if(b7090S.eq.1)then
    inpfile7090S=inpfile+".70S-90S.nc"
    if (cmp2obs.eq.1) then
-      inpfileobs7090S=inpfileobs+".70S-90S.nc"
+      inpfileobs7090S=rootinpfileobs+".70S-90S.nc"
       ncurves=ncurves+1
    end if
    npl=npl+1
@@ -97,7 +97,7 @@ end if
 if(bland.eq.1)then
    inpfileland=inpfile+".land.nc"
    if (cmp2obs.eq.1) then
-      inpfileobsland=inpfileobs+".land.nc"
+      inpfileobsland=rootinpfileobs+".land.nc"
       ncurves=ncurves+1
    end if
    npl=npl+1
@@ -105,7 +105,7 @@ end if
 if(boce.eq.1)then
    inpfileoce=inpfile+".oce.nc"
    if (cmp2obs.eq.1) then
-      inpfileobsoce=inpfileobs+".oce.nc"
+      inpfileobsoce=rootinpfileobs+".oce.nc"
       ncurves=ncurves+1
    end if
    npl=npl+1
@@ -140,6 +140,10 @@ end if
     printVarSummary(u)
     printVarSummary(uplot)
     uplot(i,0,:)=u(0:ndims(2)-1)
+    if(cmp2obs.eq.1)then
+       fobs     = addfile (inpfileobs1,"r")
+       uplot(i,1,:)=rm_single_dims(fobs->$varobs$)
+    end if
     utitle(i)="Global " 
     name=utmp@long_name
     i=i+1
@@ -152,7 +156,7 @@ end if
     end if
     u= rm_single_dims(utmp)
     uplot(i,0,:)=u(0:ndims(2)-1)
-    utitle(i)="NH" 
+    utitle(i)="NH " 
     name=utmp@long_name
     if(cmp2obs.eq.1)then
        fobs     = addfile (inpfileobsNH,"r")
@@ -171,7 +175,7 @@ end if
     end if
     u= rm_single_dims(utmp)
     uplot(i,0,:)=u(0:ndims(2)-1)
-    utitle(i)="SH" 
+    utitle(i)="SH " 
     name=utmp@long_name
     if(cmp2obs.eq.1)then
        fobs     = addfile (inpfileobsSH,"r")
@@ -190,7 +194,7 @@ end if
     end if
     u= rm_single_dims(utmp)
     uplot(i,0,:)=u(0:ndims(2)-1)
-    utitle(i)="70N-90N" 
+    utitle(i)="70N-90N " 
     delete(u)
     name=utmp@long_name
  end if
@@ -202,7 +206,7 @@ end if
     end if
     u= rm_single_dims(utmp)
     uplot(i,0,:)=u(0:ndims(2)-1)
-    utitle(i)="30N-70N" 
+    utitle(i)="30N-70N " 
     name=utmp@long_name
     i=i+1
  end if
@@ -214,7 +218,7 @@ end if
     end if
     u= rm_single_dims(utmp)
     uplot(i,0,:)=u(0:ndims(2)-1)
-    utitle(i)="30S-30N" 
+    utitle(i)="30S-30N " 
     name=utmp@long_name
     i=i+1
  end if
@@ -226,7 +230,7 @@ end if
     end if
     u= rm_single_dims(utmp)
     uplot(i,0,:)=u(0:ndims(2)-1)
-    utitle(i)="30S-70S" 
+    utitle(i)="30S-70S " 
     name=utmp@long_name
     i=i+1
  end if
@@ -238,7 +242,7 @@ end if
     end if
     u= rm_single_dims(utmp)
     uplot(i,0,:)=u(0:ndims(2)-1)
-    utitle(i)="70S-90S" 
+    utitle(i)="70S-90S " 
     name=utmp@long_name
     i=i+1
  end if
@@ -250,7 +254,7 @@ end if
     end if
     u= rm_single_dims(utmp)
     uplot(i,0,:)=u(0:ndims(2)-1)
-    utitle(i)="land" 
+    utitle(i)="land " 
     name=utmp@long_name
     i=i+1
  end if
@@ -262,7 +266,7 @@ end if
     end if
     u= rm_single_dims(utmp)
     uplot(i,0,:)=u(0:ndims(2)-1)
-    utitle(i)="oce" 
+    utitle(i)="oce " 
     name=utmp@long_name
     i=i+1
  end if
@@ -359,8 +363,14 @@ end if
  res@vpHeightF        = tofloat(getenv("hplot"))
  nn=dimsizes(uplot)
  nt=nn(2)-1
+ ini=nt-toint(nyrsmean)
+ if (ini.lt.0) then
+   ini=0
+   nyrsmean=sprinti("%2i",nt)
+ end if
  do i=0,npl-1
-     res@gsnLeftString      = utitle(i)+" last "+nyrsmean+" yy="+sprintf("%5.2f",dim_avg(uplot(i,0,nt-toint(nyrsmean):nt)))
+     print("mean "+dim_avg(uplot(i,0,ini:nt)))
+     res@gsnLeftString      = utitle(i)+" last "+nyrsmean+" yy="+sprintf("%5.2f",dim_avg(uplot(i,0,ini:nt)))
      res@gsnRightString=name
      plots(i)  = gsn_csm_xy (wks,dateF,uplot(i,:,:),res)            ; create plot
  end do
