@@ -17,7 +17,6 @@ do_atm=0
 do_ice=0
 do_lnd=0
 do_timeseries=1
-export nyrsmean=10   #nyear-period for mean in timeseries
 do_znl_lnd=0
 do_znl_atm=0
 do_znl_atm2d=0
@@ -42,7 +41,9 @@ cam_nlev2=32
 core2=FV
 #
 export startyear="0001"
-export finalyear="0014"
+export finalyear="0090"
+export startyear_anncyc="0001" #starting year to compute 2d map climatology
+export nyrsmean=10   #nyear-period for mean in timeseries
 # select if you compare to model or obs 
 export cmp2obs=1
 export cmp2mod=0
@@ -137,7 +138,7 @@ pltdir=$tmpdir1/plots
 mkdir -p $pltdir
 mkdir -p $pltdir/atm $pltdir/lnd $pltdir/ice $pltdir/ocn $pltdir/namelists
 
-export pltype="x11"
+export pltype="png"
 export units
 export title
 allvars_atm="ALBEDO ALBEDOS AODVIS BURDENBC BURDENSOA BURDENPOM BURDENSO4 BURDENDUST BURDEN1 BURDENdn1  BURDEN2 BURDENdn2 BURDEN3 BURDENdn3 BURDEN4 BURDENdn4 BURDENB  BURDENDUST BURDENPOM BURDENSEASALT BURDENSOA  BURDENSO4 CLDLOW CLDMED CLDHGH  CLDTOT EnBalSrf FLUT FLUTC FLDS FSDSC FLNS FLNSC FSNSC FSNTOA FSNS FSDS FSNT FLNT ICEFRAC  LHFLX SHFLX LWCF SWCF SOLIN RESTOM EmP PRECT PRECC PS QFLX TREFHT TS Z500 Z850 U200"
@@ -390,10 +391,16 @@ do
                    cdo yearmean -mergetime $listaf $ymeanfilevar
                 fi
          #ciclo annuo
-                anncycfilevar=$tmpdir/${exp}.$realm.$var.$startyear-$lasty.anncyc.nc
+                anncycfilevar=$tmpdir/${exp}.$realm.$var.$startyear_anncyc-$lasty.anncyc.nc
                 if [[ ! -f $anncycfilevar ]]
                 then
-                   cdo ymonmean -mergetime $listaf $anncycfilevar
+                   for yy in `seq $startyear_anncyc $lasty`
+                   do
+                      ff=$tmpdir/${exp}.$realm.$var.$yy.nc
+                      listaf_anncyc+=" $ff"
+                   done
+
+                   cdo ymonmean -mergetime $listaf_anncyc $anncycfilevar
                 fi
             done   #loop on var
          fi
