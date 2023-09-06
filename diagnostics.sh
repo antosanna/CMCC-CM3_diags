@@ -25,7 +25,7 @@ do_anncyc=1
 
 # model to diagnose
 #export expid1=cm3_cam116d_2000_t1
-export expid1=cm3_cam116d_2000_1d32l_t10
+export expid1=cm3_cam116d_2000_1d32l_t1
 #export expid1=cm3_cam122_cpl2000-bgc_t01
 utente1=cp1
 #utente1=dp16116
@@ -67,6 +67,7 @@ then
    dir_obs2=$dir_obs1/ERA5
    dir_obs3=/work/csp/mb16318/obs/ERA5
    dir_obs4=/work/csp/as34319/obs/ERA5
+   dir_obs5=/work/csp/as34319/obs
 set +euvx  
    . $PWD/mload_ncl_juno
    . $PWD/mload_cdo_juno
@@ -83,6 +84,7 @@ set -euvx
    dir_obs2=/data/delivery/csp/ecaccess/ERA5/monthly/025/
    dir_obs3=/work/csp/mb16318/obs/ERA5
    dir_obs4=/work/csp/as34319/obs/ERA5
+   dir_obs5=/work/csp/as34319/obs/
 fi
 export climobscld=1980-2019
 export climobs=1979-2018
@@ -383,7 +385,7 @@ do
                    fi
            
                    listaf+=" $ymfilevar"
-                   if [[ $yyyy -ge $startyear_anncyc ]]
+                   if [[ $((10#$yyyy)) -ge $((10#$startyear_anncyc)) ]]
                    then
                       listaf_anncyc+=" $ymfilevar"
                    fi
@@ -511,7 +513,7 @@ do
                 Z850)varobs=Z;cf=0;units="m";obsfile="$dir_obs1/ERA5_1m_clim_1deg_1979-2018_prlev.nc";ncl_lev=5;title2="ERA5 $climobs";mf=0.102;export maxplot=150.;export minplot=100.;export delta=5;units_from_here=1;export maxplotdiff=8.;export minplotdiff=-8;export deltadiff=2.;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
                 TS)varobs=var235;cf=-273.15;units="Celsius deg";obsfile="$dir_obs4/ts_era5_1990-2009.anncyc.nc";export title2="ERA5 $climobs";export maxplot=36;export minplot=-20;export delta=4;units_from_here=1;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
 #                TS)varobs=SST;cf=-273.15;units="Celsius deg";export maxplot=36;export minplot=-20;export delta=2.;units_from_here=1;obsfile=$dir_obs1/ERA5_1m_clim_1deg_1979-2018_surface.nc;export cmp2obs=1;export title2="ERA5 $climobs";;
-                PRECT)varobs=precip;mf=86400000;units="mm/d";export maxplot=18;export minplot=2;export delta=2.;export maxplotdiff=5.;export minplotdiff=-5.;export deltadiff=1.;obsfile="$dir_obs1/gpcp_1979-2015_1deg_anncyc.nc";export title2="GPCP 1979-2015";title="Total precipitation";units_from_here=1;name_from_here=1;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
+                PRECT)varobs=precip;mf=86400000;units="mm/d";export maxplot=18;export minplot=2;export delta=2.;export maxplotdiff=5.;export minplotdiff=-5.;export deltadiff=1.;obsfile="$dir_obs5/gpcp_1979-2015_1deg_anncyc.nc";export title2="GPCP 1979-2015";title="Total precipitation";units_from_here=1;name_from_here=1;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
                 EmP)varobs=var167;mf=86400000;units="mm/d";export maxplot=10.;export minplot=-10.;export delta=2.;title="Evaporation - Precipitation";units_from_here=1;name_from_here=1;cmp2obs_ncl=0;cmp2mod_ncl=$cmp2mod;export maxplotdiff=3.;export minplotdiff=-3.;export deltadiff=.5;;
                 QFLX)varobs=var167;mf=1000000;units="10^-6 kgm-2s-1";export maxplot=100.;export minplot=0.;export delta=10.;title="Surface Water Flux";units_from_here=1;name_from_here=1;cmp2obs_ncl=0;cmp2mod_ncl=$cmp2mod;export maxplotdiff=-10.;export minplotdiff=-10.;export deltadiff=1.;;
                 PRECC)varobs=var167;mf=86400000;units="mm/d";export maxplot=18;export minplot=2;export delta=2.;title="Convective precipitation";units_from_here=1;name_from_here=1;cmp2obs_ncl=0;cmp2mod_ncl=$cmp2mod;;
@@ -551,7 +553,7 @@ do
                 CLDTOT)varobs=var164;export maxplot=0.9;export minplot=0.1;export delta=.1;title="Total cloud cover";units_from_here=1;units="fraction";name_from_here=1;export maxplotdiff=.6;export minplotdiff=-.6;export deltadiff=.1;obsfile="$dir_obs2/cldtot_era5_${climobscld}_ann_cyc.nc";export title2="ERA5 $climobscld";name_from_here=1;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
                 CLDMED)varobs=var187;export maxplot=0.9;export minplot=0.1;export delta=.1;title="Mid-level cloud 400-700hPa";units_from_here=1;units="fraction";name_from_here=1;export maxplotdiff=.6;export minplotdiff=-.6;export deltadiff=.1;obsfile="$dir_obs2/cldmed_era5_${climobscld}_ann_cyc.nc";export title2="ERA5 $climobscld";cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
                 CLDHGH)varobs=var188;export maxplot=0.9;export minplot=0.1;export delta=.1;title="High-level cloud 50-400hPa";units_from_here=1;units="fraction";name_from_here=1;export maxplotdiff=.6;export minplotdiff=-.6;export deltadiff=.1;obsfile="$dir_obs2/cldhgh_era5_${climobscld}_ann_cyc.nc";export title2="ERA5 $climobscld";cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
-                CLDLOW)varobs=var186;export maxplot=0.9;export minplot=0.1;export delta=.1;title="Low-level cloud 700-1200hPa";units_from_here=1;units="fraction";name_from_here=1;export maxplotdiff=0.6;export minplotdiff=-0.6;export deltadiff=.1;obsfile="$dir_obs2/cldlow_era5_${climobscld}_ann_cyc.nc";export title2="ERA5 $climobscld"cmp2obs_ncl=$cmp2obs;;
+                CLDLOW)varobs=var186;export maxplot=0.9;export minplot=0.1;export delta=.1;title="Low-level cloud 700-1200hPa";units_from_here=1;units="fraction";name_from_here=1;export maxplotdiff=0.6;export minplotdiff=-0.6;export deltadiff=.1;obsfile="$dir_obs2/cldlow_era5_${climobscld}_ann_cyc.nc";export title2="ERA5 $climobscld";cmp2obs_ncl=$cmp2obs;;
                 FSH)varobs=var167;export maxplot=100.;export minplot=-100.;export delta=10.;title="Sensible Heat";units_from_here=1;name_from_here=1;export maxplotdiff=10.;export minplotdiff=-10.;export deltadiff=1.;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=0;;
                 TLAI)varobs=var167;export maxplot=11.;export minplot=1.;export delta=1.;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=0;;
                 QOVER)title="Total Surface Runoff";export maxplot=0.0003;export minplot=0.;export delta=.00005;name_from_here=1;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=0;;
