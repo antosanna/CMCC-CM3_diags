@@ -235,6 +235,38 @@ function showdata(vv,vl) {
     var Header='';
 
 
+    var AC='<h2 style="background-color:#DDDDDD;"> '+vv+' - Annual Cycles '+'</h2> <div class=box>';
+
+    /* annual cycles */
+
+    *var tsn=["3","5","2"]; var tsl=["GLOBAL","ZONAL","OCEAN/LAND"];*/
+    var tsn=["3"]; var tsl=["GLOBAL"];
+
+
+    var k = 0 ;
+
+    for (var i = 0; i < list.length; i++) {
+
+/*        if ( list[i] == "ICEFRAC") { var tsn=["3","5"]; var tsl=["GLOBAL","ZONAL"]} else { var tsn=["3","5","2"]; var tsl=["GLOBAL","ZONAL","OCEAN/LAND"]};*/
+        AC+='<div class=box> <h3 style="background-color:#f0f0f0;"> '+list[i]+' </h3>';
+
+        for ( var k = 0; k < tsn.length; k++) {
+
+           pic = expid+'.'+vl+'.'+list[i]+'.'+clim+'.anncyc_'+tsn[k]+'.png';
+
+           AC+='<div class=box> <a href="'+vl+'/'+pic+'"> <img class=pics src="'+vl+'/'+pic+'"/> </a>';
+
+           AC+='<p> <a href="'+vl+'/'+pic+'">'+tsl[k]+'</a> </p> </div>';
+
+        }
+
+        AC+='</div>';
+
+    }
+
+    AC+='</div> </div>';
+
+    AC+='<div class=after-box> </div>';
 
     var TS='<h2 style="background-color:#DDDDDD;"> '+vv+' - TIMESERIES '+'</h2> <div class=box>';
 
@@ -380,7 +412,7 @@ function showdata(vv,vl) {
 
   
 
-    document.getElementById("listframe").innerHTML=Header + TS + Maps + ZN;
+    document.getElementById("listframe").innerHTML=Header + TS + AC + Maps + ZN;
 
 }
 

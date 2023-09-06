@@ -4,29 +4,30 @@ begin
 ;************************************************
 ; read in data
 ;************************************************
-cmp2obs=getenv("cmp2obstimeseries")
+cmp2obs=getenv("cmp2obs_ncl")
 npl=0
 nyrsmean=getenv("nyrsmean")
 name_from_ext=getenv("name_from_here")
 units_from_ext=getenv("units_from_here")
 compute=getenv("compute")
 expid=getenv("expname1")
-inpfile=getenv("inpfile")
+inpfile=getenv("inpfileanncyc")
 print("--- going to read "+inpfile)
 rootinpfileobs=getenv("rootinpfileobs")
 cf=tofloat(getenv("cf"))
 mf=tofloat(getenv("mf"))
 mftom1=getenv("mftom1")
 bglo=getenv("bglo")
+print(bglo)
 bNH=getenv("bNH")
 bSH=getenv("bSH")
-b7090=getenv("b7090")
-b7090S=getenv("b7090S")
-b3070=getenv("b3070")
-b3070S=getenv("b3070S")
-b3030=getenv("b3030")
-bland=getenv("bland")
-boce=getenv("boce")
+b7090=0 ;getenv("b7090")
+b7090S=0 ;getenv("b7090S")
+b3070=0 ;getenv("b3070")
+b3070S=0 ;getenv("b3070S")
+b3030=0 ;getenv("b3030")
+bland=0 ;getenv("bland")
+boce=0 ;getenv("boce")
 ncurves=1
 if(bglo.eq.1)then
    inpfile1=inpfile+".Global.nc"
@@ -36,24 +37,19 @@ if(bglo.eq.1)then
       ncurves=ncurves+1
    end if
    npl=npl+1
-   print("add a panel for Global")
 end if
 if(bNH.eq.1)then
    inpfileNH=inpfile+".NH.nc"
    npl=npl+1
-   print("add a panel for NH")
    if (cmp2obs.eq.1) then
       inpfileobsNH=rootinpfileobs+".NH.nc"
-      ncurves=ncurves+1
    end if
 end if
 if(bSH.eq.1)then
    inpfileSH=inpfile+".SH.nc"
    npl=npl+1
-   print("add a panel for SH")
    if (cmp2obs.eq.1) then
       inpfileobsSH=rootinpfileobs+".SH.nc"
-      ncurves=ncurves+1
    end if
 end if
 if(b7090.eq.1)then
@@ -63,43 +59,34 @@ if(b7090.eq.1)then
       ncurves=ncurves+1
    end if
    npl=npl+1
-   print("add a panel for 70-90N")
 end if
 if(b3070.eq.1)then
    inpfile3070=inpfile+".30N-70N.nc"
    if (cmp2obs.eq.1) then
       inpfileobs3070=rootinpfileobs+".30N-70N.nc"
-      ncurves=ncurves+1
    end if
    npl=npl+1
-   print("add a panel for 30-70N")
 end if
 if(b3030.eq.1)then
    inpfile3030=inpfile+".30S-30N.nc"
    if (cmp2obs.eq.1) then
       inpfileobs3030=rootinpfileobs+".30S-30N.nc"
-      ncurves=ncurves+1
    end if
    npl=npl+1
-   print("add a panel for 30-30")
 end if
 if(b3070S.eq.1)then
    inpfile3070S=inpfile+".30S-70S.nc"
    if (cmp2obs.eq.1) then
       inpfileobs3070S=rootinpfileobs+".30S-70S.nc"
-      ncurves=ncurves+1
    end if
    npl=npl+1
-   print("add a panel for 30-70S")
 end if
 if(b7090S.eq.1)then
    inpfile7090S=inpfile+".70S-90S.nc"
    if (cmp2obs.eq.1) then
       inpfileobs7090S=rootinpfileobs+".70S-90S.nc"
-      ncurves=ncurves+1
    end if
    npl=npl+1
-   print("add a panel for 90-70S")
 end if
 if(bland.eq.1)then
    inpfileland=inpfile+".land.nc"
@@ -113,12 +100,9 @@ if(boce.eq.1)then
    inpfileoce=inpfile+".oce.nc"
    if (cmp2obs.eq.1) then
       inpfileobsoce=rootinpfileobs+".oce.nc"
-      ncurves=ncurves+1
    end if
    npl=npl+1
 end if
- yend=getenv("lasty")
- yini=getenv("startyear")
  varmod=getenv("varmod")
  if(compute.eq.1)then
     varmod2=getenv("varmod2")
@@ -131,9 +115,7 @@ end if
 
  print("panel "+npl)
  print("curves per panel "+ncurves)
- print("iniy "+yini)
- print("lasty "+yend)
- uplot   = new ((/npl,ncurves,toint(yend)-toint(yini)+1/),"float")   ; convert integer YYYYMM to float
+ uplot   = new ((/npl,ncurves,12/),"float")   ; convert integer YYYYMM to float
  ndims=dimsizes(uplot)
  utitle   = new (npl,"string")   ; convert integer YYYYMM to float
  i=0
@@ -143,13 +125,17 @@ end if
     if(compute.eq.1) then
        utmp     = f->$varmod$ - f->$varmod2$
     end if
-    u= rm_single_dims(utmp)
+    u= (rm_single_dims(utmp)+cf)*mf*1./tofloat(mftom1)
     printVarSummary(u)
     printVarSummary(uplot)
     uplot(i,0,:)=u(0:ndims(2)-1)
     if(cmp2obs.eq.1)then
        fobs     = addfile (inpfileobs1,"r")
-       uplot(i,1,:)=rm_single_dims(fobs->$varobs$)
+       tmp=tofloat(fobs->$varobs$(:,0,0))
+       printVarSummary(tmp)
+       print(tmp)
+       uplot(i,1,:)=tmp
+       delete(tmp)
     end if
     utitle(i)="Global " 
     name=utmp@long_name
@@ -161,16 +147,13 @@ end if
     if(compute.eq.1) then
        utmp     = f->$varmod$ - f->$varmod2$
     end if
-    u= rm_single_dims(utmp)
+    u= (rm_single_dims(utmp)+cf)*mf*1./tofloat(mftom1)
     uplot(i,0,:)=u(0:ndims(2)-1)
     utitle(i)="NH " 
     name=utmp@long_name
     if(cmp2obs.eq.1)then
        fobs     = addfile (inpfileobsNH,"r")
-       uNobs     = (fobs->$varobs$(:,0,0))*1000
-       if(varmod.eq."H2OSNO")then
-          uplot(i,1,1950-toint(yini):)=uNobs(0:toint(yend)-1950)
-       end if
+       uplot(i,1,:)=tofloat(rm_single_dims(fobs->$varobs$))
     end if
     i=i+1
  end if
@@ -180,16 +163,13 @@ end if
     if(compute.eq.1) then
        utmp     = f->$varmod$ - f->$varmod2$
     end if
-    u= rm_single_dims(utmp)
+    u= (rm_single_dims(utmp)+cf)*mf*1./tofloat(mftom1)
     uplot(i,0,:)=u(0:ndims(2)-1)
     utitle(i)="SH " 
     name=utmp@long_name
     if(cmp2obs.eq.1)then
        fobs     = addfile (inpfileobsSH,"r")
-       uNobs     = (fobs->$varobs$(:,0,0))*1000
-       if(varmod.eq."H2OSNO")then
-          uplot(i,1,1950-toint(yini):)=uNobs(0:toint(yend)-1950)
-       end if
+       uplot(i,1,:)=tofloat(rm_single_dims(fobs->$varobs$))
     end if
     i=i+1
  end if
@@ -199,12 +179,11 @@ end if
     if(compute.eq.1) then
        utmp     = f->$varmod$ - f->$varmod2$
     end if
-    u= rm_single_dims(utmp)
+    u= (rm_single_dims(utmp)+cf)*mf*1./tofloat(mftom1)
     uplot(i,0,:)=u(0:ndims(2)-1)
     utitle(i)="70N-90N " 
     delete(u)
     name=utmp@long_name
-    i=i+1
  end if
  if(b3070.eq.1)then
     f     = addfile (inpfile3070,"r")
@@ -212,7 +191,7 @@ end if
     if(compute.eq.1) then
        utmp     = f->$varmod$ - f->$varmod2$
     end if
-    u= rm_single_dims(utmp)
+    u= (rm_single_dims(utmp)+cf)*mf*1./tofloat(mftom1)
     uplot(i,0,:)=u(0:ndims(2)-1)
     utitle(i)="30N-70N " 
     name=utmp@long_name
@@ -224,7 +203,7 @@ end if
     if(compute.eq.1) then
        utmp     = f->$varmod$ - f->$varmod2$
     end if
-    u= rm_single_dims(utmp)
+    u= (rm_single_dims(utmp)+cf)*mf*1./tofloat(mftom1)
     uplot(i,0,:)=u(0:ndims(2)-1)
     utitle(i)="30S-30N " 
     name=utmp@long_name
@@ -236,7 +215,7 @@ end if
     if(compute.eq.1) then
        utmp     = f->$varmod$ - f->$varmod2$
     end if
-    u= rm_single_dims(utmp)
+    u= (rm_single_dims(utmp)+cf)*mf*1./tofloat(mftom1)
     uplot(i,0,:)=u(0:ndims(2)-1)
     utitle(i)="30S-70S " 
     name=utmp@long_name
@@ -248,7 +227,7 @@ end if
     if(compute.eq.1) then
        utmp     = f->$varmod$ - f->$varmod2$
     end if
-    u= rm_single_dims(utmp)
+    u= (rm_single_dims(utmp)+cf)*mf*1./tofloat(mftom1)
     uplot(i,0,:)=u(0:ndims(2)-1)
     utitle(i)="70S-90S " 
     name=utmp@long_name
@@ -260,7 +239,7 @@ end if
     if(compute.eq.1) then
        utmp     = f->$varmod$ - f->$varmod2$
     end if
-    u= rm_single_dims(utmp)
+    u= (rm_single_dims(utmp)+cf)*mf*1./tofloat(mftom1)
     uplot(i,0,:)=u(0:ndims(2)-1)
     utitle(i)="land " 
     name=utmp@long_name
@@ -272,18 +251,17 @@ end if
     if(compute.eq.1) then
        utmp     = f->$varmod$ - f->$varmod2$
     end if
-    u= rm_single_dims(utmp)
+    u= (rm_single_dims(utmp)+cf)*mf*1./tofloat(mftom1)
     uplot(i,0,:)=u(0:ndims(2)-1)
     utitle(i)="oce " 
     name=utmp@long_name
     i=i+1
  end if
- if(cmp2obs.eq.1)then
- if(varmod.eq."H2OSNO")then
-    fobs     = addfile (obsfileS,"r")
-    uSobs     = (fobs->sd(:,0,0))*1000
-    uSplot(i,1,1950-toint(yini):)=uSobs(0:toint(yend)-1950)
+ if(varmod.eq."TREFHT".or.varmod.eq."TS")then
+    uplot(:,1,:)= (uplot(:,1,:)+cf)*mf*1./tofloat(mftom1)
  end if
+ if (varmod.eq."FLNT" .or. varmod.eq."FLNS")then
+    uplot(:,1,:)= -uplot(:,1,:)
  end if
  taxis=varmod+" ["+utmp@units+"]"
  delete(utmp)
@@ -327,7 +305,7 @@ end if
  res@xyMarkLineMode = "MarkLines"               ; Markers *and* lines
  res@xyMarker      = 1
  res@xyMarkerSizeF=0.03
- res@xyMarkerColors := (/"blue","red","green","magenta","grey","orange"/) ; 3 different colors
+ res@xyMarkerColors := (/"blue","red"/) ; 3 different colors
  res@tmXBLabelAngleF=45
 ; add a legend
  if(cmp2obs.eq.1)then
@@ -338,20 +316,12 @@ end if
  res@pmLegendParallelPosF   = 1.15                   ; move units right
  res@pmLegendOrthogonalPosF = -0.8                  ; more neg = down
  
- res@pmLegendWidthF         = 0.12                  ; Change width and
- res@pmLegendHeightF        = 0.25                  ; height of legend.
- res@lgLabelFontHeightF     = .02                   ; change font height
+ res@pmLegendWidthF         = 0.1                  ; Change width and
+ res@pmLegendHeightF        = 0.12                  ; height of legend.
+ res@lgLabelFontHeightF     = .015                   ; change font height
  res@lgPerimOn              = False                 ; no box around
 ; labels for the legend
- res@xyExplicitLegendLabels = (/expid, "observations", "t02d", "t02e", "t03c","t03d","obs"/)
-
- dateF   = new ((/toint(yend)-toint(yini)+1/),float)   ; convert integer YYYYMM to float
- m=1
- yyyy      = toint(yini)
- do n=0,dimsizes(dateF)-1
-    dateF(n) = yyyy
-    yyyy=yyyy+1
- end do
+ res@xyExplicitLegendLabels = (/"model", "observations"/)
 
  if(autoprec.eq."False")then
     res@tmYLPrecision=2
@@ -360,32 +330,23 @@ end if
   plots = new(npl,graphic)
  res@gsnFrame          = False                      ; don't advance frame yet
  res@gsnDraw   = False
- tmp=(uplot+cf)*mf*1./tofloat(mftom1)
- printVarSummary(uplot)
- printVarSummary(tmp)
- uplot=tmp
- copy_VarMeta(tmp,uplot)
- delete(tmp)
  res@vpWidthF         = 0.8                      ; set width and height
  res@tiMainFontHeightF  = 0.015
  res@vpHeightF        = tofloat(getenv("hplot"))
- nn=dimsizes(uplot)
- nt=nn(2)-1
- ini=nt-toint(nyrsmean)
- if (ini.lt.0) then
-   ini=0
-   nyrsmean=sprinti("%2i",nt)
- end if
+; nn=dimsizes(uplot)
+; nt=nn(2)-1
+; ini=nt-toint(nyrsmean)
+; if (ini.lt.0) then
+;   ini=0
+;   nyrsmean=sprinti("%2i",nt)
+; end if
  do i=0,npl-1
-;     print("mean ini"+ini+" "+dim_avg(uplot(i,0,ini:nt)))
-;     print("mean "+dim_avg(uplot(i,0,:)))
-;     print(" ")
-     res@gsnLeftString      = utitle(i)+" last "+nyrsmean+" yy="+sprintf("%6.3f",dim_avg(uplot(i,0,ini:nt)))
+     res@gsnLeftString      = utitle(i)
      res@gsnRightString=name
-     plots(i)  = gsn_csm_xy (wks,dateF,uplot(i,:,:),res)            ; create plot
+     plots(i)  = gsn_csm_xy (wks,ispan(1,12,1),uplot(i,:,:),res)            ; create plot
  end do
  pres=True
- pres@gsnPanelMainString     = expid+" "+yini+"-"+yend
+ pres@gsnPanelMainString     = expid+" annual cycle"
  gsn_panel(wks,plots,(/npl,1/),pres) ; Draw as one plot
 
 end
