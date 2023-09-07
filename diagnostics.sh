@@ -11,7 +11,7 @@
 
 set -eux  
 # SECTION TO BE MODIFIED BY USER
-machine="juno"
+machine="zeus"
 do_ocn=1
 do_atm=1
 do_ice=0
@@ -26,12 +26,13 @@ do_anncyc=1
 # model to diagnose
 #export expid1=cm3_cam116d_2000_t1
 export expid1=cm3_cam116d_2000_1d32l_t1
+export expid1=SPS3.5_2000_cont
 #export expid1=cm3_cam122_cpl2000-bgc_t01
-utente1=cp1
+utente1=$USER
 #utente1=dp16116
-cam_nlev1=32
+cam_nlev1=46
 #cam_nlev1=83
-core1=FV
+core1=SE
 #
 # second model to compare with
 #expid2=cam109d_cm3_1deg_amip1981-bgc_t2
@@ -41,10 +42,10 @@ utente2=$USER
 cam_nlev2=32
 core2=FV
 #
-export startyear="0001"
+export startyear="0023"
 export finalyear="0090"
-export startyear_anncyc="0001" #starting year to compute 2d map climatology
-export nyrsmean=10   #nyear-period for mean in timeseries
+export startyear_anncyc="0023" #starting year to compute 2d map climatology
+export nyrsmean=20   #nyear-period for mean in timeseries
 # select if you compare to model or obs 
 export cmp2obs=1
 export cmp2mod=0
@@ -149,7 +150,8 @@ export pltype="png"
 export units
 export title
 #allvars_atm="ALBEDO ALBEDOS AODVIS BURDENBC BURDENSOA BURDENPOM BURDENSO4 BURDENDUST BURDEN1 BURDENdn1  BURDEN2 BURDENdn2 BURDEN3 BURDENdn3 BURDEN4 BURDENdn4 BURDENB  BURDENDUST BURDENPOM BURDENSEASALT BURDENSOA  BURDENSO4 CLDLOW CLDMED CLDHGH  CLDTOT EnBalSrf FLUT FLUTC FLDS FSDSC FLNS FLNSC FSNSC FSNTOA FSNS FSDS FSNT FLNT ICEFRAC  LHFLX SHFLX LWCF SWCF SOLIN RESTOM EmP PRECT PRECC PS QFLX TREFHT TS Z500 Z850 U200"
-allvars_atm="ALBEDO CLDLOW CLDMED CLDHGH  CLDTOT EnBalSrf FLUT FLUTC FLDS FSDSC FLNS FLNSC FSNSC FSNTOA FSNS FSDS FSNT FLNT ICEFRAC  LHFLX SHFLX LWCF SWCF SOLIN RESTOM EmP PRECT PRECC PS QFLX TREFHT TS Z500 Z850 U200 T U Z3"
+#allvars_atm="ALBEDO CLDLOW CLDMED CLDHGH  CLDTOT EnBalSrf FLUT FLUTC FLDS FSDSC FLNS FLNSC FSNSC FSNTOA FSNS FSDS FSNT FLNT ICEFRAC  LHFLX SHFLX LWCF SWCF SOLIN RESTOM EmP PRECT PRECC PS QFLX TREFHT TS Z500 Z850 U200 T U Z3"
+allvars_atm="ALBEDO CLDLOW CLDMED CLDHGH  CLDTOT FLUT FLUTC FLDS FSDSC FLNS FLNSC FSNSC FSNTOA FSNS FSDS FSNT FLNT ICEFRAC  LHFLX SHFLX LWCF SWCF SOLIN RESTOM EmP PRECT PRECC PS QFLX TREFHT TS Z500 Z850 U200 T U Z3"
 allvars_lnd="SNOWDP FSH TLAI FAREA_BURNED";
 allvars_ice="aice snowfrac ext Tsfc fswup fswdn flwdn flwup congel fbot albsni hi";
 allvars_oce="tos sos zos heatc saltc";
