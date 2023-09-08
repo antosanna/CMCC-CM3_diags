@@ -47,7 +47,7 @@ begin
   print(mf)
   in = addfile(modfile,"r")
   print("----model file "+modfile)
-  t=in->$varmod$
+  t=rm_single_dims(in->$varmod$)
   latmod=in->lat
   lonmod  = in->lon
   rad=4.0*atan(1.0)/180.0
@@ -71,6 +71,10 @@ begin
   tclim=(tclim+cf)*mf
   printMinMax(tclim,0)
   copy_VarMeta(t(0,:,:),tclim)
+  tclim!0="lat"
+  tclim!1="lon"
+  tclim&lat=latmod
+  tclim&lon=lonmod
   printVarSummary( wgty_mod)
   printVarSummary(tclim)
   if(cmp2mod.eq.1)then
@@ -110,12 +114,22 @@ begin
      else if (varmod.eq."FLNT" .or. varmod.eq."FLNS")then
         tobs  = -(in->$varobs$(:,::-1,:)) ; different sign convention for longwave radiation btw era5 and cam
         lat  = in->lat(::-1)
-     else if (varobs.eq."Z" .or. varobs.eq."U")then
+     else if (varobs.eq."Z" .or. varobs.eq."U".or.varobs.eq."var131".or.varobs.eq."var129")then
         lev=toint(getenv("ncl_lev"))
         print("level index "+lev)
         tobs  = in->$varobs$(:,lev,:,:)
+        if (varobs.eq."var131".or.varobs.eq."var129")then
+           lat  = in->lat(::-1)
+           tobs  = in->$varobs$(:,lev,::-1,:)
+           if (varobs.eq."var129")then
+              tmp=tobs/9.8065
+              tmp=tobs/10.
+              copy_VarMeta(tobs,tmp)
+              tobs=tmp
+           end if
+        end if
         if (varobs.eq."Z")then
-           tmp=tobs*100*mf
+           tmp=tobs*100
            copy_VarMeta(tobs,tmp)
            tobs=tmp
            printMinMax(tobs,0)
@@ -287,9 +301,6 @@ begin
      plot(0) = gsn_csm_contour_map(wks,tclim, res)
 
      if(cmp2obs.eq.1)then
-;        if (varmod.eq."FSNT") then
-;             res@gsnLeftString   = "Net sw Top of the Atmosphere"
-;        end if
         res@gsnCenterString = getenv("title2")
         tobsclim!0="lat"
         tobsclim!1="lon"
@@ -297,8 +308,8 @@ begin
         tobsclim&lon=lon
         tobsclim&lat@units="degree_N"
         tobsclim&lon@units="degree_E"
-        res@gsnLeftString   = ""
-        res@gsnRightString   = ""
+        delete(res@gsnLeftString)
+        delete(res@gsnRightString)
         plot(1) = gsn_csm_contour_map(wks,tobsclim, res)
      else if (cmp2mod.eq.1)then
         tclim2!0="lat"
@@ -307,8 +318,8 @@ begin
         tclim2&lon=lonmod2
         tclim2&lat@units="degree_N"
         tclim2&lon@units="degree_E"
-        res@gsnLeftString   = ""
-        res@gsnRightString   = ""
+        delete(res@gsnLeftString)
+        delete(res@gsnRightString)
         res@gsnCenterString = getenv("title2mod")
         plot(1) = gsn_csm_contour_map(wks,tclim2, res)
      end if

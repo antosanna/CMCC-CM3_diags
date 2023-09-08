@@ -131,7 +131,7 @@ end if
     uplot(i,0,:)=u(0:ndims(2)-1)
     if(cmp2obs.eq.1)then
        fobs     = addfile (inpfileobs1,"r")
-       tmp=tofloat(fobs->$varobs$(:,0,0))
+       tmp=rm_single_dims(tofloat(fobs->$varobs$(:,0,0)))
        printVarSummary(tmp)
        print(tmp)
        uplot(i,1,:)=tmp
