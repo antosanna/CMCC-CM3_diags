@@ -4,7 +4,7 @@ begin
 ;************************************************
 ; read in data
 ;************************************************
-cmp2obs=getenv("cmp2obs_ncl")
+cmp2obs=getenv("cmp2obs_anncyc")
 npl=0
 nyrsmean=getenv("nyrsmean")
 name_from_ext=getenv("name_from_here")

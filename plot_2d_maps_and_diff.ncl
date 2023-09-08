@@ -123,7 +123,6 @@ begin
            tobs  = in->$varobs$(:,lev,::-1,:)
            if (varobs.eq."var129")then
               tmp=tobs/9.8065
-              tmp=tobs/10.
               copy_VarMeta(tobs,tmp)
               tobs=tmp
            end if

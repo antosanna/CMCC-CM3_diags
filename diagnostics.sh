@@ -15,23 +15,23 @@ machine="juno"
 do_ocn=0
 do_atm=1
 do_ice=0
-do_lnd=0
-do_timeseries=0
+do_lnd=1
+do_timeseries=1
 do_znl_lnd=0
 do_znl_atm=1
 do_znl_atm2d=0
-do_2d_plt=0
+do_2d_plt=1
 do_anncyc=1
 
 # model to diagnose
 #export expid1=cm3_cam116d_2000_1d32l_t1
 #export expid1=SPS3.5_2000_cont
 export expid1=cm3_cam122_cpl2000-bgc_t01
-#export expid1=cm3_cam122d_2000_1d32l_t8
+export expid1=cm3_cam122d_2000_1d32l_t8
 #utente1=$USER
 utente1=dp16116
-#cam_nlev1=32
-cam_nlev1=83
+cam_nlev1=32
+#cam_nlev1=83
 core1=FV
 #
 # second model to compare with
@@ -146,12 +146,12 @@ pltdir=$tmpdir1/plots
 mkdir -p $pltdir
 mkdir -p $pltdir/atm $pltdir/lnd $pltdir/ice $pltdir/ocn $pltdir/namelists
 
-export pltype="x11"
+export pltype="png"
 export units
 export title
 #allvars_atm="ALBEDO ALBEDOS AODVIS BURDENBC BURDENSOA BURDENPOM BURDENSO4 BURDENDUST BURDEN1 BURDENdn1  BURDEN2 BURDENdn2 BURDEN3 BURDENdn3 BURDEN4 BURDENdn4 BURDENB  BURDENDUST BURDENPOM BURDENSEASALT BURDENSOA  BURDENSO4 CLDLOW CLDMED CLDHGH  CLDTOT EnBalSrf FLUT FLUTC FLDS FSDSC FLNS FLNSC FSNSC FSNTOA FSNS FSDS FSNT FLNT ICEFRAC  LHFLX SHFLX LWCF SWCF SOLIN RESTOM EmP PRECT PRECC PS QFLX TREFHT TS Z500 Z850 U200"
 #allvars_atm="ALBEDO CLDLOW CLDMED CLDHGH  CLDTOT EnBalSrf FLUT FLUTC FLDS FSDSC FLNS FLNSC FSNSC FSNTOA FSNS FSDS FSNT FLNT ICEFRAC  LHFLX SHFLX LWCF SWCF SOLIN RESTOM EmP PRECT PRECC PS QFLX TREFHT TS Z500 Z850 U200 T U Z3"
-allvars_atm="U010" #ALBEDO CLDLOW CLDMED CLDHGH  CLDTOT FLUT FLUTC FLDS FSDSC FLNS FLNSC FSNSC FSNTOA FSNS FSDS FSNT FLNT ICEFRAC  LHFLX SHFLX LWCF SWCF SOLIN RESTOM EmP PRECT PRECC PS QFLX TREFHT TS Z010 Z100 Z500 Z700 Z850 U010 U100 U200 U700 T U Z3"
+allvars_atm="ALBEDO CLDLOW CLDMED CLDHGH  CLDTOT FLUT FLUTC FLDS FSDSC FLNS FLNSC FSNSC FSNTOA FSNS FSDS FSNT FLNT ICEFRAC  LHFLX SHFLX LWCF SWCF SOLIN RESTOM EmP PRECT PRECC PS QFLX TREFHT TS Z010 Z100 Z500 Z700 Z850 U010 U100 U200 U700 T U Z3"
 allvars_lnd="SNOWDP FSH TLAI FAREA_BURNED";
 allvars_ice="aice snowfrac ext Tsfc fswup fswdn flwdn flwup congel fbot albsni hi";
 allvars_oce="tos sos zos heatc saltc";
@@ -491,58 +491,59 @@ do
          export ncl_lev
          export cmp2mod_ncl
          export cmp2obs_ncl
+         export cmp2obs_anncyc=$cmp2obs
          case $varmod in
-                BURDENSEASALT)cmp2mod_ncl=0;cmp2obs_ncl=0;mf=100000;units="kg/m2*e5";units_from_here=1;export maxplot=5;export minplot=0.;export delta=0.5;;
-                BURDENBC)cmp2mod_ncl=0;cmp2obs_ncl=0;mf=100000;units="kg/m2*e5";units_from_here=1;export maxplot=1;export minplot=0.;export delta=0.1;;
-                BURDENSOA)cmp2mod_ncl=0;cmp2obs_ncl=0;mf=100000;units="kg/m2*e5";units_from_here=1;export maxplot=1;export minplot=0.;export delta=0.1;;
-                BURDENPOM)cmp2mod_ncl=0;cmp2obs_ncl=0;mf=100000;units="kg/m2*e5";units_from_here=1;export maxplot=1;export minplot=0.;export delta=0.1;;
-                BURDENSO4)cmp2mod_ncl=0;cmp2obs_ncl=0;mf=100000;units="kg/m2*e5";units_from_here=1;export maxplot=3;export minplot=0.;export delta=0.2;;
-                BURDENDUST)cmp2mod_ncl=0;cmp2obs_ncl=0;mf=100000;units="kg/m2*e5";units_from_here=1;export maxplot=3;export minplot=0.;export delta=0.2;;
-                BURDEN4)cmp2mod_ncl=0;cmp2obs_ncl=0;mf=100000;units="kg/m2*e5";units_from_here=1;export maxplot=1;export minplot=0.;export delta=0.1;;
-                BURDENdn4)cmp2mod_ncl=0;cmp2obs_ncl=0;mf=100000;units="kg/m2*e5";units_from_here=1;export maxplot=1;export minplot=0.;export delta=0.1;;
-                BURDEN3)cmp2mod_ncl=0;cmp2obs_ncl=0;mf=100000;units="kg/m2*e5";units_from_here=1;export maxplot=5;export minplot=0.;export delta=0.5;;
-                BURDENdn3)cmp2mod_ncl=0;cmp2obs_ncl=0;mf=100000;units="kg/m2*e5";units_from_here=1;export maxplot=5;export minplot=0.;export delta=0.5;;
-                BURDEN2)cmp2mod_ncl=0;cmp2obs_ncl=0;mf=100000;units="kg/m2*e5";units_from_here=1;export maxplot=0.1;export minplot=0.;export delta=0.01;;
-                BURDENdn2)cmp2mod_ncl=0;cmp2obs_ncl=0;mf=100000;units="kg/m2*e5";units_from_here=1;export maxplot=0.1;export minplot=0.;export delta=0.01;;
-                BURDEN1)cmp2mod_ncl=0;cmp2obs_ncl=0;mf=100000;units="kg/m2*e5";units_from_here=1;export maxplot=5;export minplot=0.;export delta=0.5;;
-                BURDENdn1)cmp2mod_ncl=0;cmp2obs_ncl=0;mf=100000;units="kg/m2*e5";units_from_here=1;export maxplot=5;export minplot=0.;export delta=0.5;;
+                BURDENSEASALT)cmp2mod_ncl=0;cmp2obs_ncl=0;cmp2obs_anncyc=0;mf=100000;units="kg/m2*e5";units_from_here=1;export maxplot=5;export minplot=0.;export delta=0.5;;
+                BURDENBC)cmp2mod_ncl=0;cmp2obs_ncl=0;cmp2obs_anncyc=0;mf=100000;units="kg/m2*e5";units_from_here=1;export maxplot=1;export minplot=0.;export delta=0.1;;
+                BURDENSOA)cmp2mod_ncl=0;cmp2obs_ncl=0;cmp2obs_anncyc=0;mf=100000;units="kg/m2*e5";units_from_here=1;export maxplot=1;export minplot=0.;export delta=0.1;;
+                BURDENPOM)cmp2mod_ncl=0;cmp2obs_ncl=0;cmp2obs_anncyc=0;mf=100000;units="kg/m2*e5";units_from_here=1;export maxplot=1;export minplot=0.;export delta=0.1;;
+                BURDENSO4)cmp2mod_ncl=0;cmp2obs_ncl=0;cmp2obs_anncyc=0;mf=100000;units="kg/m2*e5";units_from_here=1;export maxplot=3;export minplot=0.;export delta=0.2;;
+                BURDENDUST)cmp2mod_ncl=0;cmp2obs_ncl=0;cmp2obs_anncyc=0;mf=100000;units="kg/m2*e5";units_from_here=1;export maxplot=3;export minplot=0.;export delta=0.2;;
+                BURDEN4)cmp2mod_ncl=0;cmp2obs_ncl=0;cmp2obs_anncyc=0;mf=100000;units="kg/m2*e5";units_from_here=1;export maxplot=1;export minplot=0.;export delta=0.1;;
+                BURDENdn4)cmp2mod_ncl=0;cmp2obs_ncl=0;cmp2obs_anncyc=0;mf=100000;units="kg/m2*e5";units_from_here=1;export maxplot=1;export minplot=0.;export delta=0.1;;
+                BURDEN3)cmp2mod_ncl=0;cmp2obs_ncl=0;cmp2obs_anncyc=0;mf=100000;units="kg/m2*e5";units_from_here=1;export maxplot=5;export minplot=0.;export delta=0.5;;
+                BURDENdn3)cmp2mod_ncl=0;cmp2obs_ncl=0;cmp2obs_anncyc=0;mf=100000;units="kg/m2*e5";units_from_here=1;export maxplot=5;export minplot=0.;export delta=0.5;;
+                BURDEN2)cmp2mod_ncl=0;cmp2obs_ncl=0;cmp2obs_anncyc=0;mf=100000;units="kg/m2*e5";units_from_here=1;export maxplot=0.1;export minplot=0.;export delta=0.01;;
+                BURDENdn2)cmp2mod_ncl=0;cmp2obs_ncl=0;cmp2obs_anncyc=0;mf=100000;units="kg/m2*e5";units_from_here=1;export maxplot=0.1;export minplot=0.;export delta=0.01;;
+                BURDEN1)cmp2mod_ncl=0;cmp2obs_ncl=0;cmp2obs_anncyc=0;mf=100000;units="kg/m2*e5";units_from_here=1;export maxplot=5;export minplot=0.;export delta=0.5;;
+                BURDENdn1)cmp2mod_ncl=0;cmp2obs_ncl=0;cmp2obs_anncyc=0;mf=100000;units="kg/m2*e5";units_from_here=1;export maxplot=5;export minplot=0.;export delta=0.5;;
                 EnBalSrf)varobs=ftot;units="W/m2";export maxplot=20.;export minplot=-20.;export delta=2.;title="Surface Radiative Balance";name_from_here=1;units_from_here=1;export maxplotdiff=10.;export minplotdiff=-10.;export deltadiff=1.;export cmp2obs_ncl=$cmp2obs;obsfile="$dir_obs3/ftot_era5_1980-2019_mm_ann_cyc.nc";export title2="ERA5 $climobscld";;
-                AODVIS)cmp2mod_ncl=0;cmp2obs_ncl=0;;
-                ICEFRAC)cf=0;units="frac";obsfile="";cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=0;title2="ERA5 $climobs";export maxplot=0.95;export minplot=0.15;export delta=.05;units_from_here=0; title="Sea-Ice Fraction";name_from_here=1;;
+                AODVIS)cmp2mod_ncl=0;cmp2obs_ncl=0;cmp2obs_anncyc=0;;
+                ICEFRAC)cf=0;units="frac";obsfile="";cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=0;cmp2obs_anncyc=0;title2="ERA5 $climobs";export maxplot=0.95;export minplot=0.15;export delta=.05;units_from_here=0; title="Sea-Ice Fraction";name_from_here=1;;
                 TREFHT)varobs=T2M;cf=-273.15;units="Celsius deg";obsfile="$dir_obs1/ERA5_1m_clim_1deg_1979-2018_surface.nc";title2="ERA5 $climobs";export maxplot=36;export minplot=-20;export delta=4;units_from_here=1;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
-                U200)varobs=U;units="m/s";obsfile="$dir_obs1/ERA5_1m_clim_1deg_1979-2018_prlev.nc";ncl_lev=1;title2="ERA5 $climobs";export maxplot=30.;export minplot=-30.;export delta=10.;units_from_here=1;export maxplotdiff=10;export minplotdiff=-10;export deltadiff=2.;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
-                U010)varobs=var131;units="m/s";obsfile="$dir_obs4/uplev_era5_1979-2018_anncyc.nc";ncl_lev=1;title2="ERA5 $climobs";export maxplot=30.;export minplot=-30.;export delta=10.;units_from_here=1;export maxplotdiff=10;export minplotdiff=-10;export deltadiff=2.;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
-                U700)varobs=var131;units="m/s";obsfile="$dir_obs4/uplev_era5_1979-2018_anncyc.nc";ncl_lev=4;title2="ERA5 $climobs";export maxplot=30.;export minplot=-30.;export delta=10.;units_from_here=1;export maxplotdiff=10;export minplotdiff=-10;export deltadiff=2.;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
-                U100)varobs=var131;units="m/s";obsfile="$dir_obs4/uplev_era5_1979-2018_anncyc.nc";ncl_lev=2;title2="ERA5 $climobs";export maxplot=30.;export minplot=-30.;export delta=10.;units_from_here=1;export maxplotdiff=10;export minplotdiff=-10;export deltadiff=2.;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
-                Z500)varobs=Z;cf=0;units="m";obsfile="$dir_obs1/ERA5_1m_clim_1deg_1979-2018_prlev.nc";ncl_lev=3;title2="ERA5 $climobs";export maxplot=5900.;export minplot=4800;export delta=100;units_from_here=1;export maxplotdiff=50;export minplotdiff=-50;export deltadiff=5.;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
-                Z700)varobs=var129;cf=0;units="m";obsfile="$dir_obs4/Zplev_era5_1979-2018_anncyc.nc";ncl_lev=4;title2="ERA5 $climobs";export maxplot=3200.;export minplot=2600;export delta=100;units_from_here=1;export maxplotdiff=100;export minplotdiff=-100;export deltadiff=20.;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
-                Z010)varobs=var129;cf=0;units="m";obsfile="$dir_obs4/Zplev_era5_1979-2018_anncyc.nc";ncl_lev=1;title2="ERA5 $climobs";export maxplot=31600.;export minplot=28800;export delta=100;units_from_here=1;export maxplotdiff=200;export minplotdiff=-200;export deltadiff=20.;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
-                Z100)varobs=var129;cf=0;units="m";obsfile="$dir_obs4/Zplev_era5_1979-2018_anncyc.nc";ncl_lev=2;title2="ERA5 $climobs";export maxplot=16800.;export minplot=15000;export delta=100;units_from_here=1;export maxplotdiff=200;export minplotdiff=-200;export deltadiff=20.;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
-                Z850)varobs=Z;cf=0;units="m";obsfile="$dir_obs1/ERA5_1m_clim_1deg_1979-2018_prlev.nc";ncl_lev=5;title2="ERA5 $climobs";export maxplot=1550.;export minplot=1050.;export delta=50;units_from_here=1;export maxplotdiff=50.;export minplotdiff=-50;export deltadiff=5.;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
+                U200)varobs=U;units="m/s";obsfile="$dir_obs1/ERA5_1m_clim_1deg_1979-2018_prlev.nc";ncl_lev=1;title2="ERA5 $climobs";export maxplot=30.;export minplot=-30.;export delta=10.;units_from_here=1;export maxplotdiff=10;export minplotdiff=-10;export deltadiff=2.;cmp2mod_ncl=$cmp2mod;cmp2obs_anncyc=0;export cmp2obs_ncl=$cmp2obs;;
+                U010)varobs=var131;units="m/s";obsfile="$dir_obs4/uplev_era5_1979-2018_anncyc.nc";ncl_lev=1;title2="ERA5 $climobs";export maxplot=30.;export minplot=-30.;export delta=10.;units_from_here=1;export maxplotdiff=10;export minplotdiff=-10;export deltadiff=2.;cmp2mod_ncl=$cmp2mod;cmp2obs_anncyc=0;export cmp2obs_ncl=$cmp2obs;;
+                U700)varobs=var131;units="m/s";obsfile="$dir_obs4/uplev_era5_1979-2018_anncyc.nc";ncl_lev=4;title2="ERA5 $climobs";export maxplot=30.;export minplot=-30.;export delta=10.;units_from_here=1;export maxplotdiff=10;export minplotdiff=-10;export deltadiff=2.;cmp2mod_ncl=$cmp2mod;cmp2obs_anncyc=0;export cmp2obs_ncl=$cmp2obs;;
+                U100)varobs=var131;units="m/s";obsfile="$dir_obs4/uplev_era5_1979-2018_anncyc.nc";ncl_lev=2;title2="ERA5 $climobs";export maxplot=30.;export minplot=-30.;export delta=10.;units_from_here=1;export maxplotdiff=10;export minplotdiff=-10;export deltadiff=2.;cmp2mod_ncl=$cmp2mod;cmp2obs_anncyc=0;export cmp2obs_ncl=$cmp2obs;;
+                Z500)varobs=Z;cf=0;units="m";obsfile="$dir_obs1/ERA5_1m_clim_1deg_1979-2018_prlev.nc";ncl_lev=3;title2="ERA5 $climobs";export maxplot=5900.;export minplot=4800;export delta=100;units_from_here=1;export maxplotdiff=50;export minplotdiff=-50;export deltadiff=5.;cmp2mod_ncl=$cmp2mod;cmp2obs_anncyc=0;export cmp2obs_ncl=$cmp2obs;;
+                Z700)varobs=var129;cf=0;units="m";obsfile="$dir_obs4/Zplev_era5_1979-2018_anncyc.nc";ncl_lev=4;title2="ERA5 $climobs";export maxplot=3200.;export minplot=2600;export delta=100;units_from_here=1;export maxplotdiff=100;export minplotdiff=-100;export deltadiff=20.;cmp2mod_ncl=$cmp2mod;cmp2obs_anncyc=0;export cmp2obs_ncl=$cmp2obs;;
+                Z010)varobs=var129;cf=0;units="m";obsfile="$dir_obs4/Zplev_era5_1979-2018_anncyc.nc";ncl_lev=1;title2="ERA5 $climobs";export maxplot=31600.;export minplot=28800;export delta=100;units_from_here=1;export maxplotdiff=200;export minplotdiff=-200;export deltadiff=20.;cmp2mod_ncl=$cmp2mod;cmp2obs_anncyc=0;export cmp2obs_ncl=$cmp2obs;;
+                Z100)varobs=var129;cf=0;units="m";obsfile="$dir_obs4/Zplev_era5_1979-2018_anncyc.nc";ncl_lev=2;title2="ERA5 $climobs";export maxplot=16800.;export minplot=15000;export delta=100;units_from_here=1;export maxplotdiff=200;export minplotdiff=-200;export deltadiff=20.;cmp2mod_ncl=$cmp2mod;cmp2obs_anncyc=0;export cmp2obs_ncl=$cmp2obs;;
+                Z850)varobs=Z;cf=0;units="m";obsfile="$dir_obs1/ERA5_1m_clim_1deg_1979-2018_prlev.nc";ncl_lev=5;title2="ERA5 $climobs";export maxplot=1550.;export minplot=1050.;export delta=50;units_from_here=1;export maxplotdiff=50.;export minplotdiff=-50;export deltadiff=5.;cmp2mod_ncl=$cmp2mod;cmp2obs_anncyc=0;export cmp2obs_ncl=$cmp2obs;;
                 TS)varobs=var235;cf=-273.15;units="Celsius deg";obsfile="$dir_obs4/ts_era5_1990-2009.anncyc.nc";export title2="ERA5 $climobs";export maxplot=36;export minplot=-20;export delta=4;units_from_here=1;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
 #                TS)varobs=SST;cf=-273.15;units="Celsius deg";export maxplot=36;export minplot=-20;export delta=2.;units_from_here=1;obsfile=$dir_obs1/ERA5_1m_clim_1deg_1979-2018_surface.nc;export cmp2obs=1;export title2="ERA5 $climobs";;
                 PRECT)varobs=precip;mf=86400000;units="mm/d";export maxplot=18;export minplot=2;export delta=2.;export maxplotdiff=5.;export minplotdiff=-5.;export deltadiff=1.;obsfile="$dir_obs5/gpcp_1979-2015_1deg_anncyc.nc";export title2="GPCP 1979-2015";title="Total precipitation";units_from_here=1;name_from_here=1;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
                 EmP)varobs=var167;mf=86400000;units="mm/d";export maxplot=10.;export minplot=-10.;export delta=2.;title="Evaporation - Precipitation";units_from_here=1;name_from_here=1;cmp2obs_ncl=0;cmp2mod_ncl=$cmp2mod;export maxplotdiff=3.;export minplotdiff=-3.;export deltadiff=.5;;
                 QFLX)varobs=var167;mf=1000000;units="10^-6 kgm-2s-1";export maxplot=100.;export minplot=0.;export delta=10.;title="Surface Water Flux";units_from_here=1;name_from_here=1;cmp2obs_ncl=0;cmp2mod_ncl=$cmp2mod;export maxplotdiff=-10.;export minplotdiff=-10.;export deltadiff=1.;;
-                PRECC)varobs=var167;mf=86400000;units="mm/d";export maxplot=18;export minplot=2;export delta=2.;title="Convective precipitation";units_from_here=1;name_from_here=1;cmp2obs_ncl=0;cmp2mod_ncl=$cmp2mod;;
+                PRECC)varobs=var167;mf=86400000;units="mm/d";export maxplot=18;export minplot=2;export delta=2.;title="Convective precipitation";units_from_here=1;name_from_here=1;cmp2obs_ncl=0;cmp2obs_anncyc=0;cmp2mod_ncl=$cmp2mod;;
                 PSL)varobs=MSL;mf=0.01;units="hPa";export maxplot=1030;export minplot=990;export delta=4.;export maxplotdiff=8;export minplotdiff=-8;export deltadiff=2.;obsfile="$dir_obs1/ERA5_1m_clim_1deg_1979-2018_surface.nc";cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
                 FLUT)varobs=FLUT;export maxplot=300;export minplot=120;export delta=20.;export maxplotdiff=40;export minplotdiff=-40;export deltadiff=10.;obsfile="$dir_obs1/CERES-EBAF_1m_1deg_2000-2009.nc";name_from_here=1;title="Up lw Top of Model";export title2="CERES 2000-2009";cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
-                SOLIN)varobs=var167;units="W/m2";export maxplot=450;export minplot=60;export delta=30.;title="Insolation";units_from_here=1;name_from_here=1;cmp2obs_ncl=0;cmp2mod_ncl=$cmp2mod;;
-                ALBEDO)units="fraction";export maxplot=0.9;export minplot=0.1;export delta=0.1;title="Albedo";units_from_here=1;name_from_here=1;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=0;export maxplotdiff=0.3;export minplotdiff=-0.3;export deltadiff=.03;;
-                ALBEDOS)varobs=albedos;units="fraction";export maxplot=0.9;export minplot=0.1;export delta=0.1;title="Surf Albedo";units_from_here=1;name_from_here=1;export maxplotdiff=0.3;export minplotdiff=-0.3;export deltadiff=.03;obsfile="$dir_obs3/albedos_era5_1980-2019_mm_ann_cyc.nc";export title2="ERA5 $climobscld";cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
-                ALBEDOC)units="fraction";export maxplot=0.9;export minplot=0.1;export delta=0.1;title="Albedo Clear Sky";units_from_here=1;name_from_here=1;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=0;;
-                RESTOM)varobs=var167;export maxplot=100.;export minplot=-100.;export delta=25.;units="W/m2";title="Residual energy Top of the Model";units_from_here=1;name_from_here=1;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=0;export maxplotdiff=20.;export minplotdiff=-20.;export deltadiff=2.5;;
+                SOLIN)varobs=var167;units="W/m2";export maxplot=450;export minplot=60;export delta=30.;title="Insolation";units_from_here=1;name_from_here=1;cmp2obs_ncl=0;cmp2obs_anncyc=0;cmp2mod_ncl=$cmp2mod;;
+                ALBEDO)units="fraction";export maxplot=0.9;export minplot=0.1;export delta=0.1;title="Albedo";units_from_here=1;name_from_here=1;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=0;cmp2obs_anncyc=0;export maxplotdiff=0.3;export minplotdiff=-0.3;export deltadiff=.03;;
+                ALBEDOS)varobs=albedos;units="fraction";export maxplot=0.9;export minplot=0.1;export delta=0.1;title="Surf Albedo";units_from_here=1;name_from_here=1;export maxplotdiff=0.3;export minplotdiff=-0.3;export deltadiff=.03;obsfile="$dir_obs3/albedos_era5_1980-2019_mm_ann_cyc.nc";export title2="ERA5 $climobscld";cmp2mod_ncl=0;cmp2obs_anncyc=0;export cmp2obs_ncl=$cmp2obs;;
+                ALBEDOC)units="fraction";export maxplot=0.9;export minplot=0.1;export delta=0.1;title="Albedo Clear Sky";units_from_here=1;name_from_here=1;cmp2mod_ncl=$cmp2mod;cmp2obs_anncyc=0;export cmp2obs_ncl=0;;
+                RESTOM)varobs=var167;export maxplot=100.;export minplot=-100.;export delta=25.;units="W/m2";title="Residual energy Top of the Model";units_from_here=1;name_from_here=1;cmp2mod_ncl=$cmp2mod;cmp2obs_anncyc=0;export cmp2obs_ncl=0;export maxplotdiff=20.;export minplotdiff=-20.;export deltadiff=2.5;;
                 FLUTC)varobs=FLUTC;export maxplot=300;export minplot=120;export delta=20.;obsfile="$dir_obs1/CERES-EBAF_1m_1deg_2000-2009.nc";name_from_here=1;title="Up clear-sky lw Top of Model";export title2="CERES 2000-2009";cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
                 FLDS)varobs=var175;export maxplot=400;export minplot=100;export delta=50.;name_from_here=1;title="Down lw surface";export maxplotdiff=20;export minplotdiff=-20;export deltadiff=5.;obsfile="$dir_obs3/strd_era5_1980-2019_mm_ann_cyc.nc";export title2="ERA5 $climobscld";cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
                 #FSDS)varobs=var169;export maxplot=300;export minplot=120;export delta=20.;name_from_here=1;title="Down sw surface";cmp2obs=1;export maxplotdiff=40;export minplotdiff=-40;export deltadiff=10.;obsfile="$dir_obs3/ssrd_era5_1980-2019_mm_ann_cyc.nc";export title2="ERA5 $climobscld";;
-                FSNSC)varobs=var167;export maxplot=300;export minplot=25;export delta=25.;name_from_here=1;title="Net sw clear-sky surface";cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=0;;
+                FSNSC)varobs=var167;export maxplot=300;export minplot=25;export delta=25.;name_from_here=1;title="Net sw clear-sky surface";cmp2mod_ncl=$cmp2mod;cmp2obs_anncyc=0;export cmp2obs_ncl=0;;
                 FSNS)varobs=var176;export maxplot=300;export minplot=25;export delta=25.;name_from_here=1;title="Net sw surface";export maxplotdiff=20;export minplotdiff=-20;export deltadiff=5.;obsfile="$dir_obs3/snsr_era5_1980-2019_mm_ann_cyc.nc";export title2="ERA5 $climobscld";cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
                FSDS)varobs=var169;export maxplot=300;export minplot=25;export delta=25.;name_from_here=1;title="Downward sw surface";export maxplotdiff=20;export minplotdiff=-20;export deltadiff=5.;obsfile="$dir_obs3/ssrd_era5_1980-2019_mm_ann_cyc.nc";export title2="ERA5 $climobscld";cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
                 FSNTOA)varobs=var178;export maxplot=420;export minplot=30;export delta=30.;name_from_here=1;title="Net sw Top of the Atmosphere";export maxplotdiff=40;export minplotdiff=-40;export deltadiff=10.;obsfile="$dir_obs3/tnsr_era5_1980-2019_mm_ann_cyc.nc";export title2="ERA5 $climobscld";cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
                 FSNT)varobs=var178;export maxplot=420;export minplot=30;export delta=30.;name_from_here=1;title="Net sw Top of Model";export maxplotdiff=20;export minplotdiff=-20;export deltadiff=5.;obsfile="$dir_obs3/tnsr_era5_1980-2019_mm_ann_cyc.nc";export title2="ERA5 $climobscld";cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
                 FLNT)varobs=var179;export maxplot=310;export minplot=115;export delta=15.;name_from_here=1;title="Net lw Top of Model";export maxplotdiff=20;export minplotdiff=-20;export deltadiff=5.;obsfile="$dir_obs3/tntr_era5_1980-2019_mm_ann_cyc.nc";export title2="ERA5 $climobscld" ;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
              
-              FLNSC)varobs=var167;export maxplot=300;export minplot=120;export delta=20.;name_from_here=1;title="Net clear-sky lw Top of Model";cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=0;;
+              FLNSC)varobs=var167;export maxplot=300;export minplot=120;export delta=20.;name_from_here=1;title="Net clear-sky lw Top of Model";cmp2mod_ncl=$cmp2mod;cmp2obs_anncyc=0;export cmp2obs_ncl=0;;
               FLNS)varobs=var177;export maxplot=200.;export minplot=0.;export delta=20.;name_from_here=1;title="Net lw surface";export maxplotdiff=20;export minplotdiff=-20;export deltadiff=5.;obsfile="$dir_obs3/sntr_era5_1980-2019_mm_ann_cyc.nc";export title2="ERA5 $climobscld";cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
              SHFLX)varobs=var146;export maxplot=300;export minplot=-20;export delta=20.;name_from_here=1;title="Sensible Heat Flux";export maxplotdiff=20;export minplotdiff=-20;export deltadiff=5.;obsfile="$dir_obs3/sshf_era5_1980-2019_mm_ann_cyc.nc";export title2="ERA5 $climobscld";cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
 
@@ -552,19 +553,19 @@ do
 
 #   "lnd"
 # title still there but defined in ncl through long_name
-                TWS) title="Total Water Storage";cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=0;;
-                TSOI) title="Soil Temp at 80cm";name_from_here=1;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=0;;
+                TWS) title="Total Water Storage";cmp2mod_ncl=$cmp2mod;cmp2obs_anncyc=0;export cmp2obs_ncl=0;;
+                TSOI) title="Soil Temp at 80cm";name_from_here=1;cmp2mod_ncl=$cmp2mod;cmp2obs_anncyc=0;export cmp2obs_ncl=0;;
                 H2OSOI) title="Volumetric Soil Water at 1.36m";name_from_here=1;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
                 H2OSNO)varobs=sd; title="Snow Depth (liquid water)";varobs=var167;mf=0.01;export maxplot=10;export minplot=0.5;export delta=0.5;units_from_here=1;units="m";name_from_here=1;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
-                SNOW) title="Atmospheric Snow";cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=0;;
-                SNOWDP)title="Snow Depth ";varobs=sd;export maxplot=3.;export minplot=0.1;export delta=.05;units_from_here=1;name_from_here=1;units="m";obsfile="$dir_obs1/ERA5T/sd/sd_1993-2017.ymean.nc";cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=0;;
+                SNOW) title="Atmospheric Snow";cmp2mod_ncl=$cmp2mod;cmp2obs_anncyc=0;export cmp2obs_ncl=0;;
+                SNOWDP)title="Snow Depth ";varobs=sd;export maxplot=3.;export minplot=0.1;export delta=.05;units_from_here=1;name_from_here=1;units="m";obsfile="$dir_obs1/ERA5T/sd/sd_1993-2017.ymean.nc";cmp2mod_ncl=$cmp2mod;cmp2obs_anncyc=0;export cmp2obs_ncl=0;;
                 CLDTOT)varobs=var164;export maxplot=0.9;export minplot=0.1;export delta=.1;title="Total cloud cover";units_from_here=1;units="fraction";name_from_here=1;export maxplotdiff=.6;export minplotdiff=-.6;export deltadiff=.1;obsfile="$dir_obs2/cldtot_era5_${climobscld}_ann_cyc.nc";export title2="ERA5 $climobscld";name_from_here=1;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
                 CLDMED)varobs=var187;export maxplot=0.9;export minplot=0.1;export delta=.1;title="Mid-level cloud 400-700hPa";units_from_here=1;units="fraction";name_from_here=1;export maxplotdiff=.6;export minplotdiff=-.6;export deltadiff=.1;obsfile="$dir_obs2/cldmed_era5_${climobscld}_ann_cyc.nc";export title2="ERA5 $climobscld";cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
                 CLDHGH)varobs=var188;export maxplot=0.9;export minplot=0.1;export delta=.1;title="High-level cloud 50-400hPa";units_from_here=1;units="fraction";name_from_here=1;export maxplotdiff=.6;export minplotdiff=-.6;export deltadiff=.1;obsfile="$dir_obs2/cldhgh_era5_${climobscld}_ann_cyc.nc";export title2="ERA5 $climobscld";cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
                 CLDLOW)varobs=var186;export maxplot=0.9;export minplot=0.1;export delta=.1;title="Low-level cloud 700-1200hPa";units_from_here=1;units="fraction";name_from_here=1;export maxplotdiff=0.6;export minplotdiff=-0.6;export deltadiff=.1;obsfile="$dir_obs2/cldlow_era5_${climobscld}_ann_cyc.nc";export title2="ERA5 $climobscld";cmp2obs_ncl=$cmp2obs;;
                 FSH)varobs=var167;export maxplot=100.;export minplot=-100.;export delta=10.;title="Sensible Heat";units_from_here=1;name_from_here=1;export maxplotdiff=10.;export minplotdiff=-10.;export deltadiff=1.;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=0;;
-                TLAI)varobs=var167;export maxplot=11.;export minplot=1.;export delta=1.;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=0;;
-                QOVER)title="Total Surface Runoff";export maxplot=0.0003;export minplot=0.;export delta=.00005;name_from_here=1;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=0;;
+                TLAI)varobs=var167;export maxplot=11.;export minplot=1.;export delta=1.;cmp2mod_ncl=$cmp2mod;cmp2obs_anncyc=0;export cmp2obs_ncl=0;;
+                QOVER)title="Total Surface Runoff";export maxplot=0.0003;export minplot=0.;export delta=.00005;name_from_here=1;cmp2obs_anncyc=0;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=0;;
          esac
 #            export taxis="$varmod $units"
          export inpfile=$tmpdir1/${expid1}.$comp.$varmod.$startyear-${lasty}.ymean.fldmean
