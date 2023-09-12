@@ -5,6 +5,7 @@ begin
 ; read in data
 ;************************************************
 cmp2obs=getenv("cmp2obs_anncyc")
+ncl_lev=toint(getenv("ncl_lev"))
 npl=0
 nyrsmean=getenv("nyrsmean")
 name_from_ext=getenv("name_from_here")
@@ -21,6 +22,7 @@ bglo=getenv("bglo")
 print(bglo)
 bNH=getenv("bNH")
 bSH=getenv("bSH")
+bu010=getenv("bu010")
 b7090=0 ;getenv("b7090")
 b7090S=0 ;getenv("b7090S")
 b3070=0 ;getenv("b3070")
@@ -50,6 +52,13 @@ if(bSH.eq.1)then
    npl=npl+1
    if (cmp2obs.eq.1) then
       inpfileobsSH=rootinpfileobs+".SH.nc"
+   end if
+end if
+if(bu010.eq.1)then
+   inpfileu010=inpfile+".u010.nc"
+   npl=npl+1
+   if (cmp2obs.eq.1) then
+      inpfileobsu010=rootinpfileobs+".u010.nc"
    end if
 end if
 if(b7090.eq.1)then
@@ -131,7 +140,11 @@ end if
     uplot(i,0,:)=u(0:ndims(2)-1)
     if(cmp2obs.eq.1)then
        fobs     = addfile (inpfileobs1,"r")
-       tmp=rm_single_dims(tofloat(fobs->$varobs$(:,0,0)))
+       if(ncl_lev.eq.0)then
+          tmp=rm_single_dims(tofloat(fobs->$varobs$(:,0,0)))
+       else
+          tmp=rm_single_dims(tofloat(fobs->$varobs$(:,ncl_lev,0,0)))
+       end if
        printVarSummary(tmp)
        print(tmp)
        uplot(i,1,:)=tmp
@@ -153,7 +166,11 @@ end if
     name=utmp@long_name
     if(cmp2obs.eq.1)then
        fobs     = addfile (inpfileobsNH,"r")
-       uplot(i,1,:)=tofloat(rm_single_dims(fobs->$varobs$))
+       if(ncl_lev.eq.0)then
+          uplot(i,1,:)=tofloat(rm_single_dims(fobs->$varobs$))
+       else
+          uplot(i,1,:)=rm_single_dims(tofloat(fobs->$varobs$(:,ncl_lev,0,0)))
+       end if
     end if
     i=i+1
  end if
@@ -169,7 +186,31 @@ end if
     name=utmp@long_name
     if(cmp2obs.eq.1)then
        fobs     = addfile (inpfileobsSH,"r")
-       uplot(i,1,:)=tofloat(rm_single_dims(fobs->$varobs$))
+       if(ncl_lev.eq.0)then
+          uplot(i,1,:)=tofloat(rm_single_dims(fobs->$varobs$))
+       else
+          uplot(i,1,:)=rm_single_dims(tofloat(fobs->$varobs$(:,ncl_lev,0,0)))
+       end if
+    end if
+    i=i+1
+ end if
+ if(bu010.eq.1)then
+    f     = addfile (inpfileu010,"r")
+    utmp     = f->$varmod$
+    if(compute.eq.1) then
+       utmp     = f->$varmod$ - f->$varmod2$
+    end if
+    u= (rm_single_dims(utmp)+cf)*mf*1./tofloat(mftom1)
+    uplot(i,0,:)=u(0:ndims(2)-1)
+    utitle(i)="u010@60N " 
+    name=utmp@long_name
+    if(cmp2obs.eq.1)then
+       fobs     = addfile (inpfileobsu010,"r")
+       if(ncl_lev.eq.0)then
+          uplot(i,1,:)=tofloat(rm_single_dims(fobs->$varobs$))
+       else
+          uplot(i,1,:)=rm_single_dims(tofloat(fobs->$varobs$(:,ncl_lev,0,0)))
+       end if
     end if
     i=i+1
  end if
