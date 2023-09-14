@@ -791,6 +791,40 @@ do
             then
                exit
             fi
+            export lat0; export lat1; export lon0;export lon1
+            export bglo=0;export bNH=0;export SH=0;export bextraTNH_E=0;export bextraTNH_W=0;export AfricaSH=0;export AfricaNH=0;export Amazon=0
+            list_reg_anncyc="extraTNH_E extraTNH_W AfricaSH AfricaNH Amazon"
+            for reg in $list_reg_anncyc
+            do
+               case $reg in
+                  extraTNH_E)lat0=45;lat1=90;lon0=;lon1=;bextraTNH_E=1;;
+                  extraTNH_W)lat0=45;lat1=90;lon0=;lon1=bextraTNH_W=1;;
+                  AfricaSH)lat0=;lat1=0;lon0=;lon1=;bAfricaSH=1;;
+                  AfricaNH)lat0=0;lat1=0;lon0=;lon1=;bAfricaNH=1;;
+                  Amazon)lat0=50;lat1=60;lon0=;lon1=;bAmazon=1;;
+               esac
+               regfile=$tmpdir1/`basename $inpfile|rev|cut -d '.' -f2-|rev`.$reg.nc
+               if [[ ! -f $regfile ]]
+               then
+                  cdo fldmean -sellonlatbox,$lon0,$lon1,$lat0,$lat1 $inpfile $regfile
+               fi
+               if [[ $cmp2obs_ncl -eq 1 ]]
+               then
+                  regfileobs=$tmpdir1/`basename $obsfile|rev|cut -d '.' -f2-|rev`.$reg.nc
+                  if [[ ! -f $regfileobs ]]
+                  then
+                     cdo fldmean -sellonlatbox,$lon0,$lon1,$lat0,$lat1 $obsfile $regfileobs
+                  fi
+               fi
+            done
+            export rootinpfileobs=$tmpdir1/`basename $obsfile|rev|cut -d '.' -f2-|rev` 
+            export inpfileanncyc=$tmpdir1/`basename $inpfile|rev|cut -d '.' -f2-|rev` 
+            export pltname=$comppltdir/${expid1}.$comp.$varmod.$startyear_anncyc-$lasty.anncyc_5.png
+            ncl plot_anncyc.ncl
+            if [[ $pltype == "x11" ]]
+            then
+               exit
+            fi
          fi   # end annual cycle
          if [[ $do_znl_atm2d -eq 1 ]]
          then

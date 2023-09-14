@@ -4,6 +4,7 @@ begin
 ;************************************************
 ; read in data
 ;************************************************
+print("executing plot_anncyc.ncl")
 cmp2obs=getenv("cmp2obs_anncyc")
 ncl_lev=toint(getenv("ncl_lev"))
 npl=0
@@ -23,19 +24,17 @@ print(bglo)
 bNH=getenv("bNH")
 bSH=getenv("bSH")
 bu010=getenv("bu010")
-b7090=0 ;getenv("b7090")
-b7090S=0 ;getenv("b7090S")
-b3070=0 ;getenv("b3070")
-b3070S=0 ;getenv("b3070S")
-b3030=0 ;getenv("b3030")
-bland=0 ;getenv("bland")
-boce=0 ;getenv("boce")
+bextraTNH_E=getenv("bextraTNH_E")
+bextraTNH_W=getenv("bextraTNH_W")
+bAfricaNH=getenv("bAfricaNH")
+bAfricaSH=getenv("bAfricaSH")
+bAmazon=getenv("bAmazon")
+varobs=getenv("varobs")
 ncurves=1
 if(bglo.eq.1)then
    inpfile1=inpfile+".Global.nc"
    if (cmp2obs.eq.1) then
       inpfileobs1=rootinpfileobs+".Global.nc"
-      varobs=getenv("varobs")
       ncurves=ncurves+1
    end if
    npl=npl+1
@@ -61,54 +60,40 @@ if(bu010.eq.1)then
       inpfileobsu010=rootinpfileobs+".u010.nc"
    end if
 end if
-if(b7090.eq.1)then
-   inpfile7090=inpfile+".70N-90N.nc"
+;print("numero plot "+npl)
+if(bextraTNH_W.eq.1)then
+   inpfileextraTNH_W=inpfile+".extraTNH_W.nc"
    if (cmp2obs.eq.1) then
-      inpfileobs7090=rootinpfileobs+".70N-90N.nc"
       ncurves=ncurves+1
+      inpfileobsextraTNH_W=rootinpfileobs+".extraTNH_W.nc"
    end if
    npl=npl+1
 end if
-if(b3070.eq.1)then
-   inpfile3070=inpfile+".30N-70N.nc"
+if(bextraTNH_E.eq.1)then
+   inpfileextraTNH_E=inpfile+".extraTNH_E.nc"
    if (cmp2obs.eq.1) then
-      inpfileobs3070=rootinpfileobs+".30N-70N.nc"
+      inpfileobsextraTNH_E=rootinpfileobs+".extraTNH_E.nc"
    end if
    npl=npl+1
 end if
-if(b3030.eq.1)then
-   inpfile3030=inpfile+".30S-30N.nc"
+if(bAfricaSH.eq.1)then
+   inpfileAfricaSH=inpfile+".AfricaSH.nc"
    if (cmp2obs.eq.1) then
-      inpfileobs3030=rootinpfileobs+".30S-30N.nc"
+      inpfileobsAfricaSH=rootinpfileobs+".AfricaSH.nc"
    end if
    npl=npl+1
 end if
-if(b3070S.eq.1)then
-   inpfile3070S=inpfile+".30S-70S.nc"
+if(bAfricaNH.eq.1)then
+   inpfileAfricaNH=inpfile+".AfricaNH.nc"
    if (cmp2obs.eq.1) then
-      inpfileobs3070S=rootinpfileobs+".30S-70S.nc"
+      inpfileobsAfricaNH=rootinpfileobs+".AfricaNH.nc"
    end if
    npl=npl+1
 end if
-if(b7090S.eq.1)then
-   inpfile7090S=inpfile+".70S-90S.nc"
+if(bAmazon.eq.1)then
+   inpfileAmazon=inpfile+".Amazon.nc"
    if (cmp2obs.eq.1) then
-      inpfileobs7090S=rootinpfileobs+".70S-90S.nc"
-   end if
-   npl=npl+1
-end if
-if(bland.eq.1)then
-   inpfileland=inpfile+".land.nc"
-   if (cmp2obs.eq.1) then
-      inpfileobsland=rootinpfileobs+".land.nc"
-      ncurves=ncurves+1
-   end if
-   npl=npl+1
-end if
-if(boce.eq.1)then
-   inpfileoce=inpfile+".oce.nc"
-   if (cmp2obs.eq.1) then
-      inpfileobsoce=rootinpfileobs+".oce.nc"
+      inpfileobsAmazon=rootinpfileobs+".Amazon.nc"
    end if
    npl=npl+1
 end if
@@ -214,87 +199,126 @@ end if
     end if
     i=i+1
  end if
- if(b7090.eq.1)then
-    f     = addfile (inpfile7090,"r")
+; if(bextraTNH_E.eq.1)then
+;    f     = addfile (inpfileextraTNH_E,"r")
+;    utmp     = f->$varmod$
+;    if(compute.eq.1) then
+;       utmp     = f->$varmod$ - f->$varmod2$
+;    end if
+;    u= (rm_single_dims(utmp)+cf)*mf*1./tofloat(mftom1)
+;    uplot(i,0,:)=u(0:ndims(2)-1)
+;    utitle(i)="extraTNH_E " 
+;    delete(u)
+;    name=utmp@long_name
+;    if(cmp2obs.eq.1)then
+;       fobs     = addfile (inpfileobsextraTNH_E,"r")
+;       print("going to read fobs "+inpfileobsextraTNH_E)
+;       print("var to read is "+varobs)
+;       if(ncl_lev.eq.0)then
+;          uplot(i,1,:)=tofloat(rm_single_dims(fobs->$varobs$))
+;       else
+;          uplot(i,1,:)=rm_single_dims(tofloat(fobs->$varobs$(:,ncl_lev,0,0)))
+;       end if
+;       print(uplot(i,1,:))
+;    end if
+; end if
+ if(bextraTNH_W.eq.1)then
+    f     = addfile (inpfileextraTNH_W,"r")
     utmp     = f->$varmod$
     if(compute.eq.1) then
        utmp     = f->$varmod$ - f->$varmod2$
     end if
     u= (rm_single_dims(utmp)+cf)*mf*1./tofloat(mftom1)
     uplot(i,0,:)=u(0:ndims(2)-1)
-    utitle(i)="70N-90N " 
-    delete(u)
+    utitle(i)="extraTNH_W " 
     name=utmp@long_name
- end if
- if(b3070.eq.1)then
-    f     = addfile (inpfile3070,"r")
-    utmp     = f->$varmod$
-    if(compute.eq.1) then
-       utmp     = f->$varmod$ - f->$varmod2$
+    if(cmp2obs.eq.1)then
+       fobs     = addfile (inpfileobsextraTNH_W,"r")
+       if(ncl_lev.eq.0)then
+          uplot(i,1,:)=tofloat(rm_single_dims(fobs->$varobs$))
+       else
+          uplot(i,1,:)=rm_single_dims(tofloat(fobs->$varobs$(:,ncl_lev,0,0)))
+       end if
     end if
-    u= (rm_single_dims(utmp)+cf)*mf*1./tofloat(mftom1)
-    uplot(i,0,:)=u(0:ndims(2)-1)
-    utitle(i)="30N-70N " 
-    name=utmp@long_name
     i=i+1
  end if
- if(b3030.eq.1)then
-    f     = addfile (inpfile3030,"r")
+ if(bextraTNH_E.eq.1)then
+    f     = addfile (inpfileextraTNH_E,"r")
     utmp     = f->$varmod$
     if(compute.eq.1) then
        utmp     = f->$varmod$ - f->$varmod2$
     end if
     u= (rm_single_dims(utmp)+cf)*mf*1./tofloat(mftom1)
     uplot(i,0,:)=u(0:ndims(2)-1)
-    utitle(i)="30S-30N " 
+    utitle(i)="extraTNH_E " 
     name=utmp@long_name
+    if(cmp2obs.eq.1)then
+       fobs     = addfile (inpfileobsextraTNH_E,"r")
+       if(ncl_lev.eq.0)then
+          uplot(i,1,:)=tofloat(rm_single_dims(fobs->$varobs$))
+       else
+          uplot(i,1,:)=rm_single_dims(tofloat(fobs->$varobs$(:,ncl_lev,0,0)))
+       end if
+    end if
     i=i+1
  end if
- if(b3070S.eq.1)then
-    f     = addfile (inpfile3070S,"r")
+ if(bAfricaNH.eq.1)then
+    f     = addfile (inpfileAfricaNH,"r")
     utmp     = f->$varmod$
     if(compute.eq.1) then
        utmp     = f->$varmod$ - f->$varmod2$
     end if
     u= (rm_single_dims(utmp)+cf)*mf*1./tofloat(mftom1)
     uplot(i,0,:)=u(0:ndims(2)-1)
-    utitle(i)="30S-70S " 
+    utitle(i)="AfricaNH " 
     name=utmp@long_name
+    if(cmp2obs.eq.1)then
+       fobs     = addfile (inpfileobsAfricaNH,"r")
+       if(ncl_lev.eq.0)then
+          uplot(i,1,:)=tofloat(rm_single_dims(fobs->$varobs$))
+       else
+          uplot(i,1,:)=rm_single_dims(tofloat(fobs->$varobs$(:,ncl_lev,0,0)))
+       end if
+    end if
     i=i+1
  end if
- if(b7090S.eq.1)then
-    f     = addfile (inpfile7090S,"r")
+ if(bAfricaSH.eq.1)then
+    f     = addfile (inpfileAfricaSH,"r")
     utmp     = f->$varmod$
     if(compute.eq.1) then
        utmp     = f->$varmod$ - f->$varmod2$
     end if
     u= (rm_single_dims(utmp)+cf)*mf*1./tofloat(mftom1)
     uplot(i,0,:)=u(0:ndims(2)-1)
-    utitle(i)="70S-90S " 
+    utitle(i)="AfricaSH " 
     name=utmp@long_name
+    if(cmp2obs.eq.1)then
+       fobs     = addfile (inpfileobsAfricaSH,"r")
+       if(ncl_lev.eq.0)then
+          uplot(i,1,:)=tofloat(rm_single_dims(fobs->$varobs$))
+       else
+          uplot(i,1,:)=rm_single_dims(tofloat(fobs->$varobs$(:,ncl_lev,0,0)))
+       end if
+    end if
     i=i+1
  end if
- if(bland.eq.1)then
-    f     = addfile (inpfileland,"r")
+ if(bAmazon.eq.1)then
+    f     = addfile (inpfileAmazon,"r")
     utmp     = f->$varmod$
     if(compute.eq.1) then
        utmp     = f->$varmod$ - f->$varmod2$
     end if
     u= (rm_single_dims(utmp)+cf)*mf*1./tofloat(mftom1)
     uplot(i,0,:)=u(0:ndims(2)-1)
-    utitle(i)="land " 
-    name=utmp@long_name
-    i=i+1
- end if
- if(boce.eq.1)then
-    f     = addfile (inpfileoce,"r")
-    utmp     = f->$varmod$
-    if(compute.eq.1) then
-       utmp     = f->$varmod$ - f->$varmod2$
+    utitle(i)="Amazon basin " 
+    if(cmp2obs.eq.1)then
+       fobs     = addfile (inpfileobsAmazon,"r")
+       if(ncl_lev.eq.0)then
+          uplot(i,1,:)=tofloat(rm_single_dims(fobs->$varobs$))
+       else
+          uplot(i,1,:)=rm_single_dims(tofloat(fobs->$varobs$(:,ncl_lev,0,0)))
+       end if
     end if
-    u= (rm_single_dims(utmp)+cf)*mf*1./tofloat(mftom1)
-    uplot(i,0,:)=u(0:ndims(2)-1)
-    utitle(i)="oce " 
     name=utmp@long_name
     i=i+1
  end if
@@ -330,6 +354,7 @@ end if
 ;************************************************
  system("mkdir -p "+plotdir)
  pltname   = getenv("pltname")
+ print("plot is "+pltname)
  wks   = gsn_open_wks (pltype,pltname)
 
  res                   = True                       ; plot mods desired
