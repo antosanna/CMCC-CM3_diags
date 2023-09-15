@@ -49,12 +49,12 @@ cam_nlev2=32
 core2=FV
 #
 export startyear="0001"
-export finalyear="0007"
+export finalyear="0011"
 export startyear_anncyc="0001" #starting year to compute 2d map climatology
 export nyrsmean=20   #nyear-period for mean in timeseries
 # select if you compare to model or obs 
-export cmp2obs=0
-export cmp2mod=1
+export cmp2obs=1
+export cmp2mod=0
 # END SECTION TO BE MODIFIED BY USER
 
 here=$PWD
@@ -157,8 +157,8 @@ mkdir -p $pltdir/atm $pltdir/lnd $pltdir/ice $pltdir/ocn $pltdir/namelists
 export pltype="png"
 export units
 export title
-#allvars_atm="ALBEDO ALBEDOS AODVIS BURDENBC BURDENSOA BURDENPOM BURDENSO4 BURDENDUST BURDEN1 BURDENdn1  BURDEN2 BURDENdn2 BURDEN3 BURDENdn3 BURDEN4 BURDENdn4 BURDENB  BURDENDUST BURDENPOM BURDENSEASALT BURDENSOA  BURDENSO4 CLDLOW CLDMED CLDHGH  CLDTOT EnBalSrf FLUT FLUTC FLDS FSDSC FLNS FLNSC FSNSC FSNTOA FSNS FSDS FSNT FLNT ICEFRAC  LHFLX SHFLX LWCF SWCF SOLIN RESTOM EmP PRECT PRECC PS QFLX TREFHT TS Z500 Z850 U200"
-allvars_atm="ALBEDO CLDLOW CLDMED CLDHGH  CLDTOT FLUT FLUTC FLDS FSDSC FLNS FLNSC FSNSC FSNTOA FSNS FSDS FSNT FLNT ICEFRAC  LHFLX SHFLX LWCF SWCF SOLIN RESTOM EmP PRECT PRECC PS QFLX TREFHT TS Z010 Z100 Z500 Z700 Z850 U010 U100 U200 U700 T U Z3"
+#allvars_atm="ALBEDO ALBEDOS AODVIS BURDENBC BURDENSOA BURDENPOM BURDENSO4 BURDENDUST BURDEN1 BURDENdn1  BURDEN2 BURDENdn2 BURDEN3 BURDENdn3 BURDEN4 BURDENdn4 BURDENB  BURDENDUST BURDENPOM BURDENSEASALT BURDENSOA  BURDENSO4"
+allvars_atm="ALBEDO CLDLOW CLDMED CLDHGH CLDTOT CLDICE CLDLIQ FLUT FLUTC FLDS FSDSC FLNS FLNSC FSNSC FSNTOA FSNS FSDS FSNT FLNT ICEFRAC  LHFLX SHFLX LWCF SWCF SOLIN RESTOM EmP PRECT PRECC PS QFLX TGCLDCWP TGCLDLWP TGCLDIWP TREFHT TS Z010 Z100 Z500 Z700 Z850 U010 U100 U200 U700 T U Z3"
 allvars_lnd="SNOWDP FSH TLAI FAREA_BURNED";
 allvars_ice="aice snowfrac ext Tsfc fswup fswdn flwdn flwup congel fbot albsni hi";
 allvars_oce="tos sos zos heatc saltc";
@@ -277,6 +277,14 @@ do
    i=$(($i + 1))
 done #expid
 fi # end of section 1
+while `true`
+do
+   njob=`bjobs -w|grep postproc_single_var_|wc -l`
+   if [[ $njob -eq 0 ]]
+   then
+      break
+   fi
+done
 ############################################
 #  end of first section
 ############################################
@@ -381,7 +389,7 @@ then
       for varmod in T U Z3
       do
          export modfile=$tmpdir1/${expid1}.$realm.$varmod.$startyear-$lasty.anncyc.nc
-         bsub -P 0566 -q s_medium -M 85000 -J diagnostic_single_var3d_${varmod} -e logs/diagnostic_single_var3d_${varmod}_%J.err -o logs/diagnostic_single_var3d_${varmod}_%J.out $here/diagnostics_single_var3d.sh $machine $expid1 $utente1 $cam_nlev1 $core1 $startyear $finalyear $nyrsmean $cmp2obs $cmp2mod $obsfile $varmod $PSfile $Tfile $auxfile $pltype $here
+         bsub -P 0566 -q s_medium -M 85000 -J diagnostic_single_var3d_${varmod} -e logs/diagnostic_single_var3d_${varmod}_%J.err -o logs/diagnostic_single_var3d_${varmod}_%J.out $here/diagnostics_single_var3d.sh $machine $expid1 $utente1 $cam_nlev1 $core1 $expid2 $utente2 $cam_nlev2 $core2 $startyear $finalyear $nyrsmean $cmp2obs $cmp2mod $obsfile $varmod $PSfile $Tfile $auxfile $pltype $here
       done
 fi   #do_znl_atm
 fi   # end of sec3

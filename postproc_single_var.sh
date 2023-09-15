@@ -142,6 +142,8 @@ do
    case $var in
        TSOI) opt="-sellevidx,8";;     # select a specific value
        H2OSOI) opt="-sellevidx,10";;     # select a specific value
+       CLDICE) opt="-vertsum";;     # select a specific value
+       CLDLIQ) opt="-vertsum";;     # select a specific value
        *) opt="";opt1="";;
    esac
    listaf=" "

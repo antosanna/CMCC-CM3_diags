@@ -280,6 +280,11 @@ begin
      res@cnMinLevelValF       = tofloat(getenv("minplot"))             ; min level
      res@cnMaxLevelValF       = tofloat(getenv("maxplot"))            ; max level
      res@cnLevelSpacingF      = tofloat(getenv("delta"))             ; contour interval
+;     if(res@cnLevelSpacingF.eq.0.)then
+;        res@cnMinLevelValF=min(tclim)
+;        res@cnMaxLevelValF=max(tclim)
+;        res@cnLevelSpacingF=toint((max(tclim)-min(tclim))/10.)
+;     end if
 ;     res@mpLandFillColor      = "white"       ; make land white
      if(varmod.eq."PRECC".or.varmod.eq."PRECT".or.varmod.eq."PRECL")then
         delete(res@cnLevelSelectionMode)

@@ -8,20 +8,24 @@ export expid1=$2
 utente1=$3
 cam_nlev1=$4
 core1=$5
+export expid2=$6
+utente2=$7
+cam_nlev2=$8
+core2=$9
 #
-export startyear=$6
-export finalyear=$7
-export nyrsmean=$8   #nyear-period for mean in timeseries
+export startyear=${10}
+export finalyear=${11}
+export nyrsmean=${12}   #nyear-period for mean in timeseries
 # select if you compare to model or obs 
-export cmp2obs=$9
-export cmp2mod=${10}
-export obsfile=${11}
-export varmod=${12}
-export PSfile=${13}
-export Tfile=${14}
-export auxfile=${15}
-export pltype=${16}
-here=${17}
+export cmp2obs=${13}
+export cmp2mod=${14}
+export obsfile=${15}
+export varmod=${16}
+export PSfile=${17}
+export Tfile=${18}
+export auxfile=${19}
+export pltype=${20}
+here=${21}
 
 export varobs
 export expname1=${expid1}_${cam_nlev1}
@@ -110,8 +114,8 @@ export modfile=$tmpdir1/${expid1}.$realm.$varmod.$startyear-$lasty.anncyc.nc
 for sea in ANN DJF JJA 
 do  
    export pltname=$comppltdir/$expid1.zonalmean.$varmod.$iniclim-$lasty.$sea.png
-   cp $here/plot_zonalmean_2plots_diff.ncl $tmpdir1/scripts/plot_zonalmean_2plots_diff.$varmod.ncl
-   ncl $tmpdir1/plot_zonalmean_2plots_diff.$varmod.ncl
+   rsync -auv $here/plot_zonalmean_2plots_diff.ncl $tmpdir1/scripts/plot_zonalmean_2plots_diff.$varmod.ncl
+   ncl $tmpdir1/scripts/plot_zonalmean_2plots_diff.$varmod.ncl
    if [[ $pltype == "x11" ]]
    then
       exit
