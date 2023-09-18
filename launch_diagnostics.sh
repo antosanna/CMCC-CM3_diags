@@ -12,12 +12,12 @@
 set -eux  
 # SECTION TO BE MODIFIED BY USER
 nmaxproc=6
-sec1=0  #flag to execute section1 (1=yes; 0=no)
+sec1=1  #flag to execute section1 (1=yes; 0=no)
 sec2=1  #flag to execute section2 (1=yes; 0=no)
-sec3=0  #flag to execute section3 (1=yes; 0=no)
-sec4=0  #flag for section4 (=nemo postproc)
+sec3=1  #flag to execute section3 (1=yes; 0=no)
+sec4=1  #flag for section4 (=nemo postproc)
 machine="juno"
-do_atm=0
+do_atm=1
 do_ice=0
 do_lnd=1
 do_timeseries=1
@@ -162,7 +162,7 @@ mkdir -p $pltdir/atm $pltdir/lnd $pltdir/ice $pltdir/ocn $pltdir/namelists
 export pltype="png"
 export units
 export title
-#allvars_atm="ALBEDO ALBEDOS AODVIS BURDENBC BURDENSOA BURDENPOM BURDENSO4 BURDENDUST BURDEN1 BURDENdn1  BURDEN2 BURDENdn2 BURDEN3 BURDENdn3 BURDEN4 BURDENdn4 BURDENB  BURDENDUST BURDENPOM BURDENSEASALT BURDENSOA  BURDENSO4 CLDLOW CLDMED CLDHGH  CLDTOT EnBalSrf FLUT FLUTC FLDS FSDSC FLNS FLNSC FSNSC FSNTOA FSNS FSDS FSNT FLNT ICEFRAC  LHFLX SHFLX LWCF SWCF SOLIN RESTOM EmP PRECT PRECC PS QFLX TREFHT TS Z500 Z850 U200"
+#allvars_atm="AODVIS BURDENBC BURDENSOA BURDENPOM BURDENSO4 BURDENDUST BURDEN1 BURDENdn1  BURDEN2 BURDENdn2 BURDEN3 BURDENdn3 BURDEN4 BURDENdn4 BURDENB  BURDENDUST BURDENPOM BURDENSEASALT BURDENSOA  BURDENSO4"
 allvars_atm="ALBEDO ALBEDOS CLDLOW CLDMED CLDHGH CLDTOT CLDICE CLDLIQ FLUT FLUTC FLDS FSDSC FLNS FLNSC FSNSC FSNTOA FSNS FSDS FSNT FLNT ICEFRAC  LHFLX SHFLX LWCF SWCF SOLIN RESTOM EmP PRECT PRECC PS QFLX TGCLDCWP TGCLDLWP TGCLDIWP TREFHT TS Z010 Z100 Z500 Z700 Z850 U010 U100 U200 U700 T U Z3"
 allvars_lnd="SNOWDP FSH TLAI FAREA_BURNED";
 allvars_ice="aice snowfrac ext Tsfc fswup fswdn flwdn flwup congel fbot albsni hi";
