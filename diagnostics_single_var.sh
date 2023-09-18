@@ -420,7 +420,7 @@ export minplotdiff
 export cmp2obs_anncyc=$cmp2obs
 case $varmod in
    ALBEDO)units="fraction";export maxplot=0.9;export minplot=0.1;delta=0.1;title="Albedo";units_from_here=1;name_from_here=1;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=0;cmp2obs_anncyc=0;export maxplotdiff=0.3;export minplotdiff=-0.3;deltadiff=.03;;
-   ALBEDOS)varobs=albedos;units="fraction";export maxplot=0.9;export minplot=0.1;delta=0.1;title="Surf Albedo";units_from_here=1;name_from_here=1;export maxplotdiff=0.3;export minplotdiff=-0.3;deltadiff=.03;obsfile="$dir_obs3/albedos_era5_1980-2019_mm_ann_cyc.nc";export title2="ERA5 $climobscld";cmp2mod_ncl=0;cmp2obs_anncyc=0;export cmp2obs_ncl=$cmp2obs;;
+   ALBEDOS)varobs=albedos;units="fraction";export maxplot=0.9;export minplot=0.1;delta=0.1;title="Surf Albedo";units_from_here=1;name_from_here=1;export maxplotdiff=0.3;export minplotdiff=-0.3;deltadiff=.03;obsfile="$dir_obs3/albedos_era5_1980-2019_mm_ann_cyc.nc";export title2="ERA5 $climobscld";cmp2mod_ncl=$cmp2mod;cmp2obs_anncyc=0;export cmp2obs_ncl=$cmp2obs;;
    ALBEDOC)units="fraction";export maxplot=0.9;export minplot=0.1;delta=0.1;title="Albedo Clear Sky";units_from_here=1;name_from_here=1;cmp2mod_ncl=$cmp2mod;cmp2obs_anncyc=0;export cmp2obs_ncl=0;;
    AODVIS)cmp2mod_ncl=0;cmp2obs_ncl=0;cmp2obs_anncyc=0;;
    BURDEN1)cmp2mod_ncl=0;cmp2obs_ncl=0;cmp2obs_anncyc=0;mf=100000;units="kg/m2*e5";units_from_here=1;export maxplot=5;export minplot=0.;delta=0.5;;
@@ -487,7 +487,7 @@ case $varmod in
    SWCF)varobs=SWCF;export maxplot=40;export minplot=-100;delta=20.;name_from_here=1;title="Short Wave Cloud Forcing";export maxplotdiff=20;export minplotdiff=-20;deltadiff=5.;obsfile="$dir_obs1/CERES-EBAF_1m_1deg_2000-2009.nc";export title2="CERES 2000-2009";cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
 
    SNOW) title="Atmospheric Snow";cmp2mod_ncl=$cmp2mod;cmp2obs_anncyc=0;export cmp2obs_ncl=0;;
-   SNOWDP)title="Snow Depth ";varobs=sd;export maxplot=3.;export minplot=0.1;delta=.05;units_from_here=1;name_from_here=1;units="m";obsfile="$dir_obs1/ERA5T/sd/sd_1993-2017.ymean.nc";cmp2mod_ncl=$cmp2mod;cmp2obs_anncyc=0;export cmp2obs_ncl=0;;
+   SNOWDP)title="Snow Depth ";varobs=sd;export maxplot=3.;export minplot=0.1;delta=.1;units_from_here=1;name_from_here=1;units="m";obsfile="$dir_obs1/ERA5T/sd/sd_1993-2017.ymean.nc";cmp2mod_ncl=$cmp2mod;cmp2obs_anncyc=0;export cmp2obs_ncl=0;maxplotdiff=5;minplotdiff=-5;deltadiff=1;;
    TWS) title="Total Water Storage";cmp2mod_ncl=$cmp2mod;cmp2obs_anncyc=0;export cmp2obs_ncl=0;;
    TSOI) title="Soil Temp at 80cm";name_from_here=1;cmp2mod_ncl=$cmp2mod;cmp2obs_anncyc=0;export cmp2obs_ncl=0;;
    TLAI)varobs=var167;export maxplot=11.;export minplot=1.;delta=1.;cmp2mod_ncl=$cmp2mod;cmp2obs_anncyc=0;export cmp2obs_ncl=0;;
@@ -722,6 +722,10 @@ then
    export lat0; export lat1; export lon0;export lon1
    export bglo=0;export bNH=0;export bSH=0;export bextraTNH_E=0;export bextraTNH_W=0;export AfricaSH=0;export AfricaNH=0;export Amazon=0
    list_reg_anncyc="extraTNH_E extraTNH_W AfricaSH AfricaNH Amazon"
+   if [[ $varmod == "SNOWDP" ]]
+   then
+      list_reg_anncyc="extraTNH_E extraTNH_W"
+   fi
    for reg in $list_reg_anncyc
    do
       case $reg in

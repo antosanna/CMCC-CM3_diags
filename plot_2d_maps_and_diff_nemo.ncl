@@ -34,7 +34,6 @@ begin
   name_from_ext=getenv("name_from_here")
   units_from_ext=getenv("units_from_here")
   modfile=getenv("inpfile")
-  comp=getenv("comp")
   cmp2obs=toint(getenv("cmp2obs_ncl"))
   if(cmp2obs.eq.1)then
      obsfile=getenv("obsfile")
@@ -251,10 +250,6 @@ begin
      res@cnMaxLevelValF       = 12.0            ; set max contour level
      res@cnLevelSpacingF      =  1.0            ; set contour spacing
 
-     if(comp.eq."lnd")then
-        res@cnMissingValFillColor =MissingValFillColor
-        res@mpOceanFillColor      = OceanFillColor
-     end if
 
      res@cnLevelSelectionMode = "ManualLevels"; manual set levels so lb consistent
      res@cnMinLevelValF       = tofloat(getenv("minplot"))             ; min level
@@ -389,10 +384,6 @@ begin
      res@gsnDraw           = True            ; don't draw yet
      res@gsnFrame          = True            ; don't advance frame yet
      res@gsnAddCyclic      = True            ; data already has cyclic point
-     if(comp.eq."lnd")then
-        res@cnMissingValFillColor =MissingValFillColor
-        res@mpOceanFillColor      = OceanFillColor
-     end if
 
      res@cnLevelSelectionMode = "ManualLevels"; manual set levels so lb consistent
      res@cnMinLevelValF       = tofloat(getenv("minplot"))             ; min level
