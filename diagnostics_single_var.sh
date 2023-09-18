@@ -700,7 +700,7 @@ then
          Global)export lat0=-90;export lat1=90;export bglo=1;;
          NH)export lat0=0;export lat1=90;export bNH=1;;
          SH)export lat0=-90;export lat1=0;export bSH=1;;
-         u010)export lat0=50;export lat1=60;export bu010=1;;
+         u010)export lat0=60;export lat1=60;export bu010=1;;
       esac
       regfile=$tmpdir1/`basename $inpfile|rev|cut -d '.' -f2-|rev`.$reg.nc
       if [[ ! -f $regfile ]]

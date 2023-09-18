@@ -14,9 +14,9 @@ set -eux
 nmaxproc=6
 sec1=1  #flag to execute section1 (1=yes; 0=no)
 sec2=1  #flag to execute section2 (1=yes; 0=no)
-sec3=1  #flag to execute section3 (1=yes; 0=no)
-sec4=1  #flag for section4 (=nemo postproc)
-machine="juno"
+sec3=0  #flag to execute section3 (1=yes; 0=no)
+sec4=0  #flag for section4 (=nemo postproc)
+machine="zeus"
 do_atm=1
 do_ice=0
 do_lnd=1
@@ -32,12 +32,12 @@ do_anncyc=1
 #export expid1=cm3_cam116d_2000_t1
 #export expid1=SPS3.5_2000_cont
 #export expid1=cm3_cam122_cpl2000-bgc_t01
-export expid1=cm3_cam116d_2000_1d32l_t11
+export expid1=SPS3.5_2000_cont
 #utente1=cp1
 utente1=sps-dev
-cam_nlev1=32
+cam_nlev1=46
 #cam_nlev1=83
-core1=FV
+core1=SE
 #
 # second model to compare with
 #expid2=cam109d_cm3_1deg_amip1981-bgc_t2
@@ -48,12 +48,12 @@ utente2=cp1
 cam_nlev2=32
 core2=FV
 #
-export startyear="0001"
-export finalyear="0020"
-export startyear_anncyc="0001" #starting year to compute 2d map climatology
+export startyear="0023"
+export finalyear="0040"
+export startyear_anncyc="0040" #starting year to compute 2d map climatology
 export nyrsmean=20   #nyear-period for mean in timeseries
 # select if you compare to model or obs 
-export cmp2obs=0
+export cmp2obs=1
 # END SECTION TO BE MODIFIED BY USER
 
 if [[ $cmp2obs -eq 0 ]]
