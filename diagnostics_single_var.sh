@@ -521,7 +521,10 @@ then
        then
           export srcFileName=$tmpdir1/${expid1}.$realm.$varmod.$startyear-${lasty}.ymean.nc 
           export outfile=$tmpdir1/${expid1}.$realm.$varmod.$startyear-${lasty}.ymean.reg1x1.nc 
-          ncl $dir_SE/regridSE_CAMh0.ncl
+          if [[ ! -f $outfile ]]
+          then
+             ncl $dir_SE/regridSE_CAMh0.ncl
+          fi
           cdo fldmean -sellonlatbox,0,360,$lat0,$lat1 $outfile $inpfile.$ts_gzm_boxes.nc
        else
           cdo fldmean -sellonlatbox,0,360,$lat0,$lat1 $tmpdir1/${expid1}.$realm.$varmod.$startyear-${lasty}.ymean.nc $inpfile.$ts_gzm_boxes.nc
@@ -641,7 +644,10 @@ then
    else
       export srcFileName=$tmpdir1/${expid1}.$realm.$varmod.$iniclim-$lasty.anncyc.nc
       export outfile=$tmpdir1/${expid1}.$realm.$varmod.$iniclim-$lasty.anncyc.reg1x1.nc
-      ncl $dir_SE/regridSE_CAMh0.ncl
+      if [[ ! -f $outfile ]]
+      then
+         ncl $dir_SE/regridSE_CAMh0.ncl
+      fi
       export inpfile=$outfile
    fi
    if [[ ! -f $inpfile ]]
