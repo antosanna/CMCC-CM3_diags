@@ -12,14 +12,14 @@
 set -eux  
 # SECTION TO BE MODIFIED BY USER
 nmaxproc=6
-sec1=0  #flag to execute section1 (1=yes; 0=no)
+sec1=1  #flag to execute section1 (1=yes; 0=no)
 sec2=1  #flag to execute section2 (1=yes; 0=no)
-sec3=0  #flag to execute section3 (1=yes; 0=no)
+sec3=1  #flag to execute section3 (1=yes; 0=no)
 sec4=0  #flag for section4 (=nemo postproc)
-machine="zeus"
+machine="juno"
 do_atm=1
 do_ice=0
-do_lnd=0
+do_lnd=1
 do_timeseries=1
 do_znl_lnd=0
 do_znl_atm=1
@@ -28,16 +28,17 @@ do_2d_plt=1
 do_anncyc=1
 
 # model to diagnose
-#export expid1=cm3_cam116d_2000_1d32l_t1
+export expid1=cm3_cam122d_2000_1d32l_t9b
 #export expid1=cm3_cam116d_2000_t1
 #export expid1=SPS3.5_2000_cont
-#export expid1=cm3_cam122_cpl2000-bgc_t01
-export expid1=SPS3.5_2000_cont
+#export expid1=cm3_cam122_cpl2000-bgc_t09c
+#export expid1=SPS3.5_2000_cont
 #utente1=cp1
-utente1=sps-dev
-cam_nlev1=46
+#utente1=sps-dev
+utente1=dp16116
+cam_nlev1=32
 #cam_nlev1=83
-core1=SE
+core1=FV
 #
 # second model to compare with
 #expid2=cam109d_cm3_1deg_amip1981-bgc_t2
@@ -48,9 +49,9 @@ utente2=cp1
 cam_nlev2=32
 core2=FV
 #
-export startyear="0023"
-export finalyear="0040"
-export startyear_anncyc="0023" #starting year to compute 2d map climatology
+export startyear="0001"
+export finalyear="0020"
+export startyear_anncyc="0001" #starting year to compute 2d map climatology
 export nyrsmean=20   #nyear-period for mean in timeseries
 # select if you compare to model or obs 
 export cmp2obs=1
@@ -164,7 +165,6 @@ export units
 export title
 #allvars_atm="AODVIS BURDENBC BURDENSOA BURDENPOM BURDENSO4 BURDENDUST BURDEN1 BURDENdn1  BURDEN2 BURDENdn2 BURDEN3 BURDENdn3 BURDEN4 BURDENdn4 BURDENB  BURDENDUST BURDENPOM BURDENSEASALT BURDENSOA  BURDENSO4"
 allvars_atm="ALBEDO ALBEDOS CLDLOW CLDMED CLDHGH CLDTOT CLDICE CLDLIQ FLUT FLUTC FLDS FSDSC FLNS FLNSC FSNSC FSNTOA FSNS FSDS FSNT FLNT ICEFRAC  LHFLX SHFLX LWCF SWCF SOLIN RESTOM EmP PRECT PRECC PS QFLX TGCLDCWP TGCLDLWP TGCLDIWP TREFHT TS Z010 Z100 Z500 Z700 Z850 U010 U100 U200 U700 T U Z3"
-allvars_atm="U010"
 allvars_lnd="SNOWDP FSH TLAI FAREA_BURNED";
 allvars_ice="aice snowfrac ext Tsfc fswup fswdn flwdn flwup congel fbot albsni hi";
 allvars_oce="tos sos zos heatc saltc";

@@ -371,7 +371,7 @@ end if
  res@vpHeightF        = tofloat(getenv("hplot"))
  nn=dimsizes(uplot)
  nt=nn(2)-1
- ini=nt-toint(nyrsmean)
+ ini=nt-toint(nyrsmean)+1
  if (ini.lt.0) then
    ini=0
    nyrsmean=sprinti("%2i",nt)
