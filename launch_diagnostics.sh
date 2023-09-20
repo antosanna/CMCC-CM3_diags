@@ -30,16 +30,16 @@ do_2d_plt=1
 do_anncyc=1
 
 # model to diagnose
-export expid1=cm3_cam122d_2000_1d32l_t9c
+#export expid1=cm3_cam122d_2000_1d32l_t9c
 #export expid1=cm3_cam116d_2000_t1
 #export expid1=SPS3.5_2000_cont
-#export expid1=cm3_cam122_cpl2000-bgc_t01
+export expid1=cm3_cam122_cpl2000-bgc_t01
 #export expid1=SPS3.5_2000_cont
 #utente1=cp1
 utente1=sps-dev
 #utente1=dp16116
-cam_nlev1=32
-#cam_nlev1=83
+#cam_nlev1=32
+cam_nlev1=83
 core1=FV
 #
 # second model to compare with
@@ -52,7 +52,7 @@ cam_nlev2=32
 core2=FV
 #
 export startyear="0001"
-export finalyear="0006"
+export finalyear="0019"
 export startyear_anncyc="0001" #starting year to compute 2d map climatology
 export nyrsmean=20   #nyear-period for mean in timeseries
 # select if you compare to model or obs 

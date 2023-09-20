@@ -11,8 +11,7 @@
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/shea_util.ncl" 
 begin
 
- expid    = getenv("expid1")
- cam_nlev = getenv("cam_nlev1")
+ expname    = getenv("expname1")
  yrStrt   = toint(getenv("iniy"))
  yrLast   = toint(getenv("lasty"))
  infile   = getenv("infile")
@@ -90,7 +89,7 @@ begin
 
  resP                     = True                ; modify the panel plot
  resP@gsnFrame            = False               ; do not advance the frame
- resP@gsnPanelMainString  = "QBO: Equatorial Zonal Wind (CMCC-CM3-AMIP)"
+ resP@gsnPanelMainString  = "QBO: Equatorial Zonal Wind ("+expname+")"
  resP@gsnPanelBottom      = 0.03                ; extra space at bottom
  resP@gsnMaximize         = True                ; max plot foot print
  resP@gsnPanelYWhiteSpacePercent = 0.0          ; 1.0 is the default
@@ -99,7 +98,7 @@ begin
  res@tmXBTickSpacingF     = 5
  res@cnLevelSelectionMode = "ManualLevels"
 
- source = expid+" - CMCC-CM3 ("+cam_nlev+"Lev)" 
+; source = expid+" - CMCC-CM3 ("+cam_nlev+"Lev)" 
 
 ;"Source: http://www.geo.fu-berlin.de/en/met/ag/strat/produkte/qbo/"
 
