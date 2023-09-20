@@ -411,8 +411,41 @@ function showdata(vv,vl) {
     ZN+='<div class=after-box> </div>';
 
   
+    var QBO='';
 
-    document.getElementById("listframe").innerHTML=Header + TS + AC + Maps + ZN;
+    if ( vv == "CAM") { list = "U" } else {list = "" };
+
+
+    QBO+='<h2 style="background-color:#DDDDDD;"> U - QBO '+'</h2> <div class=box>'
+
+    /* var seas = ["DJF", "JJA", "ANN"];*/
+    var seas = ["ANN"];
+
+    for (var i = 0; i < list.length; i++) {
+
+             QBO+='<div class=box> <h3 style="background-color:#f0f0f0;"> '+list[i]+' </h3>'; 
+
+             for (var s = 0; s < seas.length; s++) {
+
+                /*pic = 'QBO_'+expid+'.'+clim+'.'+seas[s]+'.png';*/
+                pic = 'QBO_'+expid+'.'+clim+'.png';
+
+                QBO+='<div class=box> <a href="'+vl+'/'+pic+'"> <img class=pics src="'+vl+'/'+pic+'"/> </a>';
+
+                QBO+='<p> <a href="'+vl+'/'+pic+'">'+seas[s]+'</a> </p> </div>';
+
+             };
+
+             QBO+='</div>';
+
+    };           
+
+    QBO+='</div>';
+
+    QBO+='<div class=after-box> </div>';
+
+
+    document.getElementById("listframe").innerHTML=Header + TS + AC + Maps + ZN+QBO;
 
 }
 
