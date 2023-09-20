@@ -13,12 +13,12 @@ set -eux
 # SECTION TO BE MODIFIED BY USER
 debug=0
 nmaxproc=6
-sec1=1  #flag to execute section1 (1=yes; 0=no)
+sec1=0  #flag to execute section1 (1=yes; 0=no)
 sec2=1  #flag to execute section2 (1=yes; 0=no)
 sec3=1  #flag to execute section3 (1=yes; 0=no)
 sec4=0  #flag for section4 (=nemo postproc) (1=yes; 0=no)
-sec5=1  #flag for section5 (=QBO postproc) (1=yes; 0=no)
-machine="juno"
+sec5=0  #flag for section5 (=QBO postproc) (1=yes; 0=no)
+machine="zeus"
 do_atm=1
 do_ice=0
 do_lnd=1
@@ -30,16 +30,16 @@ do_2d_plt=1
 do_anncyc=1
 
 # model to diagnose
-export expid1=cm3_cam122d_2000_1d32l_t9b
+export expid1=cm3_cam122d_2000_1d32l_t9c
 #export expid1=cm3_cam116d_2000_t1
 #export expid1=SPS3.5_2000_cont
-export expid1=cm3_cam122_cpl2000-bgc_t01
+#export expid1=cm3_cam122_cpl2000-bgc_t01
 #export expid1=SPS3.5_2000_cont
 #utente1=cp1
-#utente1=sps-dev
-utente1=dp16116
-#cam_nlev1=32
-cam_nlev1=83
+utente1=sps-dev
+#utente1=dp16116
+cam_nlev1=32
+#cam_nlev1=83
 core1=FV
 #
 # second model to compare with
@@ -52,7 +52,7 @@ cam_nlev2=32
 core2=FV
 #
 export startyear="0001"
-export finalyear="0019"
+export finalyear="0006"
 export startyear_anncyc="0001" #starting year to compute 2d map climatology
 export nyrsmean=20   #nyear-period for mean in timeseries
 # select if you compare to model or obs 
@@ -336,10 +336,10 @@ do
       ijob=0
       for varmod in $allvars
       do
-         bsub -P 0566 -q s_medium -M 85000 -J diagnostic_single_var_${varmod} -e logs/diagnostic_single_var_${varmod}_%J.err -o logs/diagnostic_single_var_${varmod}_%J.out $here/diagnostics_single_var.sh $machine $expid1 $utente1 $cam_nlev1 $core1 $expid2 $utente2 $cam_nlev2 $core2 $startyear $finalyear $startyear_anncyc $cmp2obs $cmp2mod $pltype $varmod $comp $do_timeseries $do_znl_lnd $do_znl_atm $do_znl_atm2d $do_2d_plt $do_anncyc
+         bsub -P 0566 -q s_medium -M 85000 -J diagnostics_single_var_${varmod} -e logs/diagnostics_single_var_${varmod}_%J.err -o logs/diagnostics_single_var_${varmod}_%J.out $here/diagnostics_single_var.sh $machine $expid1 $utente1 $cam_nlev1 $core1 $expid2 $utente2 $cam_nlev2 $core2 $startyear $finalyear $startyear_anncyc $cmp2obs $cmp2mod $pltype $varmod $comp $do_timeseries $do_znl_lnd $do_znl_atm $do_znl_atm2d $do_2d_plt $do_anncyc
          while `true`
          do
-            ijob=`bjobs -w|grep diagnostic_single_var_|wc -l`
+            ijob=`bjobs -w|grep diagnostics_single_var_|wc -l`
             if [[ $ijob -gt $nmaxproc ]]
             then
                sleep 45
@@ -362,59 +362,67 @@ fi   # end of section2
 ############################################
 if [[ $sec3 -eq 1 ]]
 then
-if [[ $do_znl_atm -eq 1 ]]
-then
-      comp=atm
-      export obsfile=$dir_obs4/Vars_plev_era5_1979-2018_anncyc.nc
-
-      export varmod
-      export sea
-      export PSfile=$tmpdir1/${expid1}.cam.PS.$startyear-$lasty.anncyc.nc
-      export Tfile=$tmpdir1/${expid1}.cam.T.$startyear-$lasty.anncyc.nc
-# here take PS and hyam
-      realm=cam
-      model=CMCC-CM3
-      if [[ $machine == "zeus" ]]
-      then
-          model=CESM2
-         if [[ $utente1 == "dp16116" ]]
-         then 
-            model=CMCC-CM
-         fi   
-         if [[ $core1 == "SE" ]]
+   if [[ $do_znl_atm -eq 1 ]]
+   then
+         comp=atm
+         export obsfile=$dir_obs4/Vars_plev_era5_1979-2018_anncyc.nc
+   
+         export varmod
+         export sea
+         export PSfile=$tmpdir1/${expid1}.cam.PS.$startyear-$lasty.anncyc.nc
+         export Tfile=$tmpdir1/${expid1}.cam.T.$startyear-$lasty.anncyc.nc
+   # here take PS and hyam
+         realm=cam
+         model=CMCC-CM3
+         if [[ $machine == "zeus" ]]
          then
-            model=CESM
-         fi
-         rundir=/work/$DIVISION/$utente1/$model/$expid1/run
-         export inpdirroot=/work/csp/$utente1/$model/archive/$expid1
-         if [[ $utente1 == "dp16116" ]]
-         then
-            export inpdirroot=/work/csp/$utente1/CESM2/archive/$expid1
-         fi
-      else
-         rundir=/work/$DIVISION/$utente1/CMCC-CM/$expid1/run
-         export inpdirroot=/work/csp/$utente1/CMCC-CM/archive/$expid1
-      fi
-      export auxfile=$inpdirroot/atm/hist/${expid1}.$realm.h0.$startyear-01.nc
-      comppltdir=$pltdir/${comp}
-      mkdir -p $comppltdir
-      for varmod in Z3 T U
-      do
-         export modfile=$tmpdir1/${expid1}.$realm.$varmod.$startyear-$lasty.anncyc.nc
-         if [[ $debug -eq 1 ]]
-         then
-            $here/diagnostics_single_var3d.sh $machine $expid1 $utente1 $cam_nlev1 $core1 $expid2 $utente2 $cam_nlev2 $core2 $startyear $finalyear $nyrsmean $cmp2obs $cmp2mod $obsfile $varmod $PSfile $Tfile $auxfile $pltype $here
-            exit
+             model=CESM2
+            if [[ $utente1 == "dp16116" ]]
+            then 
+               model=CMCC-CM
+            fi   
+            if [[ $core1 == "SE" ]]
+            then
+               model=CESM
+            fi
+            rundir=/work/$DIVISION/$utente1/$model/$expid1/run
+            export inpdirroot=/work/csp/$utente1/$model/archive/$expid1
+            if [[ $utente1 == "dp16116" ]]
+            then
+               export inpdirroot=/work/csp/$utente1/CESM2/archive/$expid1
+            fi
          else
-            bsub -P 0566 -q s_medium -M 85000 -J diagnostic_single_var3d_${varmod} -e logs/diagnostic_single_var3d_${varmod}_%J.err -o logs/diagnostic_single_var3d_${varmod}_%J.out $here/diagnostics_single_var3d.sh $machine $expid1 $utente1 $cam_nlev1 $core1 $expid2 $utente2 $cam_nlev2 $core2 $startyear $finalyear $nyrsmean $cmp2obs $cmp2mod $obsfile $varmod $PSfile $Tfile $auxfile $pltype $here
+            rundir=/work/$DIVISION/$utente1/CMCC-CM/$expid1/run
+            export inpdirroot=/work/csp/$utente1/CMCC-CM/archive/$expid1
          fi
-      done
-fi   #do_znl_atm
+         export auxfile=$inpdirroot/atm/hist/${expid1}.$realm.h0.$startyear-01.nc
+         comppltdir=$pltdir/${comp}
+         mkdir -p $comppltdir
+         for varmod in Z3 T U
+         do
+            export modfile=$tmpdir1/${expid1}.$realm.$varmod.$startyear-$lasty.anncyc.nc
+            if [[ $debug -eq 1 ]]
+            then
+               $here/diagnostics_single_var3d.sh $machine $expid1 $utente1 $cam_nlev1 $core1 $expid2 $utente2 $cam_nlev2 $core2 $startyear $finalyear $nyrsmean $cmp2obs $cmp2mod $obsfile $varmod $PSfile $Tfile $auxfile $pltype $here
+               exit
+            else
+               bsub -P 0566 -q s_medium -M 85000 -J diagnostics_single_var3d_${varmod} -e logs/diagnostics_single_var3d_${varmod}_%J.err -o logs/diagnostics_single_var3d_${varmod}_%J.out $here/diagnostics_single_var3d.sh $machine $expid1 $utente1 $cam_nlev1 $core1 $expid2 $utente2 $cam_nlev2 $core2 $startyear $finalyear $nyrsmean $cmp2obs $cmp2mod $obsfile $varmod $PSfile $Tfile $auxfile $pltype $here
+            fi
+         done
+   fi   #do_znl_atm
 fi   # end of sec3
 ############################################
 #  End of section3
 ############################################
-
+while `true`
+do
+   ijob=`bjobs -w|grep diagnostics_single_var3d|wc -l`
+   if [[ $ijob -eq 0 ]]
+   then
+      break
+   fi
+   sleep 40
+done
 
 tmpdir=$tmpdir1   #TMP
 ############################################
@@ -568,7 +576,8 @@ then
    done
    if [[ ! -f $tmpdir1/${exp_name}.cam.U.${iniy}-$lasty.nc ]]
    then
-      cdo -O mergetime ${listamerge} ${tmpdir1}/${exp_name}.cam.U.${iniy}-$lasty.ncfi
+      cdo -O mergetime ${listamerge} ${tmpdir1}/${exp_name}.cam.U.${iniy}-$lasty.nc
+   fi
    export infile=$tmpdir1/${exp_name}.cam.QBO.${iniy}-$lasty.nc
    if [[ ! -f $tmpdir1/${exp_name}.cam.QBO.${iniy}-$lasty.nc ]]
    then
@@ -582,15 +591,6 @@ fi
 ############################################
 
 cd $here
-while `true`
-do
-   ijob=`bjobs -w|grep diagnostic_single_var|wc -l`
-   if [[ $ijob -eq 0 ]]
-   then
-      break
-   fi
-   sleep 40
-done
 
 
 if [[ -f $pltdir/index.html ]]
@@ -629,4 +629,3 @@ then
    rm -rf $tmpdir1/scripts
 fi
 
-exit
