@@ -13,11 +13,11 @@ set -eux
 # SECTION TO BE MODIFIED BY USER
 debug=0
 nmaxproc=6
-sec1=0  #flag to execute section1 (1=yes; 0=no)
-sec2=0  #flag to execute section2 (1=yes; 0=no)
+sec1=1  #flag to execute section1 (1=yes; 0=no)
+sec2=1  #flag to execute section2 (1=yes; 0=no)
 sec3=1  #flag to execute section3 (1=yes; 0=no)
 sec4=0  #flag for section4 (=nemo postproc) (1=yes; 0=no)
-sec5=0  #flag for section5 (=QBO postproc) (1=yes; 0=no)
+sec5=1  #flag for section5 (=QBO postproc) (1=yes; 0=no)
 machine="juno"
 do_atm=1
 do_ice=0
@@ -33,13 +33,13 @@ do_anncyc=1
 export expid1=cm3_cam122d_2000_1d32l_t9b
 #export expid1=cm3_cam116d_2000_t1
 #export expid1=SPS3.5_2000_cont
-#export expid1=cm3_cam122_cpl2000-bgc_t09c
+export expid1=cm3_cam122_cpl2000-bgc_t01
 #export expid1=SPS3.5_2000_cont
 #utente1=cp1
 #utente1=sps-dev
 utente1=dp16116
-cam_nlev1=32
-#cam_nlev1=83
+#cam_nlev1=32
+cam_nlev1=83
 core1=FV
 #
 # second model to compare with
@@ -52,7 +52,7 @@ cam_nlev2=32
 core2=FV
 #
 export startyear="0001"
-export finalyear="0020"
+export finalyear="0019"
 export startyear_anncyc="0001" #starting year to compute 2d map climatology
 export nyrsmean=20   #nyear-period for mean in timeseries
 # select if you compare to model or obs 
@@ -365,7 +365,7 @@ then
 if [[ $do_znl_atm -eq 1 ]]
 then
       comp=atm
-      export obsfile=$dir_obs2/Vars_plev_era5_1979-2018_anncyc.nc
+      export obsfile=$dir_obs4/Vars_plev_era5_1979-2018_anncyc.nc
 
       export varmod
       export sea
