@@ -599,6 +599,10 @@ then
 fi
 for fld in `ls $tmpdir1/plots/atm/*${startyear}-${lasty}*|rev|cut -d '.' -f 4|rev|sort -n |uniq`
 do
+   if [[ $fld == "Z3" ]] || [[ $fld == "T" ]] || [[ $fld == "U" ]]
+   then
+      continue
+   fi
    atmlist+=" \"$fld\","
 done
 for fld in `ls $tmpdir1/plots/lnd/*${startyear}-${lasty}*|rev|cut -d '.' -f 4|rev|sort -n |uniq`
