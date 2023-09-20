@@ -16,7 +16,7 @@ begin
 ;************************************************
 ; read in netCDF file model
 ;************************************************
-  expid=getenv("expid")
+  expid=getenv("expid1")
   var=getenv("varmod")
   sea=getenv("sea")
   infile=getenv("obsfile")
@@ -24,13 +24,15 @@ begin
   pltname=getenv("pltname")
   a = addfile(infile,"r")
   plev=a->plev(::-1)/100
-  lat=a->lat
+  lat=a->lat(::-1)
   lon=a->lon
   rad  = 4.0 * atan(1.0) / 180.0
   if(var.eq."Z3")then
-     tmp=a->Z(:,::-1,:,:)
+; reverse vertical levels and latitudes
+     tmp=a->Z(:,::-1,::-1,:)/9.81
   else
-     tmp=a->$var$(:,::-1,:,:)
+; reverse vertical levels and latitudes
+     tmp=a->$var$(:,::-1,::-1,:)
   end if
   if(sea.eq."ANN") then
      u=dim_avg_n(dim_avg_n(tmp,3),0)
@@ -67,9 +69,9 @@ begin
   latmod=b->lat
   lonmod=b->lon
   tmp=b->$var$;(:,ilev:,:,:)
-  if(var.eq."Z3")then
-     tmp=tmp/100.
-  end if
+;  if(var.eq."Z3")then
+;     tmp=tmp/100.
+;  end if
   if(sea.eq."ANN") then
      umod2d=dim_avg_n(tmp,0)
      tbot=dim_avg_n(f->T(:,0,:,:),0)
@@ -103,7 +105,9 @@ begin
   PHIS=c->PHIS(0,:,:)
   hyam=c->hyam
   hybm=c->hybm
-  lev=(/1000,850,650,500,300,200,50,10,5,1/)
+  lev=(/1000,925,850,700,500,300,250,200,100,10/)
+;  lev=(/1000,925,850,700,500,300,250,200,100,10,5/)
+;  lev=(/1000,850,650,500,300,200,50,10,5,1/)
 ;  lev=plev
   P0mb=1000.
   umod2obs=vinth2p_ecmwf(umod2d, hyam,hybm,lev,PSmod, intyp, P0mb,1,kxtrp,varflg,tbot,PHIS)
@@ -112,9 +116,10 @@ begin
   umod=dim_avg_n(umod2obsregrid,2)
   uobs=new((/dimsizes(lev),dimsizes(lat)/),typeof(u))
   uobs@_Fillvalue=-999.
-  uobs(0:6,:)=u
-  uobs(7:,:)=uobs@_FillValue
-;  uobs=u
+  nn=dimsizes(u)
+  print(nn)
+  print(dimsizes(lat))
+  uobs=u(0:dimsizes(lev)-1,:)
   udiff=umod-uobs
   copy_VarMeta(umod2obsregrid(:,:,0),umod)
   copy_VarMeta(umod2obsregrid(:,:,0),udiff)
@@ -134,9 +139,9 @@ begin
   res@gsnFrame            = False           ; don't advance frame
   res@cnLevelSelectionMode = "ManualLevels"       ; manually select levels
   if(var.eq."Z3")then
-     res@cnLevelSpacingF      = 20.0                  ; contour spacing
+     res@cnLevelSpacingF      = 1500.0                  ; contour spacing
      res@cnMinLevelValF       = 0.                 ; min level
-     res@cnMaxLevelValF       =  200.
+     res@cnMaxLevelValF       =  30000.
   end if
   if(var.eq."T")then
      res@cnLevelSpacingF      = 10.0                  ; contour spacing
@@ -163,10 +168,20 @@ begin
   res@tiMainString         = expid
   plot(0)  = gsn_csm_pres_hgt(wks, umod, res )   ; plaace holder
   res@tiMainString         = expid +" - ERA5 reanalysis"
-  if(var.eq."T".or.var.eq."U")then
+  if(var.eq."T")then
      res@cnLevelSpacingF      = 1.                  ; contour spacing
      res@cnMinLevelValF       = -10.                 ; min level
      res@cnMaxLevelValF       =  10.
+  end if
+  if(var.eq."U")then
+     res@cnLevelSpacingF      = 1.5                  ; contour spacing
+     res@cnMinLevelValF       = -15.                 ; min level
+     res@cnMaxLevelValF       =  15.
+  end if
+  if(var.eq."Z3")then
+     res@cnLevelSpacingF      = 30.                  ; contour spacing
+     res@cnMinLevelValF       = -300.                 ; min level
+     res@cnMaxLevelValF       =  300.
   end if
   plot(1) = gsn_csm_pres_hgt(wks, udiff, res )   ; plaace holder
 ;************************************************

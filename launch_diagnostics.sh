@@ -11,11 +11,13 @@
 
 set -eux  
 # SECTION TO BE MODIFIED BY USER
+debug=0
 nmaxproc=6
-sec1=1  #flag to execute section1 (1=yes; 0=no)
-sec2=1  #flag to execute section2 (1=yes; 0=no)
+sec1=0  #flag to execute section1 (1=yes; 0=no)
+sec2=0  #flag to execute section2 (1=yes; 0=no)
 sec3=1  #flag to execute section3 (1=yes; 0=no)
-sec4=0  #flag for section4 (=nemo postproc)
+sec4=0  #flag for section4 (=nemo postproc) (1=yes; 0=no)
+sec5=0  #flag for section5 (=QBO postproc) (1=yes; 0=no)
 machine="juno"
 do_atm=1
 do_ice=0
@@ -161,6 +163,10 @@ mkdir -p $pltdir
 mkdir -p $pltdir/atm $pltdir/lnd $pltdir/ice $pltdir/ocn $pltdir/namelists
 
 export pltype="png"
+if [[ $debug -eq 1 ]]
+then
+   pltype="x11"
+fi
 export units
 export title
 #allvars_atm="AODVIS BURDENBC BURDENSOA BURDENPOM BURDENSO4 BURDENDUST BURDEN1 BURDENdn1  BURDEN2 BURDENdn2 BURDEN3 BURDENdn3 BURDEN4 BURDENdn4 BURDENB  BURDENDUST BURDENPOM BURDENSEASALT BURDENSOA  BURDENSO4"
@@ -359,7 +365,7 @@ then
 if [[ $do_znl_atm -eq 1 ]]
 then
       comp=atm
-      export obsfile=$dir_obs1/ERA5_1m_clim_1deg_1979-2018_prlev.nc
+      export obsfile=$dir_obs2/Vars_plev_era5_1979-2018_anncyc.nc
 
       export varmod
       export sea
@@ -392,10 +398,16 @@ then
       export auxfile=$inpdirroot/atm/hist/${expid1}.$realm.h0.$startyear-01.nc
       comppltdir=$pltdir/${comp}
       mkdir -p $comppltdir
-      for varmod in T U Z3
+      for varmod in Z3 T U
       do
          export modfile=$tmpdir1/${expid1}.$realm.$varmod.$startyear-$lasty.anncyc.nc
-         bsub -P 0566 -q s_medium -M 85000 -J diagnostic_single_var3d_${varmod} -e logs/diagnostic_single_var3d_${varmod}_%J.err -o logs/diagnostic_single_var3d_${varmod}_%J.out $here/diagnostics_single_var3d.sh $machine $expid1 $utente1 $cam_nlev1 $core1 $expid2 $utente2 $cam_nlev2 $core2 $startyear $finalyear $nyrsmean $cmp2obs $cmp2mod $obsfile $varmod $PSfile $Tfile $auxfile $pltype $here
+         if [[ $debug -eq 1 ]]
+         then
+            $here/diagnostics_single_var3d.sh $machine $expid1 $utente1 $cam_nlev1 $core1 $expid2 $utente2 $cam_nlev2 $core2 $startyear $finalyear $nyrsmean $cmp2obs $cmp2mod $obsfile $varmod $PSfile $Tfile $auxfile $pltype $here
+            exit
+         else
+            bsub -P 0566 -q s_medium -M 85000 -J diagnostic_single_var3d_${varmod} -e logs/diagnostic_single_var3d_${varmod}_%J.err -o logs/diagnostic_single_var3d_${varmod}_%J.out $here/diagnostics_single_var3d.sh $machine $expid1 $utente1 $cam_nlev1 $core1 $expid2 $utente2 $cam_nlev2 $core2 $startyear $finalyear $nyrsmean $cmp2obs $cmp2mod $obsfile $varmod $PSfile $Tfile $auxfile $pltype $here
+         fi
       done
 fi   #do_znl_atm
 fi   # end of sec3
@@ -540,6 +552,33 @@ then
 fi
 ############################################
 #  end of section 4 
+############################################
+
+############################################
+#  Start section 5 QBO 
+############################################
+if [[ $sec5 -eq 1 ]]
+then
+   export iniy=$startyear
+   export lasty=$finalyear
+   listamerge=""
+   for yyyy in `seq -w $iniy $lasty`
+   do
+      listamerge+=" $tmpdir1/${exp_name}.cam.U.${yyyy}.nc"
+   done
+   if [[ ! -f $tmpdir1/${exp_name}.cam.U.${iniy}-$lasty.nc ]]
+   then
+      cdo -O mergetime ${listamerge} ${tmpdir1}/${exp_name}.cam.U.${iniy}-$lasty.ncfi
+   export infile=$tmpdir1/${exp_name}.cam.QBO.${iniy}-$lasty.nc
+   if [[ ! -f $tmpdir1/${exp_name}.cam.QBO.${iniy}-$lasty.nc ]]
+   then
+      cdo -O fldmean -sellonlatbox,0,360,-2,2 ${tmpdir1}/${exp_name}.cam.U.${iniy}-$lasty.nc $infile
+   fi
+   export pltname=$pltdir/atm/QBO_${exp_name}.$iniy-$lasty
+   ncl plot_QBO_bw.ncl
+fi
+############################################
+#  end of section 5 QBO 
 ############################################
 
 cd $here
