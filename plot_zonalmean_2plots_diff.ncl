@@ -20,11 +20,17 @@ begin
   var=getenv("varmod")
   sea=getenv("sea")
   infile=getenv("obsfile")
+  clim3d=getenv("clim3d")
   pltype=getenv("pltype")
   pltname=getenv("pltname")
   a = addfile(infile,"r")
-  plev=a->plev(::-1)/100
-  lat=a->lat(::-1)
+  if(clim3d.eq."MERRA2")then
+     plev=a->lev
+     lat=a->lat
+  else
+     plev=a->plev(::-1)/100
+     lat=a->lat(::-1)
+  end if
   lon=a->lon
   rad  = 4.0 * atan(1.0) / 180.0
   if(var.eq."Z3")then
@@ -33,6 +39,9 @@ begin
   else
 ; reverse vertical levels and latitudes
      tmp=a->$var$(:,::-1,::-1,:)
+     if(clim3d.eq."MERRA2")then
+        tmp=a->$var$
+     end if
   end if
   if(sea.eq."ANN") then
      u=dim_avg_n(dim_avg_n(tmp,3),0)
@@ -48,11 +57,11 @@ begin
   end if
   end if
   delete(tmp)
-  u!0="plev"
-  u&plev=plev
+  u!0="lev"
+  u&lev=plev
   u!1="lat"
   u&lat=lat
-  u&plev@units="hPa"
+  u&lev@units="hPa"
 ;***********************************************
 ; now model
 ;***********************************************
@@ -65,13 +74,9 @@ begin
   infile=getenv("modfile")
   b = addfile(infile,"r")
   ilev=36
-  ;lev=b->lev(ilev:)
   latmod=b->lat
   lonmod=b->lon
   tmp=b->$var$;(:,ilev:,:,:)
-;  if(var.eq."Z3")then
-;     tmp=tmp/100.
-;  end if
   if(sea.eq."ANN") then
      umod2d=dim_avg_n(tmp,0)
      tbot=dim_avg_n(f->T(:,0,:,:),0)
@@ -105,13 +110,13 @@ begin
   PHIS=c->PHIS(0,:,:)
   hyam=c->hyam
   hybm=c->hybm
-  lev=(/1000,925,850,700,500,300,250,200,100,10/)
-;  lev=(/1000,925,850,700,500,300,250,200,100,10,5/)
-;  lev=(/1000,850,650,500,300,200,50,10,5,1/)
-;  lev=plev
+  ;lev=(/1000,925,850,700,500,300,250,200,100,10/)
+  nplev=dimsizes(plev)
+  lev=plev(0:nplev-2)
   P0mb=1000.
   umod2obs=vinth2p_ecmwf(umod2d, hyam,hybm,lev,PSmod, intyp, P0mb,1,kxtrp,varflg,tbot,PHIS)
   printVarSummary(umod2obs)
+  umod2obs_orig_latlon = dim_avg_n(umod2obs,2)
   umod2obsregrid = linint2_Wrap (lonmod,latmod,umod2obs, True, lon,lat, 0)
   umod=dim_avg_n(umod2obsregrid,2)
   uobs=new((/dimsizes(lev),dimsizes(lat)/),typeof(u))
@@ -123,10 +128,16 @@ begin
   udiff=umod-uobs
   copy_VarMeta(umod2obsregrid(:,:,0),umod)
   copy_VarMeta(umod2obsregrid(:,:,0),udiff)
+  copy_VarMeta(umod2d(:,:,0),umod2obs_orig_latlon)
   udiff@_Fillvalue=uobs@_Fillvalue
-  printVarSummary(udiff)
-  umod&lev_p@units="hPa"
-  udiff&lev_p@units="hPa"
+  printVarSummary(umod)
+  if(clim3d.eq."MERRA2")then
+     umod&lev@units="hPa"
+     udiff&lev@units="hPa"
+  else
+     umod&lev_p@units="hPa"
+     udiff&lev_p@units="hPa"
+  end if
 ;************************************************
 ; create plot
 ;************************************************
@@ -166,8 +177,13 @@ begin
   
   printVarSummary(u)
   res@tiMainString         = expid
-  plot(0)  = gsn_csm_pres_hgt(wks, umod, res )   ; plaace holder
-  res@tiMainString         = expid +" - ERA5 reanalysis"
+  res@trYMinF=30
+;  plot(0)  = gsn_csm_pres_hgt(wks, umod, res )   ; plaace holder
+  umod2obs_orig_latlon!0="lev"
+  umod2obs_orig_latlon&lev=lev
+  umod2obs_orig_latlon&lev@units="hPa"
+  plot(0)  = gsn_csm_pres_hgt(wks, umod2obs_orig_latlon, res )   ; plaace holder
+  res@tiMainString         = expid +" - "+clim3d+" reanalysis"
   if(var.eq."T")then
      res@cnLevelSpacingF      = 1.                  ; contour spacing
      res@cnMinLevelValF       = -10.                 ; min level

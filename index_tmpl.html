@@ -386,15 +386,17 @@ function showdata(vv,vl) {
     ZN+='<h2 style="background-color:#DDDDDD;"> '+vv+' - Zonal Means '+'</h2> <div class=box>'
 
     var seas = ["DJF", "JJA", "ANN"];
+    var rean = ["ERA5","MERRA2"];
 
     for (var i = 0; i < list.length; i++) {
+        for (var j = 0; j < rean.length; j++) {
 
-             ZN+='<div class=box> <h3 style="background-color:#f0f0f0;"> '+list[i]+' </h3>'; 
+             ZN+='<div class=box> <h3 style="background-color:#f0f0f0;"> '+list[i]+'-'+rean[j]+' </h3>'; 
 
              for (var s = 0; s < seas.length; s++) {
 
 <!--                pic = expid+'.'+vl+'.'+list[i]+'.map_'+seas[s]+'.png';-->
-                pic = expid+'.zonalmean.'+list[i]+'.'+clim+'.'+seas[s]+'.png';
+                pic = expid+'.VS.'+rean[j]+'.zonalmean.'+list[i]+'.'+clim+'.'+seas[s]+'.png';
 
                 ZN+='<div class=box> <a href="'+vl+'/'+pic+'"> <img class=pics src="'+vl+'/'+pic+'"/> </a>';
 
@@ -404,6 +406,7 @@ function showdata(vv,vl) {
 
              ZN+='</div>';
 
+         };           
     };           
 
     ZN+='</div>';

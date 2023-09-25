@@ -13,12 +13,14 @@ set -eux
 # SECTION TO BE MODIFIED BY USER
 debug=0
 nmaxproc=6
-sec1=0  #flag to execute section1 (1=yes; 0=no)
+sec1=1  #flag to execute section1 (1=yes; 0=no)
 sec2=1  #flag to execute section2 (1=yes; 0=no)
 sec3=1  #flag to execute section3 (1=yes; 0=no)
+#export clim3d="MERRA2"
+export clim3d="ERA5"
 sec4=0  #flag for section4 (=nemo postproc) (1=yes; 0=no)
-sec5=0  #flag for section5 (=QBO postproc) (1=yes; 0=no)
-machine="zeus"
+sec5=1  #flag for section5 (=QBO postproc) (1=yes; 0=no)
+machine="juno"
 do_atm=1
 do_ice=0
 do_lnd=1
@@ -33,11 +35,11 @@ do_anncyc=1
 #export expid1=cm3_cam122d_2000_1d32l_t9c
 #export expid1=cm3_cam116d_2000_t1
 #export expid1=SPS3.5_2000_cont
-export expid1=cm3_cam122_cpl2000-bgc_t01
+export expid1=cm3_cam122_cpl2000-bgc_t01c
 #export expid1=SPS3.5_2000_cont
 #utente1=cp1
-utente1=sps-dev
-#utente1=dp16116
+#utente1=sps-dev
+utente1=dp16116
 #cam_nlev1=32
 cam_nlev1=83
 core1=FV
@@ -45,18 +47,18 @@ core1=FV
 # second model to compare with
 #expid2=cam109d_cm3_1deg_amip1981-bgc_t2
 #utente2=mb16318
-#export expid2=cm3_cam122_cpl2000-bgc_t01
-export expid2=cm3_cam116d_2000_1d32l_t1
-utente2=cp1
-cam_nlev2=32
+export expid2=cm3_cam122_cpl2000-bgc_t01
+#export expid2=cm3_cam116d_2000_1d32l_t1
+utente2=dp16116
+cam_nlev2=83
 core2=FV
 #
 export startyear="0001"
-export finalyear="0019"
+export finalyear="0006"
 export startyear_anncyc="0001" #starting year to compute 2d map climatology
 export nyrsmean=20   #nyear-period for mean in timeseries
 # select if you compare to model or obs 
-export cmp2obs=1
+export cmp2obs=0
 # END SECTION TO BE MODIFIED BY USER
 
 if [[ $cmp2obs -eq 0 ]]
@@ -291,6 +293,7 @@ done #expid
 fi # end of section 1
 while `true`
 do
+   sleep 20
    njob=`bjobs -w|grep postproc_single_var_|wc -l`
    if [[ $njob -eq 0 ]]
    then
@@ -365,7 +368,13 @@ then
    if [[ $do_znl_atm -eq 1 ]]
    then
          comp=atm
-         export obsfile=$dir_obs4/Vars_plev_era5_1979-2018_anncyc.nc
+         if [[ ${clim3d} == "MERRA2" ]]
+         then
+            export obsfile=$dir_obs5/MERRA2/MERRA2.3d.ltm.1981-2010.nc
+         else
+            export obsfile=$dir_obs4/Vars_plev_era5_1979-2018_anncyc.nc
+            export obsfile=$dir_obs4/Vars_plev_era5_like_MERRA2_1981-2010_anncyc.nc
+         fi
    
          export varmod
          export sea
@@ -398,7 +407,7 @@ then
          export auxfile=$inpdirroot/atm/hist/${expid1}.$realm.h0.$startyear-01.nc
          comppltdir=$pltdir/${comp}
          mkdir -p $comppltdir
-         for varmod in Z3 T U
+         for varmod in U T #Z3
          do
             export modfile=$tmpdir1/${expid1}.$realm.$varmod.$startyear-$lasty.anncyc.nc
             if [[ $debug -eq 1 ]]
@@ -414,9 +423,10 @@ fi   # end of sec3
 ############################################
 #  End of section3
 ############################################
+sleep 45
 while `true`
 do
-   ijob=`bjobs -w|grep diagnostics_single_var3d|wc -l`
+   ijob=`bjobs -w|grep diagnostics_single_var|wc -l`
    if [[ $ijob -eq 0 ]]
    then
       break
@@ -572,19 +582,19 @@ then
    listamerge=""
    for yyyy in `seq -w $iniy $lasty`
    do
-      listamerge+=" $tmpdir1/${exp_name}.cam.U.${yyyy}.nc"
+      listamerge+=" $tmpdir1/${expid1}.cam.U.${yyyy}.nc"
    done
-   if [[ ! -f $tmpdir1/${exp_name}.cam.U.${iniy}-$lasty.nc ]]
+   if [[ ! -f $tmpdir1/${expid1}.cam.U.${iniy}-$lasty.nc ]]
    then
-      cdo -O mergetime ${listamerge} ${tmpdir1}/${exp_name}.cam.U.${iniy}-$lasty.nc
+      cdo -O mergetime ${listamerge} ${tmpdir1}/${expid1}.cam.U.${iniy}-$lasty.nc
    fi
-   export infile=$tmpdir1/${exp_name}.cam.QBO.${iniy}-$lasty.nc
-   if [[ ! -f $tmpdir1/${exp_name}.cam.QBO.${iniy}-$lasty.nc ]]
+   export infile=$tmpdir1/${expid1}.cam.QBO.${iniy}-$lasty.nc
+   if [[ ! -f $tmpdir1/${expid1}.cam.QBO.${iniy}-$lasty.nc ]]
    then
-      cdo -O fldmean -sellonlatbox,0,360,-2,2 ${tmpdir1}/${exp_name}.cam.U.${iniy}-$lasty.nc $infile
+      cdo -O fldmean -sellonlatbox,0,360,-2,2 ${tmpdir1}/${expid1}.cam.U.${iniy}-$lasty.nc $infile
    fi
-   export pltname=$pltdir/atm/QBO_${exp_name}.$iniy-$lasty
-   ncl plot_QBO_bw.ncl
+   export pltname=$pltdir/atm/QBO_${expid1}.$iniy-$lasty
+   ncl QBO/plot_QBO_bw.ncl
 fi
 ############################################
 #  end of section 5 QBO 

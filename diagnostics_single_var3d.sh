@@ -113,7 +113,7 @@ mkdir -p $comppltdir
 export modfile=$tmpdir1/${expid1}.$realm.$varmod.$startyear-$lasty.anncyc.nc
 for sea in ANN DJF JJA 
 do  
-   export pltname=$comppltdir/$expid1.zonalmean.$varmod.$iniclim-$lasty.$sea.png
+   export pltname=$comppltdir/$expid1.VS.$clim3d.zonalmean.$varmod.$iniclim-$lasty.$sea.png
    rsync -auv $here/plot_zonalmean_2plots_diff.ncl $tmpdir1/scripts/plot_zonalmean_2plots_diff.$varmod.ncl
    ncl $tmpdir1/scripts/plot_zonalmean_2plots_diff.$varmod.ncl
    if [[ $pltype == "x11" ]]

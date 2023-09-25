@@ -138,7 +138,7 @@ begin
     nplt           = nplt+1              
     if (nplt.eq.npltfrm) then
         gsn_panel(wks,plot,(/npltfrm,1/),resP)  
-        gsn_text_ndc  (wks, source, 0.50, 0.02, txres)
+;        gsn_text_ndc  (wks, source, 0.50, 0.02, txres)
         frame(wks)
         exit
 
@@ -149,7 +149,7 @@ begin
  end do
 
  gsn_panel(wks,plot(0:nplt-1),(/npltfrm,1/),resP)  
- gsn_text_ndc  (wks, source, 0.50, 0.02, txres)
+; gsn_text_ndc  (wks, source, 0.50, 0.02, txres)
  frame(wks)
 
 end
