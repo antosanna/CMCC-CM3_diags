@@ -1,25 +1,21 @@
 #!/bin/sh -l
-set -eux  
+set -euvx  
 machine=$1
 expid1=$2
 utente1=$3
-cam_nlev1=$4
-core1=$5
+core1=$4
 #
-expid2=$6
-utente2=${7}
-cam_nlev2=${8}
-core2=${9}
+expid2=$5
+utente2=${6}
+core2=${7}
 #
-startyear=${10}
-finalyear=${11}
-cmp2mod=${12}
+startyear=${8}
+finalyear=${9}
+cmp2mod=${10}
 
-here=${13}
-var=${14}
+here=${11}
+var=${12}
 i=1
-expname1=${expid1}_${cam_nlev1}
-expname2=${expid2}_${cam_nlev2}
 dir_SE=$PWD/SPS3.5
 dirdiag=/work/$DIVISION/$USER/diagnostics/
 mkdir -p $dirdiag
@@ -119,7 +115,7 @@ fi
 inpfile=$tmpdir/${expid1}.$comp.$var.$startyear-${lasty}.ymean.fldmean.nc
 if [[ ! -f $inpfile ]]
 then 
-   head=`basename $ymeanfilevar|rev|cut -d '.' -f1|rev`
+   head=`basename $ymeanfilevar|rev|cut -d '.' -f2-|rev`
    cdo -setctomiss,0 ${ymeanfilevar} $tmpdir/${head}_miss.nc
    cdo mul $tmpdir/${head}_miss.nc $tmpdir/tarea_surf_miss.nc $tmpdir/${head}_miss_wg.nc
    cdo fldsum $tmpdir/${head}_miss_wg.nc $tmpdir/${head}_sum_miss.nc

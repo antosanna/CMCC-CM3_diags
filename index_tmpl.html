@@ -416,7 +416,7 @@ function showdata(vv,vl) {
   
     var QBO='';
 
-    if ( vv == "CAM") { list = "U" } else {list = "" };
+    if ( vv == "CAM") { list = "U" };
 
 
     QBO+='<h2 style="background-color:#DDDDDD;"> U - QBO '+'</h2> <div class=box>'
@@ -448,7 +448,7 @@ function showdata(vv,vl) {
     QBO+='<div class=after-box> </div>';
 
 
-    document.getElementById("listframe").innerHTML=Header + TS + AC + Maps + ZN+QBO;
+    if ( vv == "CAM") { document.getElementById("listframe").innerHTML=Header + TS + AC + Maps + ZN+QBO} else { document.getElementById("listframe").innerHTML=Header + TS + AC + Maps }
 
 }
 

@@ -3,22 +3,20 @@ set -eux
 machine=$1
 export expid1=$2
 utente1=$3
-cam_nlev1=$4
-core1=$5
-export expid2=$6
-utente2=$7
-cam_nlev2=$8
-core2=$9
-export startyear=${10}
-export finalyear=${11}
-export startyear_anncyc=${12} #starting year to compute 2d map climatology
-export nyrsmean=${13}   #nyear-period for mean in timeseries
-export cmp2obs=${14}
-here=${15}
-export varmod=${16}
-do_timeseries=${17}
-do_2d_plt=${18}
-do_anncyc=${19}
+core1=$4
+export expid2=$5
+utente2=$6
+core2=$7
+export startyear=$8
+export finalyear=$9
+export startyear_anncyc=${10} #starting year to compute 2d map climatology
+export nyrsmean=${11}   #nyear-period for mean in timeseries
+export cmp2obs=${12}
+here=${13}
+export varmod=${14}
+do_timeseries=${15}
+do_2d_plt=${16}
+do_anncyc=${17}
 
 #
 export cmp2mod=1
@@ -30,8 +28,8 @@ fi
 export mftom1=1
 export varobs
 export cmp2obstimeseries=0
-export expname1=${expid1}_${cam_nlev1}
-export expname2=${expid2}_${cam_nlev2}
+#export expname1=${expid1}_${cam_nlev1}  inherited from main
+#export expname2=${expid2}_${cam_nlev2}
 dir_SE=$PWD/SPS3.5
 dirdiag=/work/$DIVISION/$USER/diagnostics/
 mkdir -p $dirdiag
@@ -118,7 +116,7 @@ then
    rm $tmpdir/tarea_surf.nc
    cdo fldsum $tmpdir/tarea_surf_miss.nc $tmpdir/tarea_surf_sum_miss.nc
 fi
-comp=ocn
+comp=nemo
 outnml=$tmpdir1/nml
    # copy locally the namelists
 mkdir -p $outnml
@@ -138,7 +136,7 @@ case $varmod in
    tos)varobs=SST;units="Celsius deg";export inpfileobs=t2m_era5_1979-2021.yy.fldmean.;export obsfile="$dir_obs1/ERA5_1m_clim_1deg_1979-2018_surface.nc";export title2="ERA5 $climobs";export maxplot=36;export minplot=-20;export delta=2;units_from_here=1;cmp2obs_ncl=1;;
 esac
 echo $units
-if [[ ! -f $tmpdir/${expid1}.$realm.$varmod.$startyear-${lasty}.ymean.nc ]]
+if [[ ! -f $tmpdir/${expid1}.$comp.$varmod.$startyear-${lasty}.ymean.nc ]]
 then
    continue
 fi
@@ -151,9 +149,9 @@ export compute=0
 export cmp2obs
 # units only for vars that need conversion
 export inpfile=$tmpdir/${expid1}.$comp.$varmod.$startyear-${lasty}.ymean.fldmean
-comppltdir=$pltdir/${comp}
+comppltdir=$pltdir/ocn
 mkdir -p $comppltdir
-export pltname=$comppltdir/${expid1}.$comp.$varmod.$startyear-${lasty}.TS_3
+export pltname=$comppltdir/${expid1}.ocn.$varmod.$startyear-${lasty}.TS_3
 export b7090=0;export b3070=0;export b3030=0;export b3070S=0;export b7090S=0;export bglo=0;export bNH=0;export bSH=0;export bland=0;export boce=0
 export hplot="0.3"
 export lat0; export lat1
@@ -166,16 +164,16 @@ then
          NH)lat0=0;lat1=90;bNH=1;;
          SH)lat0=-90;lat1=0;bSH=1;;
       esac
-      if [[ -f ${inpfile}.$ts_gzm_boxes.nc ]] || [[ ! -f $tmpdir/${expid1}.$realm.$varmod.$startyear-${lasty}.ymean.nc ]]
+      if [[ -f ${inpfile}.$ts_gzm_boxes.nc ]] || [[ ! -f $tmpdir/${expid1}.$comp.$varmod.$startyear-${lasty}.ymean.nc ]]
       then  
          continue
       fi
-      cdo fldmean -sellonlatbox,0,360,$lat0,$lat1 $tmpdir/${expid1}.$realm.$varmod.$startyear-${lasty}.ymean.nc $inpfile.$ts_gzm_boxes.nc
+      cdo fldmean -sellonlatbox,0,360,$lat0,$lat1 $tmpdir/${expid1}.$comp.$varmod.$startyear-${lasty}.ymean.nc $inpfile.$ts_gzm_boxes.nc
    done
       # do plot_timeseries
    rsync -auv plot_timeseries_xy_panel.ncl $tmpdir1/scripts/plot_timeseries_xy_panel.$varmod.ncl
    ncl $tmpdir1/scripts/plot_timeseries_xy_panel.$varmod.ncl
-   export pltname=$comppltdir/${expid1}.$comp.$varmod.$startyear-${lasty}.TS_5
+   export pltname=$comppltdir/${expid1}.ocn.$varmod.$startyear-${lasty}.TS_5
    export b7090=0;export b3070=0;export b3030=0;export b3070S=0;export b7090S=0;export bglo=0;export bNH=0;export bSH=0;export bland=0;export boce=0
    export hplot="0.15"
    for ts_gzm_boxes in 70N-90N 30N-70N 30S-30N 30S-70S 70S-90S
@@ -187,23 +185,22 @@ then
          30S-70S)lat0=-70; lat1=30;b3070S=1;;
          70S-90S)lat0=-90;lat1=-70;b7090S=1;;
       esac
-      if [[ -f ${inpfile}.$ts_gzm_boxes.nc ]] || [[ ! -f $tmpdir/${expid1}.$realm.$varmod.$startyear-${lasty}.ymean.nc ]]
+      if [[ -f ${inpfile}.$ts_gzm_boxes.nc ]] || [[ ! -f $tmpdir/${expid1}.$comp.$varmod.$startyear-${lasty}.ymean.nc ]]
       then  
          continue
       fi
-      cdo fldmean -sellonlatbox,0,360,$lat0,$lat1 $tmpdir/${expid1}.$realm.$varmod.$startyear-${lasty}.ymean.nc $inpfile.$ts_gzm_boxes.nc
+      cdo fldmean -sellonlatbox,0,360,$lat0,$lat1 $tmpdir/${expid1}.$comp.$varmod.$startyear-${lasty}.ymean.nc $inpfile.$ts_gzm_boxes.nc
     done
       # do plot_timeseries
     ncl $tmpdir1/scripts/plot_timeseries_xy_panel.$varmod.ncl
 # now plot only land and only sea points means
 fi #do_timeseries
 export varobs
-comppltdir=$pltdir/${comp}
    # now 2d maps
 if [[ $do_2d_plt -eq 1 ]]
 then
    echo "---now plotting 2d $varmod"
-   export inpfile=$tmpdir/${expid1}.$realm.$varmod.$iniclim-$lasty.anncyc.nc
+   export inpfile=$tmpdir/${expid1}.$comp.$varmod.$iniclim-$lasty.anncyc.nc
    if [[ ! -f $inpfile ]]
    then
       continue
@@ -215,7 +212,7 @@ then
    export sea
    for sea in ANN DJF JJA
    do
-     export pltname=$comppltdir/${expid1}.$comp.$varmod.map_${sea}.png
+     export pltname=$comppltdir/${expid1}.ocn.$varmod.map_${sea}.png
      rsync -auv plot_2d_maps_and_diff_nemo.ncl $tmpdir1/scripts/plot_2d_maps_and_diff_nemo.$varmod.ncl
      ncl $tmpdir1/scripts/plot_2d_maps_and_diff_nemo.$varmod.ncl
      if [[ $pltype == "x11" ]]

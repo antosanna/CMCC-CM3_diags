@@ -363,7 +363,7 @@ end if
  tmp=(uplot+cf)*mf*1./tofloat(mftom1)
  printVarSummary(uplot)
  printVarSummary(tmp)
- uplot=tmp
+ uplot=rm_single_dims(tmp)
  copy_VarMeta(tmp,uplot)
  delete(tmp)
  res@vpWidthF         = 0.8                      ; set width and height

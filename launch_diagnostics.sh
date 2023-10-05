@@ -8,6 +8,8 @@
 
 #ALBEDO=(FSUTOA)/SOLIN  [ con SOLIN=FSUTOA+FSNTOA]
 #https://atmos.uw.edu/~jtwedt/GeoEng/CAM_Diagnostics/rcp8_5GHGrem-b40.20th.track1.1deg.006/set5_6/set5_ANN_FLNT_c.png
+#LAI
+#/work/csp/dp16116/data/LAI_CGLS/LAI_2000-2011_GLOBE_VGT_V2.0.2_05x05_12mon.nc
 
 set -eux  
 # SECTION TO BE MODIFIED BY USER
@@ -15,33 +17,33 @@ debug=0
 nmaxproc=6
 sec1=1  #flag to execute section1 (1=yes; 0=no)
 sec2=1  #flag to execute section2 (1=yes; 0=no)
-sec3=1  #flag to execute section3 (1=yes; 0=no)
+sec3=1  #flag to execute section3 (1=yes; 0=no)  zonal plot 3d vars
 #export clim3d="MERRA2"
 export clim3d="ERA5"
-sec4=0  #flag for section4 (=nemo postproc) (1=yes; 0=no)
+sec4=1  #flag for section4 (=nemo postproc) (1=yes; 0=no)
 sec5=1  #flag for section5 (=QBO postproc) (1=yes; 0=no)
 machine="juno"
 do_atm=1
-do_ice=0
+do_ice=0  #not implemented yet
 do_lnd=1
-do_timeseries=1
-do_znl_lnd=0
+export do_timeseries=1
+do_znl_lnd=0  #not implemented yet
 do_znl_atm=1
-do_znl_atm2d=0
-do_2d_plt=1
-do_anncyc=1
+do_znl_atm2d=0  #not implemented yet
+export do_2d_plt=1
+export do_anncyc=1
 
 # model to diagnose
-#export expid1=cm3_cam122d_2000_1d32l_t9c
+export expid1=cm3_cam122d_2000_1d32l_t1
 #export expid1=cm3_cam116d_2000_t1
 #export expid1=SPS3.5_2000_cont
-export expid1=cm3_cam122_cpl2000-bgc_t01c
+#export expid1=cm3_cam122_cpl2000-bgc_t11b
 #export expid1=SPS3.5_2000_cont
 #utente1=cp1
 #utente1=sps-dev
 utente1=dp16116
-#cam_nlev1=32
-cam_nlev1=83
+cam_nlev1=32
+#cam_nlev1=83
 core1=FV
 #
 # second model to compare with
@@ -54,11 +56,11 @@ cam_nlev2=83
 core2=FV
 #
 export startyear="0001"
-export finalyear="0006"
+export finalyear="0023"
 export startyear_anncyc="0001" #starting year to compute 2d map climatology
 export nyrsmean=20   #nyear-period for mean in timeseries
 # select if you compare to model or obs 
-export cmp2obs=0
+export cmp2obs=1
 # END SECTION TO BE MODIFIED BY USER
 
 if [[ $cmp2obs -eq 0 ]]
@@ -119,17 +121,20 @@ export autoprec=True
 user=$USER
     # model components
 comps=""
-if [[ $do_atm -eq 1 ]]
+if [[ $sec1 -eq 1 ]]
 then
-    comps="atm"
-fi
-if [[ $do_ice -eq 1 ]]
-then
-    comps+=" ice"
-fi
-if [[ $do_lnd -eq 1 ]]
-then
-    comps+=" lnd"
+   if [[ $do_atm -eq 1 ]]
+   then
+       comps="atm"
+   fi
+   if [[ $do_ice -eq 1 ]]
+   then
+       comps+=" ice"
+   fi
+   if [[ $do_lnd -eq 1 ]]
+   then
+       comps+=" lnd"
+   fi
 fi
     # read arguments
 echo 'Experiment : ' $expid1
@@ -177,6 +182,56 @@ allvars_lnd="SNOWDP FSH TLAI FAREA_BURNED";
 allvars_ice="aice snowfrac ext Tsfc fswup fswdn flwdn flwup congel fbot albsni hi";
 allvars_oce="tos sos zos heatc saltc";
     
+############################################
+#  Section4: postprocessing and diagnostics for Nemo
+############################################
+if [[ $sec4 -eq 1 ]]
+then
+   tmpdir=$tmpdir1   #TMP
+   export srcGridName="/work/csp/as34319/ESMF/ORCA_SCRIP_gridT.nc"
+   export dstGridName="/work/csp/as34319/ESMF/World1deg_SCRIP_gridT.nc"
+   export wgtFile="/work/csp/as34319/ESMF/ORCA_2_World_SCRIP_gridT.nc"
+   if [ ! -f $tmpdir/tarea_surf_sum_miss.nc ]
+   then
+     maskfile=/data/inputs/CESM/inputdata/ocn/nemo/tn0.25v3/grid/ORCA025L75_domain_cfg.nc
+     cdo sellevidx,1 $maskfile $tmpdir/mesh_mask_surf.nc
+     cdo expr,'area=(e1t*e2t*tmask)' $tmpdir/mesh_mask_surf.nc $tmpdir/tarea_surf.nc
+     rm $tmpdir/mesh_mask_surf.nc
+     cdo -setctomiss,0 $tmpdir/tarea_surf.nc $tmpdir/tarea_surf_miss.nc
+     rm $tmpdir/tarea_surf.nc
+     cdo fldsum $tmpdir/tarea_surf_miss.nc $tmpdir/tarea_surf_sum_miss.nc
+   fi
+   comp=ocn
+   typelist="grid_T"
+   freqlist="1m"
+   model=CMCC-CM3
+   if [[ $machine == "zeus" ]]
+   then
+       model=CESM2
+      if [[ $utente1 == "dp16116" ]]
+      then 
+         model=CMCC-CM
+      fi   
+      if [[ $core1 == "SE" ]]
+      then
+         model=CESM
+      fi
+      rundir=/work/$DIVISION/$utente1/$model/$expid1/run
+      export inpdirroot=/work/csp/$utente1/$model/archive/$expid1
+      if [[ $utente1 == "dp16116" ]]
+      then
+         export inpdirroot=/work/csp/$utente1/CESM2/archive/$expid1
+      fi
+   else
+      rundir=/work/$DIVISION/$utente1/CMCC-CM/$expid1/run
+      export inpdirroot=/work/csp/$utente1/CMCC-CM/archive/$expid1
+   fi
+   bsub -P 0566 -M 8000 -q s_medium -J postproc_nemo_alone -e logs/postproc_nemo_alone_%J.err -o logs/postproc_nemo_alone_%J.out $here/postproc_nemo_alone.sh $tmpdir1 $machine $expid1 $utente1 $core1 $expid2 $utente2 $core2 $startyear $finalyear $cmp2mod $here $typelist $inpdirroot $freqlist "$allvars_oce" $nmaxproc
+   do_anncyc=1  #reset to initial value
+fi
+############################################
+#  end of section 4 
+############################################
 ############################################
 #  First section: postprocessing
 ############################################
@@ -339,7 +394,7 @@ do
       ijob=0
       for varmod in $allvars
       do
-         bsub -P 0566 -q s_medium -M 85000 -J diagnostics_single_var_${varmod} -e logs/diagnostics_single_var_${varmod}_%J.err -o logs/diagnostics_single_var_${varmod}_%J.out $here/diagnostics_single_var.sh $machine $expid1 $utente1 $cam_nlev1 $core1 $expid2 $utente2 $cam_nlev2 $core2 $startyear $finalyear $startyear_anncyc $cmp2obs $cmp2mod $pltype $varmod $comp $do_timeseries $do_znl_lnd $do_znl_atm $do_znl_atm2d $do_2d_plt $do_anncyc
+         bsub -P 0566 -q s_medium -M 85000 -J diagnostics_single_var_${varmod} -e logs/diagnostics_single_var_${varmod}_%J.err -o logs/diagnostics_single_var_${varmod}_%J.out $here/diagnostics_single_var.sh $machine $expid1 $utente1 $cam_nlev1 $core1 $expid2 $utente2 $cam_nlev2 $core2 $startyear $finalyear $startyear_anncyc $cmp2obs $cmp2mod $pltype $varmod $comp $do_timeseries $do_znl_lnd $do_znl_atm2d $do_2d_plt $do_anncyc $do_atm $do_lnd $do_ice
          while `true`
          do
             ijob=`bjobs -w|grep diagnostics_single_var_|wc -l`
@@ -434,143 +489,6 @@ do
    sleep 40
 done
 
-tmpdir=$tmpdir1   #TMP
-############################################
-#  Section4: postprocessing and diagnostics for Nemo
-############################################
-do_anncyc=0 #not yet implemented
-if [[ $sec4 -eq 1 ]]
-then
-   export srcGridName="/work/csp/as34319/ESMF/ORCA_SCRIP_gridT.nc"
-   export dstGridName="/work/csp/as34319/ESMF/World1deg_SCRIP_gridT.nc"
-   export wgtFile="/work/csp/as34319/ESMF/ORCA_2_World_SCRIP_gridT.nc"
-   if [ ! -f $tmpdir/tarea_surf_sum_miss.nc ]
-   then
-     maskfile=/data/inputs/CESM/inputdata/ocn/nemo/tn0.25v3/grid/ORCA025L75_domain_cfg.nc
-     cdo sellevidx,1 $maskfile $tmpdir/mesh_mask_surf.nc
-     cdo expr,'area=(e1t*e2t*tmask)' $tmpdir/mesh_mask_surf.nc $tmpdir/tarea_surf.nc
-     rm $tmpdir/mesh_mask_surf.nc
-     cdo -setctomiss,0 $tmpdir/tarea_surf.nc $tmpdir/tarea_surf_miss.nc
-     rm $tmpdir/tarea_surf.nc
-     cdo fldsum $tmpdir/tarea_surf_miss.nc $tmpdir/tarea_surf_sum_miss.nc
-   fi
-   comp=ocn
-   typelist="grid_T"
-   freqlist="1m"
-   model=CMCC-CM3
-   if [[ $machine == "zeus" ]]
-   then
-       model=CESM2
-      if [[ $utente1 == "dp16116" ]]
-      then 
-         model=CMCC-CM
-      fi   
-      if [[ $core1 == "SE" ]]
-      then
-         model=CESM
-      fi
-      rundir=/work/$DIVISION/$utente1/$model/$expid1/run
-      export inpdirroot=/work/csp/$utente1/$model/archive/$expid1
-      if [[ $utente1 == "dp16116" ]]
-      then
-         export inpdirroot=/work/csp/$utente1/CESM2/archive/$expid1
-      fi
-   else
-      rundir=/work/$DIVISION/$utente1/CMCC-CM/$expid1/run
-      export inpdirroot=/work/csp/$utente1/CMCC-CM/archive/$expid1
-   fi
-   for ftype in $typelist
-   do
-      inpdir=$inpdirroot/$comp/hist
-      export realm="nemo"
-      for freq in $freqlist
-      do
-         case $freq in
-            1m)allvars=$allvars_oce;;
-         esac
-         echo $allvars
-         for yyyy in `seq -f "%04g" $startyear $finalyear`
-         do
-            echo "-----going to postproc year $yyyy"
-            yfile=$tmpdir/${expid1}_${freq}_${yyyy}_${ftype}.nc
-            if [[ $freq == "1m" ]]
-            then #merge h0
-               if [[ `ls $inpdir/${expid1}_${freq}_${yyyy}????_${yyyy}????_${ftype}.nc |wc -l` -eq 12 ]]
-               then
-                  if [[ ! -f $yfile ]]
-                  then
-         #1 anno e 12 mesi
-                     ncrcat -O $inpdir/${expid1}_${freq}_${yyyy}????_${yyyy}????_${ftype}.nc $tmpdir/${expid1}_${freq}_${yyyy}.tmp.nc
-                     ncrename -O -d time_counter,time $tmpdir/${expid1}_${freq}_${yyyy}.tmp.nc
-                     ncrename -O -v time_counter,time $tmpdir/${expid1}_${freq}_${yyyy}.tmp.nc
-                     ncks -C -O -x -v time_centered $tmpdir/${expid1}_${freq}_${yyyy}.tmp.nc $tmpdir/${expid1}_${freq}_${yyyy}.tmp1.nc
-                     ncks -C -O -x -v time_instant $tmpdir/${expid1}_${freq}_${yyyy}.tmp1.nc $tmpdir/${expid1}_${freq}_${yyyy}.tmp.nc
-                     cdo settaxis,$yyyy-01-01,12:00:00,1mon $tmpdir/${expid1}_${freq}_${yyyy}.tmp.nc $tmpdir/${expid1}_${freq}_${yyyy}.tmp1.nc
-                     cdo setreftime,$yyyy-01-01,12:00:00 $tmpdir/${expid1}_${freq}_${yyyy}.tmp1.nc $yfile
-                     rm $tmpdir/${expid1}_${freq}_${yyyy}.tmp.nc
-                     rm $tmpdir/${expid1}_${freq}_${yyyy}.tmp1.nc
-                  fi
-         #1 anno e 12 mesi e una var
-                  lasty=$yyyy
-               fi
-            elif [[ $freq == "1d" ]]
-            then
-               :
-   #                   if [[ ! -f $yfile ]]
-   #                   then
-   #                      cdo monmean $inpdir/${expid1}.$realm.??? $yfile
-   #                   fi
-            fi
-
-            if [[ ! -f $yfile ]]
-            then
-               echo "yearly file $yfile not produced "
-               break
-            fi
-         done
-         finalyear=$lasty
-
-
-         for var in $allvars
-         do
-            bsub -P 0566 -M 8000 -q s_medium -J postproc_sing_var_nemo_${var} -e logs/postproc_sing_var_nemo_${var}_%J.err -o logs/postproc_sing_var_nemo_${var}_%J.out $here/postproc_sing_var_nemo.sh $machine $expid1 $utente1 $cam_nlev1 $core1 $expid2 $utente2 $cam_nlev2 $core2 $startyear $finalyear $cmp2mod $here $var
-         
-         done   #loop on vars
-      done  #loop freq
-   done   #loop type
-   while `true`
-   do
-      njob=`bjobs -w|grep postproc_sing_var_nemo|wc -l`
-      if [[ $njob -gt $nmaxproc ]]
-      then
-         sleep 20
-      else
-         break
-      fi
-   done
-
-   outnml=$tmpdir1/nml
-   # copy locally the namelists
-   mkdir -p $outnml
-   
-   for varmod in $allvars
-   do
-      bsub -P 0566 -M 5000 -q s_medium -J diagnostics_sing_var_nemo_${var} -e logs/diagnostics_sing_var_nemo_${var}_%J.err -o logs/diagnostics_sing_var_nemo_${var}_%J.out $here/diagnostics_sing_var_nemo.sh $machine $expid1 $utente1 $cam_nlev1 $core1 $expid2 $utente2 $cam_nlev2 $core2 $startyear $finalyear $startyear_anncyc $nyrsmean $cmp2obs $here $varmod $do_timeseries $do_2d_plt $do_anncyc
-      while `true`
-      do
-         njob=`bjobs -w|grep diagnostics_sing_var_nemo|wc -l`
-         if [[ $njob -gt $nmaxproc ]]
-         then
-            sleep 20
-         else
-            break
-         fi
-      done
-   done
-fi
-############################################
-#  end of section 4 
-############################################
 
 ############################################
 #  Start section 5 QBO 
@@ -599,6 +517,19 @@ fi
 ############################################
 #  end of section 5 QBO 
 ############################################
+############################################
+#  check that all diagnostic processes are completed
+############################################
+while `true`
+do
+   njob=`bjobs -w|grep diagnostics_sing_var_nemo|wc -l`
+   if [[ $njob -gt 0 ]]
+   then
+      sleep 20
+   else
+      break
+   fi
+done
 
 cd $here
 
@@ -638,8 +569,8 @@ else
    gzip -f $expid1.$startyear-${lasty}.VS$expid2.tar
 fi
 
-if [[ -d $tmpdir1/scripts ]]
-then
-   rm -rf $tmpdir1/scripts
-fi
+#if [[ -d $tmpdir1/scripts ]]
+#then
+#   rm -rf $tmpdir1/scripts
+#fi
 
