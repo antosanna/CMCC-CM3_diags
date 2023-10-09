@@ -37,13 +37,14 @@ export do_anncyc=1
 export expid1=cm3_cam122d_2000_1d32l_t1
 #export expid1=cm3_cam116d_2000_t1
 #export expid1=SPS3.5_2000_cont
-#export expid1=cm3_cam122_cpl2000-bgc_t11b
+export expid1=cm3_cam122_cpl2000-bgc_t11b
+#export expid1=cm3_cam122_cpl2000-bgc_t01c
 #export expid1=SPS3.5_2000_cont
 #utente1=cp1
 #utente1=sps-dev
 utente1=dp16116
 cam_nlev1=32
-#cam_nlev1=83
+cam_nlev1=83
 core1=FV
 #
 # second model to compare with
@@ -56,7 +57,7 @@ cam_nlev2=83
 core2=FV
 #
 export startyear="0001"
-export finalyear="0023"
+export finalyear="0019"
 export startyear_anncyc="0001" #starting year to compute 2d map climatology
 export nyrsmean=20   #nyear-period for mean in timeseries
 # select if you compare to model or obs 
@@ -226,7 +227,12 @@ then
       rundir=/work/$DIVISION/$utente1/CMCC-CM/$expid1/run
       export inpdirroot=/work/csp/$utente1/CMCC-CM/archive/$expid1
    fi
-   bsub -P 0566 -M 8000 -q s_medium -J postproc_nemo_alone -e logs/postproc_nemo_alone_%J.err -o logs/postproc_nemo_alone_%J.out $here/postproc_nemo_alone.sh $tmpdir1 $machine $expid1 $utente1 $core1 $expid2 $utente2 $core2 $startyear $finalyear $cmp2mod $here $typelist $inpdirroot $freqlist "$allvars_oce" $nmaxproc
+   if [[ $debug -eq 1 ]]
+   then 
+      $here/postproc_nemo_alone.sh $tmpdir1 $machine $expid1 $utente1 $core1 $expid2 $utente2 $core2 $startyear $finalyear $cmp2mod $here $typelist $inpdirroot $freqlist "$allvars_oce" $nmaxproc $debug
+   else
+      bsub -P 0566 -M 8000 -q s_medium -J postproc_nemo_alone -e logs/postproc_nemo_alone_%J.err -o logs/postproc_nemo_alone_%J.out $here/postproc_nemo_alone.sh $tmpdir1 $machine $expid1 $utente1 $core1 $expid2 $utente2 $core2 $startyear $finalyear $cmp2mod $here $typelist $inpdirroot $freqlist "$allvars_oce" $nmaxproc $debug
+   fi
    do_anncyc=1  #reset to initial value
 fi
 ############################################

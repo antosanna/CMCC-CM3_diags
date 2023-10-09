@@ -282,7 +282,7 @@ function showdata(vv,vl) {
 
         if ( list[i] == "ICEFRAC") { var tsn=["3","5"]; var tsl=["GLOBAL","ZONAL"]} else { var tsn=["3","5","2"]; var tsl=["GLOBAL","ZONAL","OCEAN/LAND"]};
         if ( vv == "CLM") { var tsn=["3","5"]; var tsl=["GLOBAL","ZONAL"]};
-        if ( vv == "NEMO") { var tsn=["3","5"]; var tsl=["GLOBAL","ZONAL"]};
+        if ( vv == "NEMO") { var tsn=["1"]; var tsl=["GLOBAL"]};
         TS+='<div class=box> <h3 style="background-color:#f0f0f0;"> '+list[i]+' </h3>';
 
         for ( var k = 0; k < tsn.length; k++) {
@@ -448,7 +448,7 @@ function showdata(vv,vl) {
     QBO+='<div class=after-box> </div>';
 
 
-    if ( vv == "CAM") { document.getElementById("listframe").innerHTML=Header + TS + AC + Maps + ZN+QBO} else { document.getElementById("listframe").innerHTML=Header + TS + AC + Maps }
+    if ( vv == "CAM") { document.getElementById("listframe").innerHTML=Header + TS + AC + Maps + ZN+QBO} else if ( vv == "NEMO") { document.getElementById("listframe").innerHTML=Header + TS + Maps } else { document.getElementById("listframe").innerHTML=Header + TS + AC + Maps }
 
 }
 

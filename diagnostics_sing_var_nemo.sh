@@ -106,16 +106,6 @@ tmpdir=$tmpdir1   #TMP
 export srcGridName="/work/csp/as34319/ESMF/ORCA_SCRIP_gridT.nc"
 export dstGridName="/work/csp/as34319/ESMF/World1deg_SCRIP_gridT.nc"
 export wgtFile="/work/csp/as34319/ESMF/ORCA_2_World_SCRIP_gridT.nc"
-if [ ! -f $tmpdir/tarea_surf_sum_miss.nc ]
-then
-   maskfile=/data/inputs/CESM/inputdata/ocn/nemo/tn0.25v3/grid/ORCA025L75_domain_cfg.nc
-   cdo sellevidx,1 $maskfile $tmpdir/mesh_mask_surf.nc
-   cdo expr,'area=(e1t*e2t*tmask)' $tmpdir/mesh_mask_surf.nc $tmpdir/tarea_surf.nc
-   rm $tmpdir/mesh_mask_surf.nc
-   cdo -setctomiss,0 $tmpdir/tarea_surf.nc $tmpdir/tarea_surf_miss.nc
-   rm $tmpdir/tarea_surf.nc
-   cdo fldsum $tmpdir/tarea_surf_miss.nc $tmpdir/tarea_surf_sum_miss.nc
-fi
 comp=nemo
 outnml=$tmpdir1/nml
    # copy locally the namelists
@@ -148,51 +138,16 @@ export computedvar=""
 export compute=0
 export cmp2obs
 # units only for vars that need conversion
-export inpfile=$tmpdir/${expid1}.$comp.$varmod.$startyear-${lasty}.ymean.fldmean
+export inpfile=$tmpdir/${expid1}.ocn.$varmod.$startyear-${lasty}.ymean.fldmean.nc
 comppltdir=$pltdir/ocn
 mkdir -p $comppltdir
-export pltname=$comppltdir/${expid1}.ocn.$varmod.$startyear-${lasty}.TS_3
-export b7090=0;export b3070=0;export b3030=0;export b3070S=0;export b7090S=0;export bglo=0;export bNH=0;export bSH=0;export bland=0;export boce=0
+export pltname=$comppltdir/${expid1}.ocn.$varmod.$startyear-${lasty}.TS_1
 export hplot="0.3"
-export lat0; export lat1
 if [[ $do_timeseries -eq 1 ]]
 then
-   for ts_gzm_boxes in Global NH SH 
-   do
-      case $ts_gzm_boxes in
-         Global)lat0=-90;lat1=90;bglo=1;;
-         NH)lat0=0;lat1=90;bNH=1;;
-         SH)lat0=-90;lat1=0;bSH=1;;
-      esac
-      if [[ -f ${inpfile}.$ts_gzm_boxes.nc ]] || [[ ! -f $tmpdir/${expid1}.$comp.$varmod.$startyear-${lasty}.ymean.nc ]]
-      then  
-         continue
-      fi
-      cdo fldmean -sellonlatbox,0,360,$lat0,$lat1 $tmpdir/${expid1}.$comp.$varmod.$startyear-${lasty}.ymean.nc $inpfile.$ts_gzm_boxes.nc
-   done
       # do plot_timeseries
-   rsync -auv plot_timeseries_xy_panel.ncl $tmpdir1/scripts/plot_timeseries_xy_panel.$varmod.ncl
+   rsync -auv plot_timeseries_xy_panel_nemo.ncl $tmpdir1/scripts/plot_timeseries_xy_panel.$varmod.ncl
    ncl $tmpdir1/scripts/plot_timeseries_xy_panel.$varmod.ncl
-   export pltname=$comppltdir/${expid1}.ocn.$varmod.$startyear-${lasty}.TS_5
-   export b7090=0;export b3070=0;export b3030=0;export b3070S=0;export b7090S=0;export bglo=0;export bNH=0;export bSH=0;export bland=0;export boce=0
-   export hplot="0.15"
-   for ts_gzm_boxes in 70N-90N 30N-70N 30S-30N 30S-70S 70S-90S
-   do
-      case $ts_gzm_boxes in
-         70N-90N)lat0=70; lat1=90;b7090=1;;
-         30N-70N)lat0=30; lat1=70;b3070=1;;
-         30S-30N)lat0=-30;lat1=30;b3030=1;;
-         30S-70S)lat0=-70; lat1=30;b3070S=1;;
-         70S-90S)lat0=-90;lat1=-70;b7090S=1;;
-      esac
-      if [[ -f ${inpfile}.$ts_gzm_boxes.nc ]] || [[ ! -f $tmpdir/${expid1}.$comp.$varmod.$startyear-${lasty}.ymean.nc ]]
-      then  
-         continue
-      fi
-      cdo fldmean -sellonlatbox,0,360,$lat0,$lat1 $tmpdir/${expid1}.$comp.$varmod.$startyear-${lasty}.ymean.nc $inpfile.$ts_gzm_boxes.nc
-    done
-      # do plot_timeseries
-    ncl $tmpdir1/scripts/plot_timeseries_xy_panel.$varmod.ncl
 # now plot only land and only sea points means
 fi #do_timeseries
 export varobs
