@@ -15,17 +15,17 @@ set -eux
 # SECTION TO BE MODIFIED BY USER
 debug=0
 nmaxproc=6
-sec1=1  #flag to execute section1 (1=yes; 0=no)
-sec2=1  #flag to execute section2 (1=yes; 0=no)
-sec3=1  #flag to execute section3 (1=yes; 0=no)  zonal plot 3d vars
+sec1=0  #flag to execute section1 (1=yes; 0=no) POSTPROCESSING
+sec2=1  #flag to execute section2 (1=yes; 0=no) TIMESERIES, 2D-MAPS, ANNCYC
+sec3=0  #flag to execute section3 (1=yes; 0=no)  ZONAL PLOT 3D VARS
 #export clim3d="MERRA2"
 export clim3d="ERA5"
-sec4=1  #flag for section4 (=nemo postproc) (1=yes; 0=no)
-sec5=1  #flag for section5 (=QBO postproc) (1=yes; 0=no)
-machine="juno"
+sec4=0  #flag for section4 (=nemo postproc) (1=yes; 0=no)
+sec5=0  #flag for section5 (=QBO postproc) (1=yes; 0=no)
+machine="zeus"
 do_atm=1
 do_ice=0  #not implemented yet
-do_lnd=1
+do_lnd=0
 export do_timeseries=1
 do_znl_lnd=0  #not implemented yet
 do_znl_atm=1
@@ -39,13 +39,16 @@ export expid1=cm3_cam122d_2000_1d32l_t1
 #export expid1=SPS3.5_2000_cont
 export expid1=cm3_cam122_cpl2000-bgc_t11b
 #export expid1=cm3_cam122_cpl2000-bgc_t01c
-#export expid1=SPS3.5_2000_cont
+export expid1=SPS3.5_2000_cont
 #utente1=cp1
 #utente1=sps-dev
 utente1=dp16116
+utente1=$USER
 cam_nlev1=32
 cam_nlev1=83
+cam_nlev1=46
 core1=FV
+core1=SE
 #
 # second model to compare with
 #expid2=cam109d_cm3_1deg_amip1981-bgc_t2
@@ -57,7 +60,7 @@ cam_nlev2=83
 core2=FV
 #
 export startyear="0001"
-export finalyear="0019"
+export finalyear="0040"
 export startyear_anncyc="0001" #starting year to compute 2d map climatology
 export nyrsmean=20   #nyear-period for mean in timeseries
 # select if you compare to model or obs 
@@ -122,8 +125,6 @@ export autoprec=True
 user=$USER
     # model components
 comps=""
-if [[ $sec1 -eq 1 ]]
-then
    if [[ $do_atm -eq 1 ]]
    then
        comps="atm"
@@ -136,7 +137,6 @@ then
    then
        comps+=" lnd"
    fi
-fi
     # read arguments
 echo 'Experiment : ' $expid1
 echo 'Processing year(s) period : ' $startyear ' - ' $finalyear
