@@ -663,7 +663,7 @@ then
    export sea
    for sea in ANN DJF JJA
    do
-      export pltname=$comppltdir/${expid1}.$comp.$varmod.map_${sea}.png
+      export pltname=$comppltdir/${expid1}.$comp.$varmod.map_${sea}.$startyear-${lasty}.png
       cp plot_2d_maps_and_diff.ncl $tmpdir1/scripts/plot_2d_maps_and_diff.$varmod.ncl
       ncl $tmpdir1/scripts/plot_2d_maps_and_diff.$varmod.ncl
       if [[ $pltype == "x11" ]]

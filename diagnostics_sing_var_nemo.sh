@@ -167,7 +167,7 @@ then
    export sea
    for sea in ANN DJF JJA
    do
-     export pltname=$comppltdir/${expid1}.ocn.$varmod.map_${sea}.png
+     export pltname=$comppltdir/${expid1}.ocn.$varmod.map_${sea}.$iniclim-$lasty.png
      rsync -auv plot_2d_maps_and_diff_nemo.ncl $tmpdir1/scripts/plot_2d_maps_and_diff_nemo.$varmod.ncl
      ncl $tmpdir1/scripts/plot_2d_maps_and_diff_nemo.$varmod.ncl
      if [[ $pltype == "x11" ]]
