@@ -1,9 +1,9 @@
 #!/bin/sh -l
 #BSUB -M 85000   #if you get BUS error increase this number
 #BSUB -P 0566
-#BSUB -J timeseries_parallel
-#BSUB -e logs/timeseries_parallel_%J.err
-#BSUB -o logs/timeseries_parallel_%J.out
+#BSUB -J launch_diagnostics_parallel
+#BSUB -e logs/launch_diagnostics_parallel_%J.err
+#BSUB -o logs/launch_diagnostics_parallel_%J.out
 #BSUB -q s_medium
 
 #ALBEDO=(FSUTOA)/SOLIN  [ con SOLIN=FSUTOA+FSNTOA]
@@ -15,12 +15,12 @@ set -eux
 # SECTION TO BE MODIFIED BY USER
 debug=0
 nmaxproc=6
-sec1=0  #flag to execute section1 (1=yes; 0=no) POSTPROCESSING
+sec1=1  #flag to execute section1 (1=yes; 0=no) POSTPROCESSING
 sec2=1  #flag to execute section2 (1=yes; 0=no) TIMESERIES, 2D-MAPS, ANNCYC
-sec3=0  #flag to execute section3 (1=yes; 0=no)  ZONAL PLOT 3D VARS
+sec3=1  #flag to execute section3 (1=yes; 0=no)  ZONAL PLOT 3D VARS
 #export clim3d="MERRA2"
 export clim3d="ERA5"
-sec4=1  #flag for section4 (=nemo postproc) (1=yes; 0=no)
+sec4=0  #flag for section4 (=nemo postproc) (1=yes; 0=no)
 sec5=1  #flag for section5 (=QBO postproc) (1=yes; 0=no)
 machine="juno"
 do_atm=1
@@ -34,17 +34,15 @@ export do_2d_plt=1
 export do_anncyc=1
 
 # model to diagnose
-export expid1=cm3_cam122d_2000_1d32l_t1
-#export expid1=cm3_cam116d_2000_t1
+export expid1=cm3_cam122_cpl2000_1d32l_t109
+#export expid1=cm3_cam132_cpl2000_1deg93lev_t01
 #export expid1=SPS3.5_2000_cont
-export expid1=cm3_cam122_cpl2000-bgc_t11b
-#export expid1=cm3_cam122_cpl2000-bgc_t01c
-#export expid1=SPS3.5_2000_cont
-#utente1=cp1
+utente1=cp1
 #utente1=sps-dev
-utente1=dp16116
+#utente1=dp16116
 #cam_nlev1=32
 cam_nlev1=83
+#cam_nlev1=93
 core1=FV
 #
 # second model to compare with
@@ -57,7 +55,7 @@ cam_nlev2=83
 core2=FV
 #
 export startyear="0001"
-export finalyear="0028"
+export finalyear="0002"
 export startyear_anncyc="0001" #starting year to compute 2d map climatology
 export nyrsmean=20   #nyear-period for mean in timeseries
 # select if you compare to model or obs 
