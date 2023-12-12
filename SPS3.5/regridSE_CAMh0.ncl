@@ -157,6 +157,7 @@ begin
 
 ;  varin=(/"T","Z3","Q","U","V","OMEGA","PSL","CLDTOT","TS","TREFHT","FSNS","PRECC","PRECL"/)
   varin=getenv("varmod") ;"TREFHT"
+  print("input var "+varin)
   if ( varin.eq."T".or.varin.eq."Z3".or.varin.eq."Q".or.varin.eq."U".or.varin.eq."V".or.varin.eq."OMEGA") then
      var3d=1
      ia       = ind(dNames.eq."lev" )   ; # of levels
@@ -208,6 +209,6 @@ begin
   outf->$varin$=var
   outf->lon=lon
   outf->lat=lat
-  outf->time=time
+;  outf->time=time
 
 end

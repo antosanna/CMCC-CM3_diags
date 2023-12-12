@@ -20,6 +20,7 @@ here=${16}
 comp=${17}
 exp=${18}
 var=${19}
+export varmod=$var
 #end input section
 
 dir_SE=$PWD/SPS3.5
@@ -159,7 +160,7 @@ do
           break
        fi 
        ymfilevar=$tmpdir/${exp}.$realm.$var.$yyyy.nc
-       if [[ ! -f $ymfilevar ]]
+       if [[ ! -f $ymfilevar ]] 
        then
          #check if var is present
    # SECTION VARIABLES TO BE  COMPUTED
@@ -282,6 +283,15 @@ do
        fi
            
        listaf+=" $ymfilevar"
+       if [[ $core == "SE" ]]
+       then
+          export outfile=$tmpdir/${exp}.$realm.$var.$yyyy.reg1x1.nc
+          if [[ ! -f $outfile ]]
+          then
+             export srcFileName=$ymfilevar
+             ncl $dir_SE/regridSE_CAMh0.ncl
+          fi
+       fi
        if [[ $((10#$yyyy)) -ge $((10#$startyear_anncyc)) ]]
        then
           listaf_anncyc+=" $ymfilevar"
