@@ -34,7 +34,9 @@ export do_2d_plt=1
 export do_anncyc=1
 
 # model to diagnose
-export expid1=cm3_cam122_cpl2000_1d32l_t109
+#export expid1=cm3_cam122_cpl2000_bgc_ne30L93_t1a
+export expid1=cm3_cam122_cpl2000_bgc_t1qbo
+#export expid1=cm3_cam122_cpl2000-bgc_t01c
 #export expid1=cm3_cam132_cpl2000_1deg93lev_t01
 #export expid1=SPS3.5_2000_cont
 utente1=cp1
@@ -55,7 +57,7 @@ cam_nlev2=83
 core2=FV
 #
 export startyear="0001"
-export finalyear="0002"
+export finalyear="0018"
 export startyear_anncyc="0001" #starting year to compute 2d map climatology
 export nyrsmean=20   #nyear-period for mean in timeseries
 # select if you compare to model or obs 
@@ -176,7 +178,7 @@ fi
 export units
 export title
 #allvars_atm="AODVIS BURDENBC BURDENSOA BURDENPOM BURDENSO4 BURDENDUST BURDEN1 BURDENdn1  BURDEN2 BURDENdn2 BURDEN3 BURDENdn3 BURDEN4 BURDENdn4 BURDENB  BURDENDUST BURDENPOM BURDENSEASALT BURDENSOA  BURDENSO4"
-allvars_atm="ALBEDO ALBEDOS CLDLOW CLDMED CLDHGH CLDTOT CLDICE CLDLIQ FLUT FLUTC FLDS FSDSC FLNS FLNSC FSNSC FSNTOA FSNS FSDS FSNT FLNT ICEFRAC  LHFLX SHFLX LWCF SWCF SOLIN RESTOM EmP PRECT PRECC PS QFLX TGCLDCWP TGCLDLWP TGCLDIWP TREFHT TS Z010 Z100 Z500 Z700 Z850 U010 U100 U200 U700 T U Z3"
+allvars_atm="ALBEDO ALBEDOS CLDLOW CLDMED CLDHGH CLDTOT CLDICE CLDLIQ FLUT FLUTC FLDS FSDSC FLNS FLNSC FSNSC FSNTOA FSNS FSDS FSNT FLNT ICEFRAC  LHFLX SHFLX LWCF SWCF SOLIN RESTOM EmP PRECT PRECC PSL QFLX TGCLDCWP TGCLDLWP TGCLDIWP TREFHT TS Z010 Z100 Z500 Z700 Z850 U010 U100 U200 U700 T U Z3"
 allvars_lnd="SNOWDP FSH TLAI FAREA_BURNED";
 allvars_ice="aice snowfrac ext Tsfc fswup fswdn flwdn flwup congel fbot albsni hi";
 allvars_oce="tos sos zos heatc saltc";
@@ -349,7 +351,6 @@ do
    finalyearplot[$i]=$lasty
    i=$(($i + 1))
 done #expid
-fi # end of section 1
 while `true`
 do
    sleep 20
@@ -359,6 +360,7 @@ do
       break
    fi
 done
+fi # end of section 1
 ############################################
 #  end of first section
 ############################################

@@ -403,9 +403,6 @@ begin
      end if
      res@gsnLeftString   = ""
      res@gsnRightString   = ""
-;     delete(res@cnFillPalette)
-;     cmap2 = read_colormap_file("hotcold_18lev")
-;     res@cnFillPalette     = cmap2(::-1,:)
      plot(2) = gsn_csm_contour_map(wks,diff, res)
      
     ;********************************

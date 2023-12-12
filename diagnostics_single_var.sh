@@ -497,7 +497,7 @@ export inpfile=$tmpdir1/${expid1}.$comp.$varmod.$startyear-${lasty}.ymean.fldmea
 comppltdir=$pltdir/${comp}
 mkdir -p $comppltdir
 export pltname=$comppltdir/${expid1}.$comp.$varmod.$startyear-${lasty}.TS_3
-export b7090=0;export b3070=0;export b3030=0;export b3070S=0;export b7090S=0;export bglo=0;export bNH=0;export SH=0;export bland=0;export boce=0
+export b7090=0;export b3070=0;export b3030=0;export b3070S=0;export b7090S=0;export bglo=0;export bNH=0;export bSH=0;export bland=0;export boce=0
 export hplot="0.3"
 if [[ $do_timeseries -eq 1 ]]
 then
@@ -533,7 +533,7 @@ then
 #               fi
     done
       # do plot_timeseries
-    cp plot_timeseries_xy_panel.ncl $tmpdir1/scripts/plot_timeseries_xy_panel.$varmod.ncl
+    rsync -auv plot_timeseries_xy_panel.ncl $tmpdir1/scripts/plot_timeseries_xy_panel.$varmod.ncl
     ncl $tmpdir1/scripts/plot_timeseries_xy_panel.$varmod.ncl
     if [[ $pltype == "x11" ]]
     then
@@ -664,7 +664,7 @@ then
    for sea in ANN DJF JJA
    do
       export pltname=$comppltdir/${expid1}.$comp.$varmod.map_${sea}.$startyear-${lasty}.png
-      cp plot_2d_maps_and_diff.ncl $tmpdir1/scripts/plot_2d_maps_and_diff.$varmod.ncl
+      rsync -auv plot_2d_maps_and_diff.ncl $tmpdir1/scripts/plot_2d_maps_and_diff.$varmod.ncl
       ncl $tmpdir1/scripts/plot_2d_maps_and_diff.$varmod.ncl
       if [[ $pltype == "x11" ]]
       then
@@ -717,7 +717,7 @@ then
    export rootinpfileobs=$tmpdir1/`basename $obsfile|rev|cut -d '.' -f2-|rev` 
    export inpfileanncyc=$tmpdir1/`basename $inpfile|rev|cut -d '.' -f2-|rev` 
    export pltname=$comppltdir/${expid1}.$comp.$varmod.$startyear_anncyc-$lasty.anncyc_3.png
-   cp plot_anncyc.ncl $tmpdir1/scripts/plot_anncyc.$varmod.ncl
+   rsync -auv plot_anncyc.ncl $tmpdir1/scripts/plot_anncyc.$varmod.ncl
    ncl $tmpdir1/scripts/plot_anncyc.$varmod.ncl
    if [[ $pltype == "x11" ]]
    then
@@ -801,7 +801,7 @@ then
                fi
             fi
          fi
-         cp plot_znlmean_2dfields.ncl $tmpdir1/scripts/plot_znlmean_2dfields.$varmod.ncl
+         rsync -auv plot_znlmean_2dfields.ncl $tmpdir1/scripts/plot_znlmean_2dfields.$varmod.ncl
          ncl $tmpdir1/scripts/plot_znlmean_2dfields.$varmod.ncl
       done
    fi
