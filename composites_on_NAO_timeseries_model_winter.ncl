@@ -15,10 +15,16 @@ endlon=30
 
 ;------ Load model files
 varf="PSL"
+core="SE"
 year=ispan(1,30,1)
 anno=sprinti("%0.4i", year)
-pathfile="/work/csp/as34319/diagnostics/dp16116/cm3_cam122_cpl2000-bgc_t01c/"
-all_filem=pathfile+"cm3_cam122_cpl2000-bgc_t01c.cam.PSL."+anno+".nc"
+caso="SPS3.5_2000_cont"
+pathfile="/work/csp/sps-dev/diagnostics/sps-dev/"+caso+"/"
+if(core.eq."SE")then
+   all_filem=pathfile+caso+".cam.PSL."+anno+".reg1x1.nc"
+else
+   all_filem=pathfile+caso+".cam.PSL."+anno+".nc"
+end if
 
 fallm=addfiles(all_filem,"r")
 ListSetType(fallm,"join")
@@ -75,7 +81,11 @@ end do
 
 varf="TREFHT"
 print("plotting composites with "+varf)
-all_filep=pathfile+"cm3_cam122_cpl2000-bgc_t01c.cam."+varf+"."+anno+".nc"
+if(core.eq."SE")then
+   all_filep=pathfile+caso+".cam."+varf+"."+anno+".reg1x1.nc"
+else
+   all_filep=pathfile+caso+".cam."+varf+"."+anno+".nc"
+end if
 fallp=addfiles(all_filep,"r")
 ListSetType(fallp,"join")
 prec=fallp[:]->$varf$
@@ -109,7 +119,7 @@ do it=0,ny-2
 end do
 if(varf.eq."TREFHT")then
    cf=1
-  cmap = read_colormap_file("temp_diff_18lev")
+  cmap = read_colormap_file("hotcold_18lev")
 end if
 if(varf.eq."PRECT")then
    cf=86400*1000
@@ -120,7 +130,7 @@ prec_comp_nega=(prec_comp_nega/tofloat(icn)-mean_prec_winter)*cf
 copy_VarMeta(prec(0,0,:,:),prec_comp_posi)
 copy_VarMeta(prec(0,0,:,:),prec_comp_nega)
 
- wks = gsn_open_wks("png","/work/csp/as34319/diagnostics/dp16116/cm3_cam122_cpl2000-bgc_t01c/plots/indices/NAO/"+varf+"_composites_on_winter_NAO")              ; send graphics to PNG file
+ wks = gsn_open_wks("png","/work/csp/sps-dev/diagnostics/sps-dev/"+caso+"/plots/indices/NAO/"+varf+"_composites_on_winter_NAO")              ; send graphics to PNG file
 
 
   plot = new(2,graphic)                          ; create a plot array
