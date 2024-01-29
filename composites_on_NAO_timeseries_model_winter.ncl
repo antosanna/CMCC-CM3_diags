@@ -15,11 +15,11 @@ endlon=30
 
 ;------ Load model files
 varf="PSL"
-core="SE"
+core="FV"
 year=ispan(1,30,1)
 anno=sprinti("%0.4i", year)
-caso="SPS3.5_2000_cont"
-pathfile="/work/csp/sps-dev/diagnostics/sps-dev/"+caso+"/"
+caso="cm3_cam122_cpl2000-bgc_t01c"
+pathfile="/work/csp/as34319/diagnostics/dp16116/"+caso+"/"
 if(core.eq."SE")then
    all_filem=pathfile+caso+".cam.PSL."+anno+".reg1x1.nc"
 else
@@ -130,7 +130,7 @@ prec_comp_nega=(prec_comp_nega/tofloat(icn)-mean_prec_winter)*cf
 copy_VarMeta(prec(0,0,:,:),prec_comp_posi)
 copy_VarMeta(prec(0,0,:,:),prec_comp_nega)
 
- wks = gsn_open_wks("png","/work/csp/sps-dev/diagnostics/sps-dev/"+caso+"/plots/indices/NAO/"+varf+"_composites_on_winter_NAO")              ; send graphics to PNG file
+ wks = gsn_open_wks("png","/work/csp/as34319/diagnostics/dp16116/"+caso+"/plots/indices/NAO/"+varf+"_composites_on_winter_NAO")              ; send graphics to PNG file
 
 
   plot = new(2,graphic)                          ; create a plot array

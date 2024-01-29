@@ -103,7 +103,6 @@ end if
  end if
  print("---going to plot "+varmod)
  autoprec=getenv("autoprec")
- inpdir=getenv("inpdir")
  plotdir=getenv("plotdir")
  pltype=getenv("pltype")
 

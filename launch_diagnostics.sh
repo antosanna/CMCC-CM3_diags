@@ -15,14 +15,14 @@ set -eux
 # SECTION TO BE MODIFIED BY USER
 debug=0
 nmaxproc=6
-sec1=1  #flag to execute section1 (1=yes; 0=no) POSTPROCESSING
-sec2=0  #flag to execute section2 (1=yes; 0=no) TIMESERIES, 2D-MAPS, ANNCYC
+sec1=0  #flag to execute section1 (1=yes; 0=no) POSTPROCESSING
+sec2=2 #flag to execute section2 (1=yes; 0=no) TIMESERIES, 2D-MAPS, ANNCYC
 sec3=0  #flag to execute section3 (1=yes; 0=no)  ZONAL PLOT 3D VARS
 #export clim3d="MERRA2"
 export clim3d="ERA5"
 sec4=0  #flag for section4 (=nemo postproc) (1=yes; 0=no)
 sec5=0  #flag for section5 (=QBO postproc) (1=yes; 0=no)
-machine="zeus"
+machine="juno"
 do_atm=1
 do_lnd=0
 do_ice=0  #not implemented yet
@@ -36,18 +36,18 @@ export do_anncyc=1
 # model to diagnose
 #export expid1=cm3_cam122_cpl2000_bgc_ne30L93_t1a
 #export expid1=cm3_cam122_cpl2000_bgc_t1qbo
-#export expid1=cm3_cam122_cpl2000-bgc_t01c
+export expid1=cm3_cam122_cpl2000-bgc_t01c
 #export expid1=cm3_cam132_cpl2000_1deg93lev_t01
-export expid1=SPS3.5_2000_cont
+#export expid1=SPS3.5_2000_cont
 #utente1=cp1
-utente1=sps-dev
-#utente1=dp16116
+#utente1=sps-dev
+utente1=dp16116
 #cam_nlev1=32
-#cam_nlev1=83
-cam_nlev1=46
+cam_nlev1=83
+#cam_nlev1=46
 #cam_nlev1=93
-#core1=FV
-core1=SE
+core1=FV
+#core1=SE
 #
 # second model to compare with
 #expid2=cam109d_cm3_1deg_amip1981-bgc_t2
@@ -58,8 +58,8 @@ utente2=dp16116
 cam_nlev2=83
 core2=FV
 #
-export startyear="0011"
-export finalyear="0040"
+export startyear="0001"
+export finalyear="0030"
 export startyear_anncyc="0001" #starting year to compute 2d map climatology
 export nyrsmean=20   #nyear-period for mean in timeseries
 # select if you compare to model or obs 
@@ -180,8 +180,8 @@ fi
 export units
 export title
 #allvars_atm="AODVIS BURDENBC BURDENSOA BURDENPOM BURDENSO4 BURDENDUST BURDEN1 BURDENdn1  BURDEN2 BURDENdn2 BURDEN3 BURDENdn3 BURDEN4 BURDENdn4 BURDENB  BURDENDUST BURDENPOM BURDENSEASALT BURDENSOA  BURDENSO4"
-allvars_atm="PSL TS TREFHT PRECT"
 #allvars_atm="ALBEDO ALBEDOS CLDLOW CLDMED CLDHGH CLDTOT CLDICE CLDLIQ FLUT FLUTC FLDS FSDSC FLNS FLNSC FSNSC FSNTOA FSNS FSDS FSNT FLNT ICEFRAC  LHFLX SHFLX LWCF SWCF SOLIN RESTOM EmP PRECT PRECC PSL QFLX TGCLDCWP TGCLDLWP TGCLDIWP TREFHT TS Z010 Z100 Z500 Z700 Z850 U010 U100 U200 U700 T U Z3"
+allvars_atm="TREFHT"
 allvars_lnd="SNOWDP FSH TLAI FAREA_BURNED";
 allvars_ice="aice snowfrac ext Tsfc fswup fswdn flwdn flwup congel fbot albsni hi";
 allvars_oce="tos sos zos heatc saltc";
@@ -578,8 +578,4 @@ else
    gzip -f $expid1.$startyear-${lasty}.VS$expid2.tar
 fi
 
-#if [[ -d $tmpdir1/scripts ]]
-#then
-#   rm -rf $tmpdir1/scripts
-#fi
 

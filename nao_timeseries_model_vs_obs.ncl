@@ -31,6 +31,7 @@ mslptmp=mslptmp*conform(mslptmp, wgt, 2)
 NN=dimsizes(mslptmp)
 ny=NN(0)
 nt=NN(1)
+print(nt)
 nlat=NN(2)
 nlon=NN(3)
 ; --- flip longitude coordinate
@@ -146,7 +147,7 @@ NAO_obs_reshape&time=time
 ; ------ plot seetings
 colors = (/"red","black"/)
 
-wks = gsn_open_wks("x11","plots/CMCC-CM3_vs_ERA5_NAOI_overlay")
+wks = gsn_open_wks("png","/work/csp/as34319/diagnostics/dp16116/cm3_cam122_cpl2000-bgc_t01c/plots/indices/NAO/cm3_cam122_cpl2000-bgc_t01c_vs_ERA5_NAOI")
 
 res = True
 
