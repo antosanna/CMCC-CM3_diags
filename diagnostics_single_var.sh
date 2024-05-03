@@ -46,16 +46,15 @@ i=1
 export expname1=${expid1}_${cam_nlev1}
 export expname2=${expid2}_${cam_nlev2}
 dir_SE=$PWD/SPS3.5
-dirdiag=/work/$DIVISION/$USER/diagnostics/
-mkdir -p $dirdiag
 if [[ $machine == "juno" ]]
 then
-   export dir_lsm=/work/csp/as34319/CMCC-SPS3.5/regrid_files/
-   dir_obs1=/work/csp/as34319/obs
+   dirdiag=/work/cmcc/$USER/diagnostics/
+   export dir_lsm=/work/cmcc/as34319/CMCC-SPS3.5/regrid_files/
+   dir_obs1=/work/cmcc/as34319/obs
    dir_obs2=$dir_obs1/ERA5
-   dir_obs3=/work/csp/mb16318/obs/ERA5
-   dir_obs4=/work/csp/as34319/obs/ERA5
-   dir_obs5=/work/csp/as34319/obs
+   dir_obs3=/work/cmcc/mb16318/obs/ERA5
+   dir_obs4=/work/cmcc/as34319/obs/ERA5
+   dir_obs5=/work/cmcc/as34319/obs
 set +euvx  
    . $PWD/mload_ncl_juno
    . $PWD/mload_cdo_juno
@@ -63,6 +62,7 @@ set +euvx
 set -euvx  
 elif [[ $machine == "zeus" ]]
 then
+   dirdiag=/work/csp/$USER/diagnostics/
 set +euvx  
    . $PWD/mload_cdo_zeus
    . $PWD/mload_nco_zeus
@@ -74,6 +74,7 @@ set -euvx
    dir_obs4=/work/csp/as34319/obs/ERA5
    dir_obs5=/work/csp/as34319/obs/
 fi
+mkdir -p $dirdiag
 export climobscld=1980-2019
 export climobs=1993-2016
 export iniclim=$startyear
@@ -161,8 +162,8 @@ do
          export inpdirroot=/work/csp/$utente/CESM2/archive/$exp
       fi
    else
-      rundir=/work/$DIVISION/$utente/CMCC-CM/$exp/run
-      export inpdirroot=/work/csp/$utente/CMCC-CM/archive/$exp
+      rundir=/work/cmcc/$utente/CMCC-CM/$exp/run
+      export inpdirroot=/work/cmcc/$utente/CMCC-CM/archive/$exp
    fi
    export tmpdir=$dirdiag/$utente/$exp/
    mkdir -p $tmpdir

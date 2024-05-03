@@ -44,8 +44,8 @@ then
          export inpdirroot=/work/csp/$utente1/CESM2/archive/$expid1
       fi
 else
-      rundir=/work/$DIVISION/$utente1/CMCC-CM/$expid1/run
-      export inpdirroot=/work/csp/$utente1/CMCC-CM/archive/$expid1
+      rundir=/work/cmcc/$utente1/CMCC-CM/$expid1/run
+      export inpdirroot=/work/cmcc/$utente1/CMCC-CM/archive/$expid1
 fi
 for ftype in $typelist
 do

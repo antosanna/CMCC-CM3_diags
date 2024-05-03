@@ -80,14 +80,14 @@ then
          model=CESM
       fi
       rundir=/work/$DIVISION/$utente1/$model/$expid1/run
-      export inpdirroot=/work/csp/$utente1/$model/archive/$expid1
+      export inpdirroot=/work/$DIVISION/$utente1/$model/archive/$expid1
       if [[ $utente1 == "dp16116" ]]
       then
-         export inpdirroot=/work/csp/$utente1/CESM2/archive/$expid1
+         export inpdirroot=/work/$DIVISION/$utente1/CESM2/archive/$expid1
       fi
 else #Juno
-      rundir=/work/$DIVISION/$utente1/CMCC-CM/$expid1/run
-      export inpdirroot=/work/csp/$utente1/CMCC-CM/archive/$expid1
+      rundir=/work/cmcc/$utente1/CMCC-CM/$expid1/run
+      export inpdirroot=/work/cmcc/$utente1/CMCC-CM/archive/$expid1
 fi
 
 if [[ $cmp2obs -eq 0 ]]
@@ -105,23 +105,23 @@ do_compute=1
 export expname1=${expid1}_${cam_nlev1}
 export expname2=${expid2}_${cam_nlev2}
 dir_SE=$PWD/SPS3.5
-dirdiag=/work/$DIVISION/$USER/diagnostics/
-mkdir -p $dirdiag
 if [[ $machine == "juno" ]]
 then
-   export dir_lsm=/work/csp/as34319/CMCC-SPS3.5/regrid_files/
-   dir_obs1=/work/csp/as34319/obs
+   export dir_lsm=/work/cmcc/as34319/CMCC-SPS3.5/regrid_files/
+   dir_obs1=/work/cmcc/as34319/obs
    dir_obs2=$dir_obs1/ERA5
-   dir_obs3=/work/csp/mb16318/obs/ERA5
-   dir_obs4=/work/csp/as34319/obs/ERA5
-   dir_obs5=/work/csp/as34319/obs
+   dir_obs3=/work/cmcc/mb16318/obs/ERA5
+   dir_obs4=/work/cmcc/as34319/obs/ERA5
+   dir_obs5=/work/cmcc/as34319/obs
 set +euvx  
    . $PWD/mload_ncl_juno
    . $PWD/mload_cdo_juno
    . $PWD/mload_nco_juno
 set -euvx  
+   dirdiag=/work/cmcc/$USER/diagnostics/
 elif [[ $machine == "zeus" ]]
 then
+   dirdiag=/work/$DIVISION/$USER/diagnostics/
 set +euvx  
    . $PWD/mload_cdo_zeus
    . $PWD/mload_nco_zeus
@@ -133,6 +133,7 @@ set -euvx
    dir_obs4=/work/csp/as34319/obs/ERA5
    dir_obs5=/work/csp/as34319/obs/
 fi
+mkdir -p $dirdiag
 export climobscld=1980-2019
 export climobs=1979-2018
 export iniclim=$startyear
@@ -216,9 +217,17 @@ allvars_oce="tos sos zos heatc saltc";
 if [[ $sec4 -eq 1 ]]
 then
    tmpdir=$tmpdir1   #TMP
-   export srcGridName="/work/csp/as34319/ESMF/ORCA_SCRIP_gridT.nc"
-   export dstGridName="/work/csp/as34319/ESMF/World1deg_SCRIP_gridT.nc"
-   export wgtFile="/work/csp/as34319/ESMF/ORCA_2_World_SCRIP_gridT.nc"
+   if [[ $machine == "zeus" ]]
+   then
+      export srcGridName="/work/csp/as34319/ESMF/ORCA_SCRIP_gridT.nc"
+      export dstGridName="/work/csp/as34319/ESMF/World1deg_SCRIP_gridT.nc"
+      export wgtFile="/work/csp/as34319/ESMF/ORCA_2_World_SCRIP_gridT.nc"
+   elif [[ $machine == "juno" ]]
+   then
+      export srcGridName="/work/cmcc/as34319/ESMF/ORCA_SCRIP_gridT.nc"
+      export dstGridName="/work/cmcc/as34319/ESMF/World1deg_SCRIP_gridT.nc"
+      export wgtFile="/work/cmcc/as34319/ESMF/ORCA_2_World_SCRIP_gridT.nc"
+   fi
    if [ ! -f $tmpdir/tarea_surf_sum_miss.nc ]
    then
      maskfile=/data/inputs/CESM/inputdata/ocn/nemo/tn0.25v3/grid/ORCA025L75_domain_cfg.nc
