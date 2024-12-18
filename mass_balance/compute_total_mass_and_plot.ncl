@@ -163,21 +163,32 @@ begin
     utitle(0)="Global average sea level change"
     utitle(1)="Global average steric sea level change"
     yaxis=new(7,string)
-    yaxis(2:6)="total mass [kg]"
+    x=ispan(1,nyears,1)
+    sc_fac=10^16
+    str_sc_fac=sprintf("%6.4g", sc_fac) 
+    yaxis(2:6)="total mass ["+str_sc_fac+" kg]"
     yaxis(0:1)="[m]"
+    res@xyLineThicknesses      = 3.
+    res@tmXBFormat = "f"
     do k=0,6
        res@tiYAxisString     = yaxis(k)
        res@gsnLeftString      = utitle(k)
+       res@gsnLeftStringFontHeightF=0.04
        if(freq.eq."monthly")then
           res@trYMinF = (min(all_masses(k,:)))-dim_stddev_n(all_masses(k,:),0)
           res@trYMaxF = (max(all_masses(k,:)))+dim_stddev_n(all_masses(k,:),0)
-          plots(k)=gsn_csm_y (wks,all_masses(k,:),res)
+          ymean=all_masses(k,:)
        else
           ymean=dim_avg_n(y_all_masses(k,:,:),1)
           res@trYMinF = (min(all_masses(k,:)))-dim_stddev_n(ymean,0)
           res@trYMaxF = (max(all_masses(k,:)))+dim_stddev_n(ymean,0)
-          plots(k)=gsn_csm_y (wks,ymean,res)
        end if
+       if (k.gt.1)then
+          ymean=ymean/sc_fac
+          res@trYMinF = res@trYMinF/sc_fac
+          res@trYMaxF = res@trYMaxF/sc_fac
+       end if
+       plots(k)=gsn_csm_xy (wks,x,ymean,res)
     end do
     resP = True
     resP@gsnPanelXWhiteSpacePercent=5

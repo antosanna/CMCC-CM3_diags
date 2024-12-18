@@ -19,7 +19,7 @@ utente1=$USER
 cam_nlev1=46
 core1=SE
 #
-export startyear="0001"
+export startyear="0011"
 export finalyear="0040"
 # END SECTION TO BE MODIFIED BY USER
 
@@ -73,6 +73,7 @@ mkdir -p $pltdir
 mkdir -p $pltdir/atm 
 
 allvars="Z3 T U V"
+allvars="U"
     
 for exp in $expid1
 do
