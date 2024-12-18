@@ -16,7 +16,7 @@ set -eux
 debug=0
 nmaxproc=6
 sec1=0  #flag to execute section1 (1=yes; 0=no) POSTPROCESSING
-sec2=2 #flag to execute section2 (1=yes; 0=no) TIMESERIES, 2D-MAPS, ANNCYC
+sec2=1 #flag to execute section2 (1=yes; 0=no) TIMESERIES, 2D-MAPS, ANNCYC
 sec3=0  #flag to execute section3 (1=yes; 0=no)  ZONAL PLOT 3D VARS
 #export clim3d="MERRA2"
 export clim3d="ERA5"
@@ -31,19 +31,21 @@ do_znl_lnd=0  #not implemented yet
 do_znl_atm=1
 do_znl_atm2d=0  #not implemented yet
 export do_2d_plt=1
-export do_anncyc=1
+export do_anncyc=0
 
 # model to diagnose
 #export expid1=cm3_cam122_cpl2000_bgc_ne30L93_t1a
 #export expid1=cm3_cam122_cpl2000_bgc_t1qbo
-export expid1=cm3_cam122_cpl2000-bgc_t01c
+#export expid1=cm3_cam122_cpl2000-bgc_t01c
+export expid1=cm3_cam122_cpl2000-bgc
+export expid1=cam116d_cm3_1deg_amip1981-bgc_t1
 #export expid1=cm3_cam132_cpl2000_1deg93lev_t01
 #export expid1=SPS3.5_2000_cont
 #utente1=cp1
 #utente1=sps-dev
-utente1=dp16116
-#cam_nlev1=32
-cam_nlev1=83
+utente1=cp1
+cam_nlev1=32
+#cam_nlev1=83
 #cam_nlev1=46
 #cam_nlev1=93
 core1=FV
@@ -58,13 +60,35 @@ utente2=dp16116
 cam_nlev2=83
 core2=FV
 #
-export startyear="0001"
-export finalyear="0030"
-export startyear_anncyc="0001" #starting year to compute 2d map climatology
+export startyear="1981"
+export finalyear="1994"
+export startyear_anncyc="1981" #starting year to compute 2d map climatology
 export nyrsmean=20   #nyear-period for mean in timeseries
 # select if you compare to model or obs 
 export cmp2obs=1
 # END SECTION TO BE MODIFIED BY USER
+model=CMCC-CM3
+if [[ $machine == "zeus" ]]
+then
+       model=CESM2
+      if [[ $utente1 == "dp16116" ]]
+      then 
+         model=CMCC-CM
+      fi   
+      if [[ $core1 == "SE" ]]
+      then
+         model=CESM
+      fi
+      rundir=/work/$DIVISION/$utente1/$model/$expid1/run
+      export inpdirroot=/work/$DIVISION/$utente1/$model/archive/$expid1
+      if [[ $utente1 == "dp16116" ]]
+      then
+         export inpdirroot=/work/$DIVISION/$utente1/CESM2/archive/$expid1
+      fi
+else #Juno
+      rundir=/work/cmcc/$utente1/CMCC-CM/$expid1/run
+      export inpdirroot=/work/cmcc/$utente1/CMCC-CM/archive/$expid1
+fi
 
 if [[ $cmp2obs -eq 0 ]]
 then
@@ -81,23 +105,23 @@ do_compute=1
 export expname1=${expid1}_${cam_nlev1}
 export expname2=${expid2}_${cam_nlev2}
 dir_SE=$PWD/SPS3.5
-dirdiag=/work/$DIVISION/$USER/diagnostics/
-mkdir -p $dirdiag
 if [[ $machine == "juno" ]]
 then
-   export dir_lsm=/work/csp/as34319/CMCC-SPS3.5/regrid_files/
-   dir_obs1=/work/csp/as34319/obs
+   export dir_lsm=/work/cmcc/as34319/CMCC-SPS3.5/regrid_files/
+   dir_obs1=/work/cmcc/as34319/obs
    dir_obs2=$dir_obs1/ERA5
-   dir_obs3=/work/csp/mb16318/obs/ERA5
-   dir_obs4=/work/csp/as34319/obs/ERA5
-   dir_obs5=/work/csp/as34319/obs
+   dir_obs3=/work/cmcc/mb16318/obs/ERA5
+   dir_obs4=/work/cmcc/as34319/obs/ERA5
+   dir_obs5=/work/cmcc/as34319/obs
 set +euvx  
    . $PWD/mload_ncl_juno
    . $PWD/mload_cdo_juno
    . $PWD/mload_nco_juno
 set -euvx  
+   dirdiag=/work/cmcc/$USER/diagnostics/
 elif [[ $machine == "zeus" ]]
 then
+   dirdiag=/work/$DIVISION/$USER/diagnostics/
 set +euvx  
    . $PWD/mload_cdo_zeus
    . $PWD/mload_nco_zeus
@@ -109,6 +133,7 @@ set -euvx
    dir_obs4=/work/csp/as34319/obs/ERA5
    dir_obs5=/work/csp/as34319/obs/
 fi
+mkdir -p $dirdiag
 export climobscld=1980-2019
 export climobs=1979-2018
 export iniclim=$startyear
@@ -180,8 +205,8 @@ fi
 export units
 export title
 #allvars_atm="AODVIS BURDENBC BURDENSOA BURDENPOM BURDENSO4 BURDENDUST BURDEN1 BURDENdn1  BURDEN2 BURDENdn2 BURDEN3 BURDENdn3 BURDEN4 BURDENdn4 BURDENB  BURDENDUST BURDENPOM BURDENSEASALT BURDENSOA  BURDENSO4"
-#allvars_atm="ALBEDO ALBEDOS CLDLOW CLDMED CLDHGH CLDTOT CLDICE CLDLIQ FLUT FLUTC FLDS FSDSC FLNS FLNSC FSNSC FSNTOA FSNS FSDS FSNT FLNT ICEFRAC  LHFLX SHFLX LWCF SWCF SOLIN RESTOM EmP PRECT PRECC PSL QFLX TGCLDCWP TGCLDLWP TGCLDIWP TREFHT TS Z010 Z100 Z500 Z700 Z850 U010 U100 U200 U700 T U Z3"
-allvars_atm="TREFHT"
+#allvars_atm="ALBEDO ALBEDOS CLDLOW CLDMED CLDHGH CLDTOT CLDICE CLDLIQ FLUT FLUTC FLDS FSDSC FLNS FLNSC FSNSC FSNTOA FSNS FSDS FSNT FLNT ICEFRAC  LHFLX SHFLX LWCF SWCF SOLIN RESTOM EmP PRECT PRECC PSL QFLX TGCLDCWP TGCLDLWP TGCLDIWP TREFHT TS Z010 Z100 Z500 Z700 Z850 U010 U100 U200 U700 T U Z3 Q850 Q925"
+allvars_atm="PRECT"
 allvars_lnd="SNOWDP FSH TLAI FAREA_BURNED";
 allvars_ice="aice snowfrac ext Tsfc fswup fswdn flwdn flwup congel fbot albsni hi";
 allvars_oce="tos sos zos heatc saltc";
@@ -192,9 +217,17 @@ allvars_oce="tos sos zos heatc saltc";
 if [[ $sec4 -eq 1 ]]
 then
    tmpdir=$tmpdir1   #TMP
-   export srcGridName="/work/csp/as34319/ESMF/ORCA_SCRIP_gridT.nc"
-   export dstGridName="/work/csp/as34319/ESMF/World1deg_SCRIP_gridT.nc"
-   export wgtFile="/work/csp/as34319/ESMF/ORCA_2_World_SCRIP_gridT.nc"
+   if [[ $machine == "zeus" ]]
+   then
+      export srcGridName="/work/csp/as34319/ESMF/ORCA_SCRIP_gridT.nc"
+      export dstGridName="/work/csp/as34319/ESMF/World1deg_SCRIP_gridT.nc"
+      export wgtFile="/work/csp/as34319/ESMF/ORCA_2_World_SCRIP_gridT.nc"
+   elif [[ $machine == "juno" ]]
+   then
+      export srcGridName="/work/cmcc/as34319/ESMF/ORCA_SCRIP_gridT.nc"
+      export dstGridName="/work/cmcc/as34319/ESMF/World1deg_SCRIP_gridT.nc"
+      export wgtFile="/work/cmcc/as34319/ESMF/ORCA_2_World_SCRIP_gridT.nc"
+   fi
    if [ ! -f $tmpdir/tarea_surf_sum_miss.nc ]
    then
      maskfile=/data/inputs/CESM/inputdata/ocn/nemo/tn0.25v3/grid/ORCA025L75_domain_cfg.nc
@@ -208,28 +241,6 @@ then
    comp=ocn
    typelist="grid_T"
    freqlist="1m"
-   model=CMCC-CM3
-   if [[ $machine == "zeus" ]]
-   then
-       model=CESM2
-      if [[ $utente1 == "dp16116" ]]
-      then 
-         model=CMCC-CM
-      fi   
-      if [[ $core1 == "SE" ]]
-      then
-         model=CESM
-      fi
-      rundir=/work/$DIVISION/$utente1/$model/$expid1/run
-      export inpdirroot=/work/csp/$utente1/$model/archive/$expid1
-      if [[ $utente1 == "dp16116" ]]
-      then
-         export inpdirroot=/work/csp/$utente1/CESM2/archive/$expid1
-      fi
-   else
-      rundir=/work/$DIVISION/$utente1/CMCC-CM/$expid1/run
-      export inpdirroot=/work/csp/$utente1/CMCC-CM/archive/$expid1
-   fi
    if [[ $debug -eq 1 ]]
    then 
       $here/postproc_nemo_alone.sh $tmpdir1 $machine $expid1 $utente1 $core1 $expid2 $utente2 $core2 $startyear $finalyear $cmp2mod $here $typelist $inpdirroot $freqlist "$allvars_oce" $nmaxproc $debug
@@ -252,28 +263,28 @@ do
       $expid1)utente=$utente1;core=$core1 ;;
       $expid2)utente=$utente2;core=$core2 ;;
    esac
-   model=CMCC-CM3
-   if [[ $machine == "zeus" ]]
-   then
-       model=CESM2
-      if [[ $utente == "dp16116" ]]
-      then 
-         model=CMCC-CM
-      fi   
-      if [[ $core == "SE" ]]
-      then
-         model=CESM
-      fi
-      rundir=/work/$DIVISION/$utente/$model/$exp/run
-      export inpdirroot=/work/csp/$utente/$model/archive/$exp
-      if [[ $utente == "dp16116" ]]
-      then
-         export inpdirroot=/work/csp/$utente/CESM2/archive/$exp
-      fi
-   else
-      rundir=/work/$DIVISION/$utente/CMCC-CM/$exp/run
-      export inpdirroot=/work/csp/$utente/CMCC-CM/archive/$exp
-   fi
+#   model=CMCC-CM3
+#   if [[ $machine == "zeus" ]]
+#   then
+#       model=CESM2
+#      if [[ $utente == "dp16116" ]]
+#      then 
+#         model=CMCC-CM
+#      fi   
+#      if [[ $core == "SE" ]]
+#      then
+#         model=CESM
+#      fi
+#      rundir=/work/$DIVISION/$utente/$model/$exp/run
+#      export inpdirroot=/work/csp/$utente/$model/archive/$exp
+#      if [[ $utente == "dp16116" ]]
+#      then
+#         export inpdirroot=/work/csp/$utente/CESM2/archive/$exp
+#      fi
+#   else
+#      rundir=/work/$DIVISION/$utente/CMCC-CM/$exp/run
+#      export inpdirroot=/work/csp/$utente/CMCC-CM/archive/$exp
+#   fi
    export tmpdir=$dirdiag/$utente/$exp/
    mkdir -p $tmpdir
    var2plot=" "
@@ -335,7 +346,7 @@ do
             done #loop on years
             for var in $allvars
             do
-               bsub -P 0566 -M 5000 -q s_medium -J postproc_single_var_${var} -e logs/postproc_single_var_${var}_%J.err -o logs/postproc_single_var_${var}_%J.out $here/postproc_single_var.sh $machine $expid1 $utente1 $cam_nlev1 $core1 $expid2 $utente2 $cam_nlev2 $core2 $startyear $finalyear $startyear_anncyc $nyrsmean $cmp2obs $cmp2mod $here $comp $exp $var 
+               bsub -P 0566 -M 5000 -q s_medium -J postproc_single_var_${var} -e logs/postproc_single_var_${var}_%J.err -o logs/postproc_single_var_${var}_%J.out $here/postproc_single_var.sh $machine $expid1 $utente1 $cam_nlev1 $core1 $expid2 $utente2 $cam_nlev2 $core2 $startyear $finalyear $startyear_anncyc $nyrsmean $cmp2obs $cmp2mod $here $comp $exp $var
          
                while `true`
                do
@@ -446,28 +457,28 @@ then
          export Tfile=$tmpdir1/${expid1}.cam.T.$startyear-$lasty.anncyc.nc
    # here take PS and hyam
          realm=cam
-         model=CMCC-CM3
-         if [[ $machine == "zeus" ]]
-         then
-             model=CESM2
-            if [[ $utente1 == "dp16116" ]]
-            then 
-               model=CMCC-CM
-            fi   
-            if [[ $core1 == "SE" ]]
-            then
-               model=CESM
-            fi
-            rundir=/work/$DIVISION/$utente1/$model/$expid1/run
-            export inpdirroot=/work/csp/$utente1/$model/archive/$expid1
-            if [[ $utente1 == "dp16116" ]]
-            then
-               export inpdirroot=/work/csp/$utente1/CESM2/archive/$expid1
-            fi
-         else
-            rundir=/work/$DIVISION/$utente1/CMCC-CM/$expid1/run
-            export inpdirroot=/work/csp/$utente1/CMCC-CM/archive/$expid1
-         fi
+#         model=CMCC-CM3
+#         if [[ $machine == "zeus" ]]
+#         then
+#             model=CESM2
+#            if [[ $utente1 == "dp16116" ]]
+#            then 
+#               model=CMCC-CM
+#            fi   
+#            if [[ $core1 == "SE" ]]
+#            then
+#               model=CESM
+#            fi
+#            rundir=/work/$DIVISION/$utente1/$model/$expid1/run
+#            export inpdirroot=/work/csp/$utente1/$model/archive/$expid1
+#            if [[ $utente1 == "dp16116" ]]
+#            then
+#               export inpdirroot=/work/csp/$utente1/CESM2/archive/$expid1
+#            fi
+#         else
+#            rundir=/work/$DIVISION/$utente1/CMCC-CM/$expid1/run
+#            export inpdirroot=/work/csp/$utente1/CMCC-CM/archive/$expid1
+#         fi
          export auxfile=$inpdirroot/atm/hist/${expid1}.$realm.h0.$startyear-01.nc
          comppltdir=$pltdir/${comp}
          mkdir -p $comppltdir

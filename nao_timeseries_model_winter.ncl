@@ -17,7 +17,7 @@ endlon=30
 varf="PSL"
 year=ispan(1,30,1)
 anno=sprinti("%0.4i", year)
-pathfile="/work/csp/as34319/diagnostics/dp16116/cm3_cam122_cpl2000-bgc_t01c/"
+pathfile="/work/cmcc/as34319/diagnostics/dp16116/cm3_cam122_cpl2000-bgc_t01c/"
 all_filem=pathfile+"cm3_cam122_cpl2000-bgc_t01c.cam.PSL."+anno+".nc"
 
 fallm=addfiles(all_filem,"r")

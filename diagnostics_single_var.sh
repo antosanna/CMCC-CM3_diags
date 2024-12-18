@@ -46,16 +46,15 @@ i=1
 export expname1=${expid1}_${cam_nlev1}
 export expname2=${expid2}_${cam_nlev2}
 dir_SE=$PWD/SPS3.5
-dirdiag=/work/$DIVISION/$USER/diagnostics/
-mkdir -p $dirdiag
 if [[ $machine == "juno" ]]
 then
-   export dir_lsm=/work/csp/as34319/CMCC-SPS3.5/regrid_files/
-   dir_obs1=/work/csp/as34319/obs
+   dirdiag=/work/cmcc/$USER/diagnostics/
+   export dir_lsm=/work/cmcc/as34319/CMCC-SPS3.5/regrid_files/
+   dir_obs1=/work/cmcc/as34319/obs
    dir_obs2=$dir_obs1/ERA5
-   dir_obs3=/work/csp/mb16318/obs/ERA5
-   dir_obs4=/work/csp/as34319/obs/ERA5
-   dir_obs5=/work/csp/as34319/obs
+   dir_obs3=/work/cmcc/mb16318/obs/ERA5
+   dir_obs4=/work/cmcc/as34319/obs/ERA5
+   dir_obs5=/work/cmcc/as34319/obs
 set +euvx  
    . $PWD/mload_ncl_juno
    . $PWD/mload_cdo_juno
@@ -63,6 +62,7 @@ set +euvx
 set -euvx  
 elif [[ $machine == "zeus" ]]
 then
+   dirdiag=/work/csp/$USER/diagnostics/
 set +euvx  
    . $PWD/mload_cdo_zeus
    . $PWD/mload_nco_zeus
@@ -74,8 +74,8 @@ set -euvx
    dir_obs4=/work/csp/as34319/obs/ERA5
    dir_obs5=/work/csp/as34319/obs/
 fi
+mkdir -p $dirdiag
 export climobscld=1980-2019
-export climobs=1979-2018
 export climobs=1993-2016
 export iniclim=$startyear
 
@@ -162,8 +162,8 @@ do
          export inpdirroot=/work/csp/$utente/CESM2/archive/$exp
       fi
    else
-      rundir=/work/$DIVISION/$utente/CMCC-CM/$exp/run
-      export inpdirroot=/work/csp/$utente/CMCC-CM/archive/$exp
+      rundir=/work/cmcc/$utente/CMCC-CM/$exp/run
+      export inpdirroot=/work/cmcc/$utente/CMCC-CM/archive/$exp
    fi
    export tmpdir=$dirdiag/$utente/$exp/
    mkdir -p $tmpdir
@@ -448,7 +448,9 @@ case $varmod in
    FSH)varobs=var167;export maxplot=100.;export minplot=-100.;delta=10.;title="Sensible Heat";units_from_here=1;name_from_here=1;export maxplotdiff=10.;export minplotdiff=-10.;deltadiff=1.;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=0;;
    H2OSOI) title="Volumetric Soil Water at 1.36m";name_from_here=1;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
    ICEFRAC)cf=0;units="frac";obsfile="";cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=0;cmp2obs_anncyc=0;title2="ERA5 $climobs";export maxplot=0.95;export minplot=0.15;delta=.05;units_from_here=0; title="Sea-Ice Fraction";name_from_here=1;minplotdiff=-0.5;maxplotdiff=0.5;deltadiff=0.05;;
-   H2OSNO)varobs=sd; title="Snow Depth (liquid water)";varobs=var167;mf=0.01;export maxplot=10;export minplot=0.5;delta=0.5;units_from_here=1;units="m";name_from_here=1;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
+   H2OSNO) title="Snow Depth (liquid water)";varobs=var167;mf=0.01;export maxplot=10;export minplot=0.5;delta=0.5;units_from_here=1;units="m";name_from_here=1;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
+   Q850)varobs=Q; title="Specific Humidity (850hPa)";name_from_here=1;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
+   Q925)varobs=Q; title="Specific Humidity (925hPa)";name_from_here=1;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=$cmp2obs;;
    TGCLDCWP)varobs=T2M;obsfile="$dir_obs1/ERA5_1m_clim_1deg_1979-2018_surface.nc";title2="ERA5 $climobs";export maxplot=0.25;export minplot=0;delta=.05;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=0;cmp2obs_anncyc=0.;maxplotdiff=0.05;minplotdiff=-0.05;deltadiff=0.005;;
    TGCLDIWP)varobs=T2M;obsfile="$dir_obs1/ERA5_1m_clim_1deg_1979-2018_surface.nc";title2="ERA5 $climobs";export maxplot=0.07;export minplot=0;delta=.001;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=0;cmp2obs_anncyc=0;maxplotdiff=0.008;minplotdiff=-0.008;deltadiff=0.001;;
    TGCLDLWP)varobs=T2M;obsfile="$dir_obs1/ERA5_1m_clim_1deg_1979-2018_surface.nc";title2="ERA5 $climobs";export maxplot=0.25;export minplot=0;delta=.05;cmp2mod_ncl=$cmp2mod;export cmp2obs_ncl=0;cmp2obs_anncyc=0;maxplotdiff=0.05;minplotdiff=-0.05;deltadiff=0.005;;
@@ -739,7 +741,8 @@ then
          extraTNH_W)lat0=45;lat1=90;lon0=-180;lon1=-30;bextraTNH_W=1;;
          AfricaNH)lat0=0;lat1=35;lon0=-20;lon1=35;bAfricaNH=1;;
          AfricaSH)lat0=-36;lat1=0;lon0=10;lon1=35;bAfricaSH=1;;
-         Amazon)lat0=-50;lat1=12;lon0=-76;lon1=-45;bAmazon=1;;
+#         Amazon)lat0=-50;lat1=12;lon0=-76;lon1=-45;bAmazon=1;;
+         Amazon)lat0=-15;lat1=15;lon0=-76;lon1=-45;bAmazon=1;;
       esac
       regfile=$tmpdir1/`basename $inpfile|rev|cut -d '.' -f2-|rev`.$reg.nc
       if [[ ! -f $regfile ]]
